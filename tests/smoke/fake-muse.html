@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Fake Muse chat</title>
+    <script>
+      window.__bridgeListeners = [];
+      window.chrome = { runtime: { onMessage: { addListener: fn => window.__bridgeListeners.push(fn) } } };
+      window.sendToBridge = message =>
+        new Promise(resolve => {
+          for (const listener of window.__bridgeListeners) listener(message, {}, resolve);
+        });
+      window.museMode = 'image';
+    </script>
+  </head>
+  <body>
+    <main id="chat"></main>
+    <form id="composer" onsubmit="return false">
+      <textarea placeholder="Message Muse"></textarea>
+      <input type="file" accept="image/*" />
+      <button type="button" aria-label="Send">Send</button>
+    </form>
+    <script>
+      const pixel =
+        'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==';
+      document.querySelector('[aria-label="Send"]').onclick = () => {
+        const textarea = document.querySelector('textarea');
+        window.lastPrompt = textarea.value;
+        textarea.value = '';
+        setTimeout(() => {
+          const bubble = document.createElement('div');
+          bubble.className = 'hatch-chat-groupable-bubble';
+          if (window.museMode === 'refuse') {
+            bubble.textContent =
+              'Mình không thể tạo cảnh này. Bạn có muốn mình tạo bản tương đương bám theo kịch bản không?';
+          } else {
+            const attachment = document.createElement('div');
+            attachment.dataset.testid = 'hatch-chat-attachment-presentation-1';
+            const image = document.createElement('img');
+            image.src = pixel;
+            attachment.appendChild(image);
+            bubble.appendChild(attachment);
+          }
+          document.querySelector('#chat').appendChild(bubble);
+        }, 200);
+      };
+    </script>
+    <script src="../../bridge/muse-ui.js"></script>
+    <script src="../../bridge/refusal.js"></script>
+    <script src="../../bridge/muse-bridge.js"></script>
+  </body>
+</html>
