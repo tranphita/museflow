@@ -2449,3 +2449,28 @@ body {
 .muse-diagnostics.hidden {
   display: none;
 }
+
+.timeline-music {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.timeline-music-controls {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: #a8aab3;
+}
+.timeline-music-controls.hidden {
+  display: none;
+}
+#timelineMusicName {
+  max-width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+#timelineMusicVolume {
+  width: 70px;
+}

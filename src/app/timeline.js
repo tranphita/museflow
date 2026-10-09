@@ -182,6 +182,76 @@ export function importAllVideosToTimeline() {
   );
 }
 
+const DEFAULT_MUSIC_VOLUME = 0.35;
+let musicPreview = null;
+
+export function syncTimelineMusic(node = ensureDockTimeline()) {
+  const music = node.data.music;
+  $('#timelineMusicControls').classList.toggle('hidden', !music?.url);
+  $('#timelineMusicBtn').textContent = music?.url ? '♪ Change' : '♪ Music';
+  $('#timelineMusicName').textContent = music?.name || '';
+  $('#timelineMusicName').title = music?.name || '';
+  $('#timelineMusicVolume').value = String(music?.volume ?? DEFAULT_MUSIC_VOLUME);
+}
+
+export function setTimelineMusic(file) {
+  if (!file) return;
+  if (!file.type.startsWith('audio/')) {
+    setRunStatus('Choose an audio file for background music.', 'warn');
+    return;
+  }
+  const node = ensureDockTimeline();
+  createUndoSnapshot('Set background music', { preserveRuntime: false });
+  node.data.music = {
+    id: uid('music'),
+    url: URL.createObjectURL(file),
+    name: file.name,
+    volume: node.data.music?.volume ?? DEFAULT_MUSIC_VOLUME,
+  };
+  syncTimelineMusic(node);
+  saveState();
+  setRunStatus(`Background music added: ${file.name}. It is mixed into Preview and Export.`, 'ok');
+}
+
+export function setTimelineMusicVolume(value) {
+  const node = ensureDockTimeline();
+  if (!node.data.music) return;
+  node.data.music = { ...node.data.music, volume: Math.max(0, Math.min(1, Number(value) || 0)) };
+  if (musicPreview) musicPreview.volume = node.data.music.volume;
+  scheduleAutoSave();
+}
+
+export function removeTimelineMusic() {
+  const node = ensureDockTimeline();
+  if (!node.data.music) return;
+  createUndoSnapshot('Remove background music', { preserveRuntime: false });
+  delete node.data.music;
+  stopMusicPreview();
+  syncTimelineMusic(node);
+  saveState();
+  setRunStatus('Background music removed.', 'ok');
+}
+
+function startMusicPreview(node, startTime) {
+  stopMusicPreview();
+  const music = node.data.music;
+  if (!music?.url) return;
+  musicPreview = new Audio(music.url);
+  musicPreview.loop = true;
+  musicPreview.volume = Math.max(0, Math.min(1, Number(music.volume ?? DEFAULT_MUSIC_VOLUME)));
+  const seek = () => {
+    if (Number.isFinite(musicPreview?.duration) && musicPreview.duration > 0)
+      musicPreview.currentTime = startTime % musicPreview.duration;
+  };
+  musicPreview.addEventListener('loadedmetadata', seek, { once: true });
+  musicPreview.play().catch(() => {});
+}
+
+function stopMusicPreview() {
+  musicPreview?.pause();
+  musicPreview = null;
+}
+
 export function syncTimelineDock() {
   const dock = $('#timelineDock'),
     track = $('#timelineTrack'),
@@ -191,6 +261,7 @@ export function syncTimelineDock() {
     outputMenu = $('#timelineOutputMenu'),
     node = ensureDockTimeline();
   dock.classList.remove('no-timeline');
+  syncTimelineMusic(node);
   const allVideos = state.nodes.filter(item => item.type === 'generateVideo'),
     candidates = allVideos.filter(item => !(node.data.clipOrder || []).includes(item.id));
   addButton.disabled = !candidates.length;
@@ -427,6 +498,7 @@ export function closeTimelinePreview() {
     player.pause();
     player.onended = null;
   }
+  stopMusicPreview();
   $('#timelinePreviewPanel').classList.add('hidden');
 }
 export function visibleTimelineClipOrder(node) {
@@ -465,6 +537,7 @@ export function playTimeline(node, { startTime = 0 } = {}) {
     active = players.findIndex(player => player.classList.contains('is-active'));
   if (active < 0) active = 0;
   state.timelinePreviewPosition = startTime;
+  startMusicPreview(node, startTime);
   players.forEach(player => {
     player.pause();
     player.onended = null;
@@ -535,6 +608,7 @@ export function playTimeline(node, { startTime = 0 } = {}) {
       const head = $('#timelineTrack .timeline-playhead');
       if (head) head.style.left = `${total * 42}px`;
       cancelAnimationFrame(state.timelinePlayheadFrame);
+      stopMusicPreview();
       setRunStatus('Timeline preview complete.', 'ok');
       return;
     }

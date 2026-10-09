@@ -1,8 +1,27 @@
 import { state } from '../core/state.js';
 import { nodeById } from '../core/graph.js';
 import { createSilentWav } from '../core/media-math.js';
+import {
+  TIMELINE_OUTPUT,
+  canJoinWithoutReencode,
+  buildConcatList,
+  buildConcatCopyArgs,
+  buildEncodeArgs,
+} from '../core/ffmpeg-plan.js';
 import { $, setRunStatus } from './dom.js';
 import { ensureDockTimeline, closeTimelinePreview, visibleTimelineClipOrder } from './timeline.js';
+
+async function loadTimelineMusic(ffmpeg, node, signal) {
+  const music = node.data.music;
+  if (!music?.url) return null;
+  const response = await fetch(music.url, { signal });
+  if (!response.ok) throw new Error(`Could not read the background music (HTTP ${response.status}).`);
+  const bytes = new Uint8Array(await response.arrayBuffer());
+  if (!bytes.length) throw new Error('The background music file is empty.');
+  const path = '/timeline-music.bin';
+  await ffmpeg.writeFile(path, bytes, { signal });
+  return { path, volume: music.volume };
+}
 
 export async function exportTimelineMp4WithFFmpeg(node, clips, button, formatSelect) {
   const stopButton = $('#timelineExportStopBtn'),
@@ -102,126 +121,37 @@ export async function exportTimelineMp4WithFFmpeg(node, clips, button, formatSel
       await ffmpeg.deleteFile(probePath, { signal });
     }
     throwIfStopped();
-    const firstInfo = clipInfo[0],
-      copyCompatible = clipInfo.every(
-        item =>
-          item.videoCodec === 'h264' &&
-          item.videoProfile === firstInfo.videoProfile &&
-          item.pixelFormat === firstInfo.pixelFormat &&
-          item.width === firstInfo.width &&
-          item.height === firstInfo.height &&
-          item.hasAudio &&
-          item.audioCodec === 'aac' &&
-          item.audioRate === firstInfo.audioRate &&
-          item.audioChannels === firstInfo.audioChannels &&
-          item.sourceDuration > 0 &&
-          Math.abs(item.sourceDuration - item.duration) < 0.15,
+    const failure = exitCode =>
+      new Error(
+        logs
+          .slice(-5)
+          .map(item => item.trim())
+          .filter(Boolean)
+          .join(' ') || `FFmpeg exited with code ${exitCode}.`,
       );
-    if (copyCompatible) {
-      const concatFile = '/timeline-inputs.txt',
-        concatData = new TextEncoder().encode(sourceUrls.map(path => `file '${path}'`).join('\n') + '\n');
-      await ffmpeg.writeFile(concatFile, concatData, { signal });
+    const music = await loadTimelineMusic(ffmpeg, node, signal);
+    if (canJoinWithoutReencode(clipInfo, { hasMusic: Boolean(music) })) {
+      const concatFile = '/timeline-inputs.txt';
+      await ffmpeg.writeFile(concatFile, new TextEncoder().encode(buildConcatList(sourceUrls)), { signal });
       button.textContent = 'Joining MP4 clips…';
       setRunStatus('Joining compatible timeline clips without re-encoding (fast, original quality)…', 'warn');
-      const exitCode = await ffmpeg.exec(
-        [
-          '-f',
-          'concat',
-          '-safe',
-          '0',
-          '-i',
-          concatFile,
-          '-c',
-          'copy',
-          '-movflags',
-          '+faststart',
-          '-y',
-          '/museta-timeline.mp4',
-        ],
-        -1,
-        { signal },
-      );
-      if (exitCode !== 0)
-        throw new Error(
-          logs
-            .slice(-5)
-            .map(item => item.trim())
-            .filter(Boolean)
-            .join(' ') || `FFmpeg exited with code ${exitCode}.`,
-        );
+      const exitCode = await ffmpeg.exec(buildConcatCopyArgs(concatFile), -1, { signal });
+      if (exitCode !== 0) throw failure(exitCode);
     } else {
-      const silentInput = '/timeline-silence.wav',
-        needsSilence = clipInfo.some(item => !item.hasAudio);
-      if (needsSilence) await ffmpeg.writeFile(silentInput, createSilentWav(), { signal });
-      const silentIndexes = new Map();
-      let inputIndex = clips.length;
-      for (let index = 0; index < clipInfo.length; index++)
-        if (!clipInfo[index].hasAudio) silentIndexes.set(index, inputIndex++);
-      const first = clipInfo[0],
-        scale = Math.min(1, 1280 / Math.max(first.width, first.height)),
-        width = Math.max(2, Math.floor((first.width * scale) / 2) * 2),
-        height = Math.max(2, Math.floor((first.height * scale) / 2) * 2),
-        filterParts = [],
-        concatInputs = [];
-      clipInfo.forEach((item, index) => {
-        const duration = item.duration.toFixed(3),
-          videoLabel = `v${index}`,
-          audioLabel = `a${index}`;
-        filterParts.push(
-          `[${index}:v:0]setpts=PTS-STARTPTS,scale=${width}:${height}:force_original_aspect_ratio=decrease,pad=${width}:${height}:(ow-iw)/2:(oh-ih)/2:black,fps=24,setsar=1,format=yuv420p,tpad=stop_mode=clone:stop_duration=${duration},trim=duration=${duration},setpts=PTS-STARTPTS[${videoLabel}]`,
-        );
-        const audioSource = item.hasAudio ? `${index}:a:0` : `${silentIndexes.get(index)}:a:0`;
-        filterParts.push(
-          `[${audioSource}]aresample=48000,aformat=sample_fmts=fltp:channel_layouts=stereo,asetpts=PTS-STARTPTS,apad=pad_dur=${duration},atrim=duration=${duration}[${audioLabel}]`,
-        );
-        concatInputs.push(`[${videoLabel}][${audioLabel}]`);
-      });
-      filterParts.push(`${concatInputs.join('')}concat=n=${clipInfo.length}:v=1:a=1[outv][outa]`);
-      const args = [];
-      sourceUrls.forEach(path => args.push('-i', path));
-      for (const _ of silentIndexes) args.push('-stream_loop', '-1', '-i', silentInput);
-      args.push(
-        '-filter_complex',
-        filterParts.join(';'),
-        '-map',
-        '[outv]',
-        '-map',
-        '[outa]',
-        '-c:v',
-        'libx264',
-        '-preset',
-        'ultrafast',
-        '-crf',
-        '20',
-        '-pix_fmt',
-        'yuv420p',
-        '-c:a',
-        'aac',
-        '-b:a',
-        '192k',
-        '-ar',
-        '48000',
-        '-movflags',
-        '+faststart',
-        '-max_muxing_queue_size',
-        '1024',
-        '-y',
-        '/museta-timeline.mp4',
-      );
+      const silentInput = '/timeline-silence.wav';
+      if (clipInfo.some(item => !item.hasAudio))
+        await ffmpeg.writeFile(silentInput, createSilentWav(), { signal });
+      const args = buildEncodeArgs({ clipInfo, inputPaths: sourceUrls, silentInput, music });
       button.textContent = 'Encoding MP4…';
-      setRunStatus('FFmpeg is assembling and encoding the complete timeline locally…', 'warn');
+      setRunStatus(
+        `FFmpeg is assembling${music ? ' and mixing background music into' : ' and encoding'} the complete timeline locally…`,
+        'warn',
+      );
       const exitCode = await ffmpeg.exec(args, -1, { signal });
-      if (exitCode !== 0)
-        throw new Error(
-          logs
-            .slice(-5)
-            .map(item => item.trim())
-            .filter(Boolean)
-            .join(' ') || `FFmpeg exited with code ${exitCode}.`,
-        );
+      if (exitCode !== 0) throw failure(exitCode);
     }
     throwIfStopped();
-    const output = await ffmpeg.readFile('/museta-timeline.mp4', 'binary', { signal });
+    const output = await ffmpeg.readFile(TIMELINE_OUTPUT, 'binary', { signal });
     if (!(output instanceof Uint8Array) || !output.length)
       throw new Error('FFmpeg produced an empty MP4 file.');
     if (state.timelineExportUrl) URL.revokeObjectURL(state.timelineExportUrl);
@@ -300,6 +230,7 @@ export async function exportTimelineVideo() {
     audioSource = null,
     audioDestination = null,
     audioResumePromise = Promise.resolve(),
+    musicElement = null,
     video = null,
     frameRequest = 0,
     frameTimer = 0,
@@ -422,6 +353,13 @@ export async function exportTimelineVideo() {
         audioSource.connect(audioDestination);
         const audioTrack = audioDestination.stream.getAudioTracks()[0];
         if (audioTrack) canvasStream.addTrack(audioTrack);
+        if (node.data.music?.url) {
+          musicElement = new Audio(node.data.music.url);
+          musicElement.loop = true;
+          const musicGain = audioContext.createGain();
+          musicGain.gain.value = Math.max(0, Math.min(1, Number(node.data.music.volume ?? 0.35)));
+          audioContext.createMediaElementSource(musicElement).connect(musicGain).connect(audioDestination);
+        }
         await audioResumePromise;
         if (audioContext.state !== 'running') await audioContext.resume();
       } catch {
@@ -472,6 +410,7 @@ export async function exportTimelineVideo() {
     });
     recordingPromise.catch(() => {});
     recorder.start(1000);
+    await musicElement?.play().catch(() => {});
     for (let index = 0; index < clips.length; index++) {
       throwIfStopped();
       if (index) {
@@ -539,6 +478,7 @@ export async function exportTimelineVideo() {
         await recordingPromise;
       } catch {}
     }
+    musicElement?.pause();
     video?.pause();
     video?.remove();
     canvasStream?.getTracks().forEach(track => track.stop());
