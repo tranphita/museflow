@@ -7,7 +7,7 @@
     "test": "node --test \"tests/unit/**/*.test.js\"",
     "lint": "npx --yes eslint@9.13.0 src bridge background.js tests",
     "format": "npx --yes prettier@3.3.3 --write src bridge background.js tests",
-    "package": "git archive --format=zip --prefix=Museta/ -o downloads/Museta-extension.zip HEAD"
+    "package": "node -e \"require('fs').mkdirSync('downloads',{recursive:true})\" && git archive --format=zip --prefix=Museta/ -o downloads/Museta-extension.zip HEAD"
   },
   "version": "0.6.0"
 }
