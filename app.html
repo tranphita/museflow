@@ -3,13 +3,13 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>26Flow · MuseFlow 0.5.0</title>
+  <title>Museta</title>
   <link rel="icon" type="image/png" sizes="128x128" href="icons/icon128.png" />
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
   <header class="toolbar">
-    <div class="brand"><img class="brand-logo" src="icons/26flow.svg" alt="26Flow" /><strong class="brand-name">Flow</strong><span class="brand-version">0.5.0</span></div>
+    <div class="brand"><img class="brand-logo" src="icons/museta.svg" alt="" /><strong class="brand-name">Museta</strong><span id="brandVersion" class="brand-version"></span></div>
     <div class="toolbar-tools" aria-label="Add workflow nodes">
       <button id="scriptImportBtn" type="button">＋ Script → Nodes</button>
       <button data-add="prompt">+ Prompt</button>
@@ -28,12 +28,12 @@
     <div class="toolbar-actions">
       <button id="saveBtn">Save</button>
       <button id="workflowExportBtn" type="button" title="Save workflow as a reusable JSON file">Save workflow</button>
-      <button id="workflowImportBtn" type="button" title="Import a saved MuseFlow workflow">Import workflow</button>
+      <button id="workflowImportBtn" type="button" title="Import a saved Museta workflow">Import workflow</button>
       <input id="workflowFileInput" type="file" accept=".json,application/json" hidden />
       <button id="settingsBtn">Settings</button>
       <button id="resetBtn" class="danger">Reset</button>
       <button id="runBtn" class="primary" title="Run every node in the workflow in dependency order">▶ Run workflow</button>
-      <button id="buyCoffeeBtn" class="buy-coffee-btn" type="button" title="Support MuseFlow via VietQR">☕ Buy me a coffee</button>
+      <button id="buyCoffeeBtn" class="buy-coffee-btn" type="button" title="Support bynne2602, the original MuseFlow author, via VietQR">☕ Buy me a coffee</button>
     </div>
   </header>
 
@@ -93,8 +93,18 @@
   <div id="settingsModal" class="modal-backdrop hidden">
     <section class="modal">
       <h2>Muse.ai session</h2>
-      <p>MuseFlow uses your signed-in Muse.ai browser tab directly. Keep the Muse chat tab open while a workflow runs.</p>
+      <p>Museta uses your signed-in Muse.ai browser tab directly. Keep the Muse chat tab open while a workflow runs.</p>
       <div class="connection-check"><button id="testMuseBtn" type="button">Check Muse session</button><span id="connectionStatus" role="status"></span></div>
+      <ul id="museDiagnostics" class="muse-diagnostics hidden" aria-label="Muse page checks"></ul>
+      <h2>Running workflows</h2>
+      <div class="settings-options">
+        <label for="autoRetrySetting">Retry a failed generation automatically
+          <select id="autoRetrySetting"><option value="0">Off</option><option value="1">1 time</option><option value="2">2 times</option></select>
+        </label>
+        <p>Each automatic retry submits the prompt to Muse again and may use extra credits.</p>
+        <label><input id="continueOnErrorSetting" type="checkbox" /> Keep running other nodes when one node fails</label>
+        <p>Nodes that depend on a failed node are skipped.</p>
+      </div>
       <div class="modal-actions">
         <button id="closeSettingsBtn">Cancel</button>
         <button id="saveSettingsBtn" class="primary">Save</button>
@@ -104,7 +114,7 @@
 
   <div id="donationModal" class="modal-backdrop hidden">
     <section class="modal donation-modal" role="dialog" aria-modal="true" aria-labelledby="donationModalTitle">
-      <header class="donation-header"><div><h2 id="donationModalTitle">Buy me a coffee</h2><p>Ủng hộ MuseFlow qua VietQR</p></div><button id="closeDonationBtn" type="button" aria-label="Close">×</button></header>
+      <header class="donation-header"><div><h2 id="donationModalTitle">Buy me a coffee</h2><p>Ủng hộ bynne2602, tác giả MuseFlow gốc, qua VietQR</p></div><button id="closeDonationBtn" type="button" aria-label="Close">×</button></header>
       <img id="donationQrImage" class="donation-qr" src="https://img.vietqr.io/image/VCB-0331000500621-compact2.png?addInfo=BUY%20ME%20A%20COFFEE&amp;accountName=NGUYEN%20TAN%20THANH" alt="VietQR for Nguyen Tan Thanh at Vietcombank" />
       <div id="donationQrFallback" class="donation-qr-fallback hidden">QR preview could not be loaded. Open the VietQR image directly below.</div>
       <div class="donation-details"><span>Vietcombank</span><strong>0331000500621</strong><span>NGUYEN TAN THANH</span></div>
@@ -116,7 +126,7 @@
   <div id="scriptModal" class="modal-backdrop hidden">
     <section class="modal script-modal" role="dialog" aria-modal="true" aria-labelledby="scriptModalTitle">
       <h2 id="scriptModalTitle">Build nodes from a scene script</h2>
-      <p>Paste scenes with “CẢNH”, “Prompt ảnh”, “Prompt video” and optional “Audio”. MuseFlow will create and connect each scene, then order video clips on the Timeline.</p>
+      <p>Paste scenes with “CẢNH”, “Prompt ảnh”, “Prompt video” and optional “Audio”. Museta will create and connect each scene, then order video clips on the Timeline.</p>
       <label for="scriptInput">Script</label>
       <textarea id="scriptInput" placeholder="CẢNH 1 (0:00–0:07): Scene title&#10;&#10;Prompt ảnh: ...&#10;&#10;Prompt video: ...&#10;Audio: ..."></textarea>
       <div id="scriptImportStatus" role="status"></div>

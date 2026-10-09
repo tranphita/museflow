@@ -1,12 +1,25 @@
 import { state } from '../core/state.js';
-import { nodeDefs, uid } from '../core/node-defs.js';
-import { nodeById, getIncoming, sourceFor, timelinePredecessor, topoOrder, requiredNodeOrder, resolvePrompt, resolveNegativePrompt, resolveReferences, normalizeSavedGraph } from '../core/graph.js';
-import { ratioValue } from '../core/media-math.js';
+import { nodeDefs, uid, isGenerator } from '../core/node-defs.js';
+import {
+  nodeById,
+  getIncoming,
+  sourceFor,
+  timelinePredecessor,
+  topoOrder,
+  requiredNodeOrder,
+  resolvePrompt,
+  resolveNegativePrompt,
+  resolveReferences,
+  normalizeSavedGraph,
+} from '../core/graph.js';
+import { buildMusePrompt, buildRefusalRetryPrompt, isRatioMismatch } from '../core/prompts.js';
+import { recordGeneration } from '../core/history.js';
+import { APP_NAME, APP_VERSION } from './app-info.js';
 import { $, runStatus, setRunStatus } from './dom.js';
 import { loadImage, drawResized, mediaDimensions, extractVideoEndFrame, persistImage } from './media.js';
 import { autoSaveTimer, queueWorkflowSave } from './persistence.js';
 import { render } from './render.js';
-import { preferredMuseTabId, museTabMessage, sendMuseStop } from './muse-client.js';
+import { MESSAGE, preferredMuseTabId, museTabMessage, sendMuseStop } from './muse-client.js';
 
 export function validateTargetPrompt(targetId) {
   const target = nodeById(targetId);
@@ -37,10 +50,7 @@ export function stopGeneration(nodeId = state.activeGenerationId) {
     node.data.status = 'stopped';
     node.data.error = 'Generation stopped by user.';
   }
-  setRunStatus(
-    `Stopped ${node?.type === 'generateVideo' ? 'video' : 'image'} generation: ${nodeId}`,
-    'warn',
-  );
+  setRunStatus(`Stopped ${node?.type === 'generateVideo' ? 'video' : 'image'} generation: ${nodeId}`, 'warn');
   render();
   // Cancellation is best-effort for Muse, but never wait for its response to unlock the UI.
   void sendMuseStop(requestId);
@@ -48,6 +58,171 @@ export function stopGeneration(nodeId = state.activeGenerationId) {
     clearTimeout(autoSaveTimer);
     void queueWorkflowSave();
   } catch {}
+}
+
+const stoppedError = () => new DOMException('Generation stopped by user.', 'AbortError');
+const isAbort = (error, signal) => error?.name === 'AbortError' || signal?.aborted;
+
+function publishToPreviews(node) {
+  for (const edge of state.edges.filter(item => item.source === node.id)) {
+    const target = nodeById(edge.target);
+    if (target?.type === 'preview')
+      target.data.asset = edge.sourcePort === 'endFrame' ? node.data.endFrame : node.data.asset;
+  }
+}
+
+async function runImageResize(node) {
+  const source = sourceFor(getIncoming(node.id, 'image')[0]);
+  const url = source?.data?.localDataUrl || source?.data?.asset?.url;
+  if (!url) {
+    setRunStatus('Image Resize is waiting for an input image.', 'warn');
+    return;
+  }
+  const image = await loadImage(url),
+    canvas = document.createElement('canvas');
+  drawResized(image, canvas, node.data);
+  node.data.asset = {
+    id: uid('asset'),
+    kind: 'image',
+    url: canvas.toDataURL('image/png'),
+    name: `Resized ${node.data.width}×${node.data.height}`,
+    width: canvas.width,
+    height: canvas.height,
+    sourceNodeId: node.id,
+  };
+  publishToPreviews(node);
+  render();
+}
+
+async function requestMuseMedia(node, request, signal) {
+  let reply = await museTabMessage(request, preferredMuseTabId, signal);
+  if (signal.aborted) throw stoppedError();
+  if (!reply?.ok && reply?.code === 'SCENE_REFUSED') {
+    setRunStatus(
+      `Muse could not create ${node.data.sceneLabel || 'this scene'}; retrying once with a close, safe alternative…`,
+      'warn',
+    );
+    reply = await museTabMessage(
+      { ...request, requestId: uid('generation'), prompt: buildRefusalRetryPrompt(request.prompt) },
+      preferredMuseTabId,
+      signal,
+    );
+  }
+  if (signal.aborted) throw stoppedError();
+  if (!reply?.ok) throw new Error(reply?.error || `Muse.ai did not return a generated ${request.mediaType}.`);
+  return reply;
+}
+
+async function generateNode(node, { again, signal, progressLabel }) {
+  const isVideo = node.type === 'generateVideo',
+    mediaType = isVideo ? 'video' : 'image';
+  const prompt = resolvePrompt(node.id);
+  if (!String(prompt).trim())
+    throw new Error(
+      `${nodeDefs[node.type].title} ${node.id}: connect a Prompt, Text Append, or Text Merge node first.`,
+    );
+  const negativePrompt = resolveNegativePrompt(node.id);
+  const continuityPrevious = isVideo && node.data.continuity ? timelinePredecessor(node.id) : null,
+    continuityStartFrame = continuityPrevious?.data?.endFrame?.url ? continuityPrevious.data.endFrame : null;
+  if (isVideo && node.data.continuity && !continuityStartFrame)
+    throw new Error(
+      `End-frame continuity for ${node.id} needs the previous Timeline clip to be generated successfully with an extractable final frame. Put clips in order and run the previous clip first.`,
+    );
+  const referenceImages = resolveReferences(node.id);
+  state.activeGenerationId = node.id;
+  node.data.status = 'running';
+  node.data.error = '';
+  node.data.asset = null;
+  node.data.endFrame = null;
+  publishToPreviews(node);
+  render();
+  setRunStatus(`${progressLabel} · generating ${mediaType}: ${node.id}`, 'warn');
+  try {
+    const musePrompt = buildMusePrompt({
+      mediaType,
+      size: node.data.size,
+      duration: node.data.duration,
+      prompt,
+      negativePrompt,
+      referenceCount: referenceImages.length,
+      continuityFrame: Boolean(continuityStartFrame),
+      again: isVideo && again,
+    });
+    const retries = Math.max(0, Math.min(2, Number(state.settings?.autoRetry) || 0));
+    let reply;
+    for (let attempt = 0; ; attempt++) {
+      const request = {
+        type: MESSAGE.generate,
+        requestId: uid('generation'),
+        prompt: musePrompt,
+        negativePrompt,
+        size: node.data.size,
+        model: node.data.model,
+        duration: node.data.duration,
+        mediaType,
+        referenceImages: referenceImages.map(item => item.url),
+        timeoutSec: 600,
+      };
+      state.generationRequestId = request.requestId;
+      try {
+        reply = await requestMuseMedia(node, request, signal);
+        break;
+      } catch (error) {
+        if (isAbort(error, signal) || attempt >= retries) throw error;
+        setRunStatus(
+          `${progressLabel} · ${error?.message || error} · automatic retry ${attempt + 1}/${retries}…`,
+          'warn',
+        );
+      }
+    }
+    const url = isVideo ? reply.url : await persistImage(reply.url);
+    if (!url) throw new Error(`Muse.ai returned an empty ${mediaType} attachment.`);
+    const intrinsic = await mediaDimensions(url, mediaType);
+    if (isRatioMismatch(intrinsic.width, intrinsic.height, node.data.size))
+      throw new Error(
+        `Muse returned ${intrinsic.width} × ${intrinsic.height}, which does not match the requested ${node.data.size} aspect ratio. The old result was cleared; retry generation after checking the Muse output.`,
+      );
+    node.data.asset = {
+      id: uid('asset'),
+      kind: mediaType,
+      url,
+      name: `${isVideo ? 'Video' : 'Image'} ${node.id}`,
+      sourceNodeId: node.id,
+      width: intrinsic.width,
+      height: intrinsic.height,
+      requestedSize: node.data.size,
+      sizeMismatch: false,
+    };
+    node.data.status = 'success';
+    if (isVideo) node.data.endFrame = await extractVideoEndFrame(url);
+    recordGeneration(node.data, { asset: node.data.asset, endFrame: node.data.endFrame, prompt });
+    publishToPreviews(node);
+    render();
+  } catch (err) {
+    if (isAbort(err, signal)) {
+      node.data.status = 'stopped';
+      node.data.error = 'Generation stopped by user.';
+      render();
+      throw stoppedError();
+    }
+    node.data.status = 'error';
+    node.data.error = err?.message || String(err);
+    render();
+    throw err;
+  }
+}
+
+function hasFailedUpstream(nodeId, failed) {
+  if (state.edges.some(edge => edge.target === nodeId && failed.has(edge.source))) return true;
+  const node = nodeById(nodeId);
+  const previous =
+    node?.type === 'generateVideo' && node.data?.continuity ? timelinePredecessor(nodeId) : null;
+  return Boolean(previous && failed.has(previous.id));
+}
+
+async function saveAfterRun() {
+  clearTimeout(autoSaveTimer);
+  await queueWorkflowSave();
 }
 
 export async function execute(targetId = null, { again = false } = {}) {
@@ -58,11 +233,12 @@ export async function execute(targetId = null, { again = false } = {}) {
   // A persisted "running" flag can survive a tab reload even though the old
   // request no longer exists. Normalize it before starting a fresh run.
   for (const node of state.nodes)
-    if (['generateImage', 'generateVideo'].includes(node.type) && node.data.status === 'running') {
+    if (isGenerator(node) && node.data.status === 'running') {
       node.data.status = node.data.asset?.url ? 'success' : 'idle';
       if (node.data.status === 'idle') node.data.error = 'Previous run was interrupted; ready to retry.';
     }
-  const abortController = new AbortController();
+  const abortController = new AbortController(),
+    signal = abortController.signal;
   state.generationAbortController = abortController;
   state.activeGenerationId = targetId;
   state.isRunning = true;
@@ -77,16 +253,14 @@ export async function execute(targetId = null, { again = false } = {}) {
       : 'Running workflow...',
     'warn',
   );
+  const continueOnError = !targetId && Boolean(state.settings?.continueOnError);
+  const failures = [];
   try {
     if (targetId) validateTargetPrompt(targetId);
     const order = targetId
       ? requiredNodeOrder(targetId).filter(id => {
           const prerequisite = nodeById(id);
-          return (
-            id === targetId ||
-            !['generateImage', 'generateVideo'].includes(prerequisite?.type) ||
-            !prerequisite.data?.asset?.url
-          );
+          return id === targetId || !isGenerator(prerequisite) || !prerequisite.data?.asset?.url;
         })
       : topoOrder();
     for (const n of state.nodes) {
@@ -99,177 +273,46 @@ export async function execute(targetId = null, { again = false } = {}) {
         };
     }
     let generationStep = 0;
-    const totalGenerations = order.filter(id =>
-      ['generateImage', 'generateVideo'].includes(nodeById(id)?.type),
-    ).length;
+    const totalGenerations = order.filter(id => isGenerator(nodeById(id))).length;
+    const failed = new Set();
     for (const id of order) {
-      if (abortController.signal.aborted)
-        throw new DOMException('Generation stopped by user.', 'AbortError');
+      if (signal.aborted) throw stoppedError();
       const n = nodeById(id);
       if (!n) continue;
-      if (n.type === 'imageResize') {
-        const source = sourceFor(getIncoming(n.id, 'image')[0]);
-        const url = source?.data?.localDataUrl || source?.data?.asset?.url;
-        if (!url) {
-          setRunStatus('Image Resize is waiting for an input image.', 'warn');
-          continue;
+      if (continueOnError && hasFailedUpstream(id, failed)) {
+        failed.add(id);
+        if (isGenerator(n)) {
+          generationStep++;
+          n.data.status = 'error';
+          n.data.error = 'Skipped because an upstream node failed.';
+          render();
         }
-        const image = await loadImage(url),
-          canvas = document.createElement('canvas');
-        drawResized(image, canvas, n.data);
-        const resized = canvas.toDataURL('image/png');
-        n.data.asset = {
-          id: uid('asset'),
-          kind: 'image',
-          url: resized,
-          name: `Resized ${n.data.width}×${n.data.height}`,
-          width: canvas.width,
-          height: canvas.height,
-          sourceNodeId: n.id,
-        };
-        state.edges
-          .filter(e => e.source === n.id)
-          .forEach(e => {
-            const target = nodeById(e.target);
-            if (target?.type === 'preview') target.data.asset = n.data.asset;
-          });
-        render();
         continue;
       }
-      if (['generateImage', 'generateVideo'].includes(n.type)) {
-        const isVideo = n.type === 'generateVideo';
-        generationStep++;
-        const prompt = resolvePrompt(n.id);
-        if (!String(prompt).trim())
-          throw new Error(
-            `${nodeDefs[n.type].title} ${n.id}: connect a Prompt, Text Append, or Text Merge node first.`,
-          );
-        const negativePrompt = resolveNegativePrompt(n.id);
-        const continuityPrevious = isVideo && n.data.continuity ? timelinePredecessor(n.id) : null,
-          continuityStartFrame = continuityPrevious?.data?.endFrame?.url
-            ? continuityPrevious.data.endFrame
-            : null;
-        if (isVideo && n.data.continuity && !continuityStartFrame)
-          throw new Error(
-            `End-frame continuity for ${n.id} needs the previous Timeline clip to be generated successfully with an extractable final frame. Put clips in order and run the previous clip first.`,
-          );
-        const referenceImages = resolveReferences(n.id);
-        state.activeGenerationId = n.id;
-        n.data.status = 'running';
-        n.data.error = '';
-        n.data.asset = null;
-        n.data.endFrame = null;
-        state.edges
-          .filter(edge => edge.source === n.id)
-          .forEach(edge => {
-            const target = nodeById(edge.target);
-            if (target?.type === 'preview') target.data.asset = null;
+      try {
+        if (n.type === 'imageResize') await runImageResize(n);
+        else if (isGenerator(n)) {
+          generationStep++;
+          await generateNode(n, {
+            again,
+            signal,
+            progressLabel: targetId ? 'Selected node' : `Generation ${generationStep}/${totalGenerations}`,
           });
-        render();
-        setRunStatus(
-          `${targetId ? 'Selected node' : `Generation ${generationStep}/${totalGenerations}`} · generating ${isVideo ? 'video' : 'image'}: ${n.id}`,
-          'warn',
-        );
-        try {
-          const sizeInstruction = `Output aspect ratio: ${n.data.size}. Match this frame shape exactly. ${n.data.size === '16:9' ? 'Use a wide landscape composition.' : n.data.size === '9:16' ? 'Use a tall portrait composition.' : n.data.size === '1:1' ? 'Use a square composition.' : n.data.size === '4:3' ? 'Use a standard landscape composition.' : 'Use a standard portrait composition.'}`;
-          const continuityInstruction = continuityStartFrame
-            ? 'CONTINUITY LOCK: Attached image 1 is the exact final frame of the previous Timeline clip. Use image 1 as the exact first frame of this video: preserve its subject identity, pose, position, camera angle, crop, lighting, and background. Continue motion naturally from that precise moment. No reset, jump, flash, dissolve, or scene change at the start.'
-            : '';
-          const audioRequirement = isVideo
-            ? 'AUDIO IS REQUIRED: Return a video with audible, synchronized sound; do not make a silent clip. Follow the requested audio direction and make its music and sound effects clearly audible. Do not add spoken dialogue unless the prompt asks for it.'
-            : '';
-          const fidelityInstruction =
-            isVideo && again
-              ? '\n\nPROMPT FIDELITY: Follow the provided prompt closely and depict its requested characters, actions, setting, sequence, mood, and visual details. Keep the main action clear and recognizable throughout the clip. Do not substitute a different scene, omit requested actions, or add unrelated events. Use the connected reference images to preserve subject identity and appearance.'
-              : '';
-          const musePrompt = isVideo
-            ? `Create a ${n.data.size} aspect ratio video clip, ${n.data.duration} seconds long. ${sizeInstruction}\n\n${audioRequirement}${continuityInstruction ? `\n\n${continuityInstruction}` : ''}${referenceImages.length ? `\n\nUse the attached reference image${referenceImages.length === 1 ? '' : 's'} as visual guidance${continuityStartFrame ? ' while keeping image 1 as the exact opening frame.' : '.'}` : ''}\n\nPrompt: ${prompt}${negativePrompt ? `\n\nAvoid: ${negativePrompt}` : ''}${fidelityInstruction}`
-            : `${prompt}${referenceImages.length ? '\n\nUse the attached reference image' + (referenceImages.length === 1 ? '' : 's') + ' as visual guidance; follow the prompt while preserving relevant subject details.' : ''}\n\n${sizeInstruction}${negativePrompt ? `\n\nAvoid the following (negative prompt): ${negativePrompt}` : ''}`;
-          const generationRequest = {
-            type: 'MUSEFLOW_GENERATE',
-            requestId: uid('generation'),
-            prompt: musePrompt,
-            negativePrompt,
-            size: n.data.size,
-            model: n.data.model,
-            duration: n.data.duration,
-            mediaType: isVideo ? 'video' : 'image',
-            referenceImages: referenceImages.map(item => item.url),
-            timeoutSec: 600,
-          };
-          state.generationRequestId = generationRequest.requestId;
-          let reply = await museTabMessage(generationRequest, preferredMuseTabId, abortController.signal);
-          if (abortController.signal.aborted)
-            throw new DOMException('Generation stopped by user.', 'AbortError');
-          if (!reply?.ok && reply?.code === 'SCENE_REFUSED') {
-            setRunStatus(
-              `Muse could not create ${n.data.sceneLabel || 'this scene'}; retrying once with a close, safe alternative…`,
-              'warn',
-            );
-            const retryRequest = {
-              ...generationRequest,
-              prompt: `${musePrompt}\n\nSAFE EQUIVALENT RETRY: The previous version could not be generated. Create a close, allowed alternative for the same scene now. Stay faithful to the script's story purpose, characters, relationship, setting, action, mood, visual style, framing, continuity, and requested duration/aspect ratio. Change only the specific detail that prevents generation, replacing it with the nearest safe equivalent. Keep this scene in the story; do not skip it or change what it needs to accomplish. Do not ask a follow-up question or ask permission; generate the alternative in this attempt. Follow all content and safety rules.`,
-            };
-            reply = await museTabMessage(retryRequest, preferredMuseTabId, abortController.signal);
-          }
-          if (abortController.signal.aborted)
-            throw new DOMException('Generation stopped by user.', 'AbortError');
-          if (!reply?.ok)
-            throw new Error(
-              reply?.error || `Muse.ai did not return a generated ${isVideo ? 'video' : 'image'}.`,
-            );
-          const kind = isVideo ? 'video' : 'image';
-          const url = isVideo ? reply.url : await persistImage(reply.url);
-          if (!url) throw new Error(`Muse.ai returned an empty ${kind} attachment.`);
-          const intrinsic = await mediaDimensions(url, isVideo ? 'video' : 'image');
-          const actualRatio = intrinsic.width && intrinsic.height ? intrinsic.width / intrinsic.height : 0;
-          const expectedRatio = ratioValue(n.data.size);
-          const sizeMismatch = actualRatio && Math.abs(Math.log(actualRatio / expectedRatio)) > 0.09;
-          if (sizeMismatch)
-            throw new Error(
-              `Muse returned ${intrinsic.width} × ${intrinsic.height}, which does not match the requested ${n.data.size} aspect ratio. The old result was cleared; retry generation after checking the Muse output.`,
-            );
-          n.data.asset = {
-            id: uid('asset'),
-            kind,
-            url,
-            name: `${isVideo ? 'Video' : 'Image'} ${n.id}`,
-            sourceNodeId: n.id,
-            width: intrinsic.width,
-            height: intrinsic.height,
-            requestedSize: n.data.size,
-            sizeMismatch,
-          };
-          n.data.status = 'success';
-          if (isVideo) n.data.endFrame = await extractVideoEndFrame(url);
-          if (sizeMismatch)
-            n.data.error = `Requested ${n.data.size}, received ${intrinsic.width}×${intrinsic.height}. Muse returned a different aspect ratio.`;
-          state.edges
-            .filter(e => e.source === n.id)
-            .forEach(e => {
-              const target = nodeById(e.target);
-              if (target?.type === 'preview')
-                target.data.asset = e.sourcePort === 'endFrame' ? n.data.endFrame : n.data.asset;
-            });
-          render();
-        } catch (err) {
-          if (err?.name === 'AbortError' || abortController.signal.aborted) {
-            n.data.status = 'stopped';
-            n.data.error = 'Generation stopped by user.';
-            render();
-            throw new DOMException('Generation stopped by user.', 'AbortError');
-          }
-          n.data.status = 'error';
-          n.data.error = err?.message || String(err);
-          render();
-          throw err;
         }
+      } catch (error) {
+        if (isAbort(error, signal) || !continueOnError) throw error;
+        failed.add(id);
+        failures.push({ node: n, message: error?.message || String(error) });
       }
     }
     try {
-      clearTimeout(autoSaveTimer);
-      await queueWorkflowSave();
-      setRunStatus(targetId ? 'Node generation completed.' : 'Workflow completed.', 'ok');
+      await saveAfterRun();
+      if (failures.length)
+        setRunStatus(
+          `Workflow finished with ${failures.length} failed node${failures.length === 1 ? '' : 's'} · ${failures[0].node.data.customName || failures[0].node.id}: ${failures[0].message}`,
+          'error',
+        );
+      else setRunStatus(targetId ? 'Node generation completed.' : 'Workflow completed.', 'ok');
     } catch (saveError) {
       setRunStatus(
         `Generation completed, but workflow could not be saved: ${saveError?.message || String(saveError)}`,
@@ -277,7 +320,7 @@ export async function execute(targetId = null, { again = false } = {}) {
       );
     }
   } catch (err) {
-    if (err?.name === 'AbortError' || abortController.signal.aborted) {
+    if (isAbort(err, signal)) {
       const active = state.nodes.find(n => n.id === state.activeGenerationId);
       if (active && active.data.status === 'running') {
         active.data.status = 'stopped';
@@ -285,29 +328,25 @@ export async function execute(targetId = null, { again = false } = {}) {
         render();
       }
       try {
-        clearTimeout(autoSaveTimer);
-        await queueWorkflowSave();
+        await saveAfterRun();
       } catch {}
       return;
     }
-    const failed = state.nodes.find(
-      n => ['generateImage', 'generateVideo'].includes(n.type) && n.data.status === 'running',
-    );
-    if (failed) {
-      failed.data.status = 'error';
-      failed.data.error = err?.message || String(err);
+    const failedNode = state.nodes.find(n => isGenerator(n) && n.data.status === 'running');
+    if (failedNode) {
+      failedNode.data.status = 'error';
+      failedNode.data.error = err?.message || String(err);
       render();
     }
     const message = err?.message || String(err);
     setRunStatus(
       /failed to fetch/i.test(message)
-        ? 'Muse connection failed. Reload MuseFlow 0.5.0, then check the Muse session.'
-        : 'MuseFlow 0.5.0 · ' + message,
+        ? `Muse connection failed. Reload ${APP_NAME} ${APP_VERSION}, then check the Muse session.`
+        : `${APP_NAME} ${APP_VERSION} · ${message}`,
       'error',
     );
     try {
-      clearTimeout(autoSaveTimer);
-      await queueWorkflowSave();
+      await saveAfterRun();
     } catch (saveError) {
       setRunStatus(
         `${runStatus.textContent} · Auto-save failed: ${saveError?.message || String(saveError)}`,

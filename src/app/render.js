@@ -2,6 +2,7 @@ import { state } from '../core/state.js';
 import { nodeDefs, isMultiInput } from '../core/node-defs.js';
 import { nodeById, getIncoming, sourceFor, portCompatible, duplicateNodesForDrag } from '../core/graph.js';
 import { clampDimension } from '../core/media-math.js';
+import { restoreGeneration, removeGeneration } from '../core/history.js';
 import { $, canvas, edgesSvg, setRunStatus } from './dom.js';
 import { drawResized } from './media.js';
 import { scheduleAutoSave, saveState } from './persistence.js';
@@ -184,6 +185,7 @@ export function renderNode(n) {
       b.textContent = `${referenceCount} reference image${referenceCount === 1 ? '' : 's'} connected`;
       body.appendChild(b);
     }
+    body.appendChild(createHistoryStrip(n));
     body.appendChild(createNodeRunActions(n));
   }
 
@@ -263,7 +265,7 @@ export function renderNode(n) {
     timelineDrag.innerHTML = '<span aria-hidden="true">⠿</span> Drag output to Timeline';
     timelineDrag.title = 'Drag this output to the timeline';
     timelineDrag.ondragstart = event => {
-      event.dataTransfer.setData('application/x-museflow-video-node', n.id);
+      event.dataTransfer.setData('application/x-museta-video-node', n.id);
       event.dataTransfer.setData('text/plain', n.id);
       event.dataTransfer.effectAllowed = 'copy';
     };
@@ -272,6 +274,7 @@ export function renderNode(n) {
       addTimelineClip(ensureDockTimeline(), n.id);
     };
     body.appendChild(timelineDrag);
+    body.appendChild(createHistoryStrip(n));
     body.appendChild(createNodeRunActions(n));
   }
   if (n.type === 'timeline') renderTimelineBody(n, body);
@@ -325,7 +328,7 @@ export function renderNode(n) {
         if (!blob) return;
         const a = document.createElement('a');
         a.href = URL.createObjectURL(blob);
-        a.download = `museflow-${n.data.width}x${n.data.height}.png`;
+        a.download = `museta-${n.data.width}x${n.data.height}.png`;
         a.click();
         setTimeout(() => URL.revokeObjectURL(a.href), 1000);
       });
@@ -364,6 +367,55 @@ export function renderNode(n) {
     selectNode(n.id, { toggle: event.shiftKey || event.ctrlKey || event.metaKey });
   };
   return el;
+}
+
+export function createHistoryStrip(node) {
+  const history = node.data.history || [];
+  const strip = document.createElement('div');
+  strip.className = 'node-history';
+  if (history.length < 2 || node.data.status === 'running') return strip;
+  const caption = document.createElement('span');
+  caption.className = 'node-history-caption';
+  caption.textContent = `Versions · ${history.length}`;
+  strip.appendChild(caption);
+  history.forEach((entry, index) => {
+    const item = document.createElement('div');
+    item.className = `node-history-item${entry.id === node.data.asset?.id ? ' active' : ''}`;
+    const pick = document.createElement('button');
+    pick.type = 'button';
+    pick.title = `Use version ${history.length - index}${entry.prompt ? ` · ${entry.prompt.slice(0, 120)}` : ''}`;
+    const thumbUrl = entry.asset.kind === 'video' ? entry.endFrame?.url : entry.asset.url;
+    if (thumbUrl) {
+      const image = document.createElement('img');
+      image.src = thumbUrl;
+      image.alt = '';
+      pick.appendChild(image);
+    } else pick.textContent = `v${history.length - index}`;
+    pick.onclick = event => {
+      event.stopPropagation();
+      if (entry.id === node.data.asset?.id) return;
+      createUndoSnapshot('Switch output version', { preserveRuntime: false });
+      restoreGeneration(node.data, entry.id);
+      render();
+      saveState();
+      setRunStatus(`Using version ${history.length - index} of this node's output.`, 'ok');
+    };
+    const remove = document.createElement('button');
+    remove.type = 'button';
+    remove.className = 'node-history-remove';
+    remove.textContent = '×';
+    remove.title = 'Delete this version';
+    remove.onclick = event => {
+      event.stopPropagation();
+      createUndoSnapshot('Delete output version', { preserveRuntime: false });
+      removeGeneration(node.data, entry.id);
+      render();
+      saveState();
+    };
+    item.append(pick, remove);
+    strip.appendChild(item);
+  });
+  return strip;
 }
 
 export function createNodeRunActions(node) {

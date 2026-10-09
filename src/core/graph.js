@@ -77,9 +77,7 @@ export function connectReferenceNode(references, generator) {
     });
 }
 export function syncReferenceFanOut(references) {
-  for (const generator of state.nodes.filter(node =>
-    ['generateImage', 'generateVideo'].includes(node.type),
-  ))
+  for (const generator of state.nodes.filter(node => ['generateImage', 'generateVideo'].includes(node.type)))
     connectReferenceNode(references, generator);
 }
 
@@ -301,8 +299,7 @@ export function topoOrder() {
       if (indeg.get(target) === 0) q.push(target);
     }
   }
-  if (out.length !== state.nodes.length)
-    throw new Error('Workflow contains a cycle. Remove the loop first.');
+  if (out.length !== state.nodes.length) throw new Error('Workflow contains a cycle. Remove the loop first.');
   return out;
 }
 

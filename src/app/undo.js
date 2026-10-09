@@ -49,7 +49,7 @@ export function undoLastChange() {
       const current = runtimeById.get(node.id);
       if (!current || current.type !== node.type) continue;
       const runtime = current.data;
-      for (const key of ['status', 'error', 'asset', 'endFrame']) {
+      for (const key of ['status', 'error', 'asset', 'endFrame', 'history']) {
         if (Object.hasOwn(runtime, key)) node.data[key] = runtime[key];
         else delete node.data[key];
       }

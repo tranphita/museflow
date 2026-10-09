@@ -8,7 +8,13 @@ async page => {
     window.__museTabs = [{ id: 7, active: true, url: 'https://muse.ai/chat' }];
     window.__museReply = message => {
       if (/CHECK_SESSION$/.test(message.type)) return { ok: true, signedIn: true, composer: true };
-      if (/GENERATE$/.test(message.type)) return { ok: true, url: pixel };
+      if (/GENERATE$/.test(message.type)) {
+        if (window.__failNext > 0) {
+          window.__failNext--;
+          return { ok: false, error: 'Simulated Muse failure' };
+        }
+        return { ok: true, url: pixel };
+      }
       if (/DIAGNOSE$/.test(message.type)) return { ok: true, checks: [] };
       return { ok: true };
     };
@@ -27,14 +33,49 @@ async page => {
   results.title = await page.title();
 
   await page.click('#runBtn');
-  await page.waitForFunction(() => /completed/i.test(document.querySelector('#runStatus').textContent), null, {
-    timeout: 10000,
-  });
+  await page.waitForFunction(
+    () => /completed/i.test(document.querySelector('#runStatus').textContent),
+    null,
+    {
+      timeout: 10000,
+    },
+  );
   results.runStatus = await page.locator('#runStatus').textContent();
   results.previewHasImage = (await page.locator('.node img').count()) > 0;
-  results.sentPrompt = await page.evaluate(
-    () => window.__museTabMessages.find(m => /GENERATE$/.test(m.message.type))?.message.prompt.slice(0, 60),
+  results.sentPrompt = await page.evaluate(() =>
+    window.__museTabMessages.find(m => /GENERATE$/.test(m.message.type))?.message.prompt.slice(0, 60),
   );
+
+  const runAndWait = async () => {
+    await page.click('#runBtn');
+    await page.waitForFunction(() => !/Running|generating|retry/i.test(document.querySelector('#runStatus').textContent), null, { timeout: 10000 });
+    return page.locator('#runStatus').textContent();
+  };
+  await runAndWait();
+  results.versionsAfterSecondRun = await page.locator('.node-history-item').count();
+
+  await page.click('#settingsBtn');
+  await page.selectOption('#autoRetrySetting', '1');
+  await page.click('#saveSettingsBtn');
+  await page.waitForFunction(() => document.querySelector('#runStatus').textContent === 'Saved.');
+  await page.evaluate(() => {
+    window.__failNext = 1;
+    window.__museTabMessages.length = 0;
+  });
+  results.retryRunStatus = await runAndWait();
+  results.retryRequests = await page.evaluate(() => window.__museTabMessages.filter(m => /GENERATE$/.test(m.message.type)).length);
+  results.versionsAfterRetry = await page.locator('.node-history-item').count();
+
+  await page.locator('.node-history-item > button:first-child').last().click();
+  results.restoredOldest = await page.locator('.node-history-item.active').count();
+
+  await page.click('#settingsBtn');
+  await page.selectOption('#autoRetrySetting', '0');
+  await page.click('#saveSettingsBtn');
+  await page.waitForFunction(() => document.querySelector('#runStatus').textContent === 'Saved.');
+  await page.evaluate(() => (window.__failNext = 1));
+  results.failRunStatus = await runAndWait();
+  results.failedNodeStatus = await page.locator('.node .status.error').first().textContent();
 
   await page.click('button[data-add="generateVideo"]');
   results.afterAddVideo = await page.locator('.node').count();

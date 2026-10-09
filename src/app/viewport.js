@@ -161,10 +161,9 @@ export function moveSelectionMarquee(event) {
     if (!matrix) continue;
     const length = path.getTotalLength();
     for (let point = 0; point <= length; point += Math.max(8, length / 60)) {
-      const p = new DOMPoint(
-        path.getPointAtLength(point).x,
-        path.getPointAtLength(point).y,
-      ).matrixTransform(matrix);
+      const p = new DOMPoint(path.getPointAtLength(point).x, path.getPointAtLength(point).y).matrixTransform(
+        matrix,
+      );
       if (p.x >= left && p.x <= right && p.y >= top && p.y <= bottom) {
         selectedEdges.add(path.dataset.edgeId);
         break;

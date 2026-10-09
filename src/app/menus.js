@@ -226,7 +226,7 @@ export function runNodeContextAction(action) {
     if (url) {
       const link = document.createElement('a');
       link.href = url;
-      link.download = node.data.asset.name || 'museflow-output';
+      link.download = node.data.asset.name || 'museta-output';
       link.click();
     } else setRunStatus('This node has no output to download.', 'warn');
     return;

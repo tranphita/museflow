@@ -115,3 +115,9 @@ export function makeNode(type, x, y) {
             : {};
   return { id: uid(type), type, x, y, data };
 }
+
+export const GENERATOR_TYPES = ['generateImage', 'generateVideo'];
+
+export function isGenerator(node) {
+  return GENERATOR_TYPES.includes(node?.type);
+}

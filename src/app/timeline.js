@@ -55,8 +55,7 @@ export function renderTimelineBody(node, body) {
     clip.ondrop = e => {
       e.preventDefault();
       const moving =
-          e.dataTransfer.getData('application/x-museflow-video-node') ||
-          e.dataTransfer.getData('text/plain'),
+          e.dataTransfer.getData('application/x-museta-video-node') || e.dataTransfer.getData('text/plain'),
         arr = [...node.data.clipOrder],
         from = arr.indexOf(moving),
         to = arr.indexOf(id);
@@ -111,7 +110,7 @@ export function createTimelineDropZone(node) {
     zone.classList.remove('drag-over');
     addTimelineClip(
       node,
-      event.dataTransfer.getData('application/x-museflow-video-node') ||
+      event.dataTransfer.getData('application/x-museta-video-node') ||
         event.dataTransfer.getData('text/plain'),
     );
   };
@@ -318,13 +317,13 @@ export function syncTimelineDock() {
     item.draggable = true;
     item.dataset.clip = clip.id;
     item.ondragstart = event => {
-      event.dataTransfer.setData('application/x-museflow-video-node', clip.id);
+      event.dataTransfer.setData('application/x-museta-video-node', clip.id);
       event.dataTransfer.effectAllowed = 'move';
     };
     item.ondragover = event => event.preventDefault();
     item.ondrop = event => {
       event.preventDefault();
-      const moving = event.dataTransfer.getData('application/x-museflow-video-node'),
+      const moving = event.dataTransfer.getData('application/x-museta-video-node'),
         from = node.data.clipOrder.indexOf(moving),
         to = node.data.clipOrder.indexOf(clip.id);
       if (from >= 0 && to >= 0 && from !== to) {
@@ -388,7 +387,7 @@ export function syncTimelineDock() {
   });
   track.appendChild(lane);
   dock.ondragover = event => {
-    if (event.dataTransfer.types.includes('application/x-museflow-video-node')) {
+    if (event.dataTransfer.types.includes('application/x-museta-video-node')) {
       event.preventDefault();
       dock.classList.add('drag-over');
       if (dock.classList.contains('collapsed')) toggleTimeline();
@@ -400,7 +399,7 @@ export function syncTimelineDock() {
   dock.ondrop = event => {
     event.preventDefault();
     dock.classList.remove('drag-over');
-    const id = event.dataTransfer.getData('application/x-museflow-video-node');
+    const id = event.dataTransfer.getData('application/x-museta-video-node');
     if (id) addTimelineClip(node, id);
   };
 }
@@ -435,9 +434,7 @@ export function visibleTimelineClipOrder(node) {
     dockTrack = $('#timelineTrack'),
     visualTrack = nodeTrack || dockTrack,
     selector = nodeTrack ? '.timeline-clip' : '.dock-clip',
-    visibleOrder = [...visualTrack.querySelectorAll(selector)]
-      .map(item => item.dataset.clip)
-      .filter(Boolean);
+    visibleOrder = [...visualTrack.querySelectorAll(selector)].map(item => item.dataset.clip).filter(Boolean);
   return visibleOrder.length ? visibleOrder : [...(node.data.clipOrder || [])];
 }
 export function playTimeline(node, { startTime = 0 } = {}) {

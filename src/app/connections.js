@@ -385,11 +385,7 @@ export function nearestCompatibleOutput(x, y, target) {
     distance = 44;
   for (const port of document.querySelectorAll('.port.out')) {
     if (
-      !portCompatible(
-        { nodeId: port.dataset.node, portId: port.dataset.port },
-        target.nodeId,
-        target.portId,
-      )
+      !portCompatible({ nodeId: port.dataset.node, portId: port.dataset.port }, target.nodeId, target.portId)
     )
       continue;
     const rect = port.getBoundingClientRect(),

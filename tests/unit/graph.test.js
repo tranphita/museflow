@@ -38,7 +38,11 @@ test('resolvePrompt joins every prompt source and applies Text Append', () => {
     node('p2', 'prompt', { text: 'at night' }),
     node('gen', 'generateImage'),
   ];
-  state.edges = [edge('p1', 'text', 'ap', 'text'), edge('ap', 'text', 'gen', 'prompt'), edge('p2', 'text', 'gen', 'prompt')];
+  state.edges = [
+    edge('p1', 'text', 'ap', 'text'),
+    edge('ap', 'text', 'gen', 'prompt'),
+    edge('p2', 'text', 'gen', 'prompt'),
+  ];
   assert.equal(resolvePrompt('gen'), 'a cat cinematic\n\nat night');
 });
 

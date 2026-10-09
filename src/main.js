@@ -1,7 +1,17 @@
+import { APP_NAME, APP_VERSION } from './app/app-info.js';
 import { state } from './core/state.js';
 import { parseSceneScript } from './core/scene-script.js';
 import { $, canvas, edgesSvg, setRunStatus } from './app/dom.js';
-import { scheduleAutoSave, saveState, exportWorkflowFile, importWorkflowFile, loadState, resetState } from './app/persistence.js';
+import {
+  scheduleAutoSave,
+  saveState,
+  exportWorkflowFile,
+  importWorkflowFile,
+  loadState,
+  resetState,
+  syncSettingsUI,
+  readSettingsUI,
+} from './app/persistence.js';
 import {
   createUndoSnapshot,
   undoLastChange,
@@ -14,9 +24,37 @@ import {
 import { addNode, addTextNote, removeSelectedNodes, buildSceneNodesFromScript } from './app/editor.js';
 import { runConnectionChoice, onWireMove, onWireUp } from './app/connections.js';
 import { drawEdges, render, moveTextNote, finishTextNoteMove } from './app/render.js';
-import { applyCanvasTransform, zoomAt, setZoom, fitCanvas, startPan, movePan, endPan, startSelectionMarquee, moveSelectionMarquee, endSelectionMarquee, moveGroupMarquee, finishGroupMarquee, cancelGroupMarquee, setGroupDrawMode } from './app/viewport.js';
-import { openCanvasMenu, openEdgeMenu, selectEdgePointer, closeCanvasMenu, runCanvasAction } from './app/menus.js';
-import { ensureDockTimeline, importAllVideosToTimeline, toggleTimelineOutputMenu, toggleTimeline, closeTimelinePreview, playTimeline } from './app/timeline.js';
+import {
+  applyCanvasTransform,
+  zoomAt,
+  setZoom,
+  fitCanvas,
+  startPan,
+  movePan,
+  endPan,
+  startSelectionMarquee,
+  moveSelectionMarquee,
+  endSelectionMarquee,
+  moveGroupMarquee,
+  finishGroupMarquee,
+  cancelGroupMarquee,
+  setGroupDrawMode,
+} from './app/viewport.js';
+import {
+  openCanvasMenu,
+  openEdgeMenu,
+  selectEdgePointer,
+  closeCanvasMenu,
+  runCanvasAction,
+} from './app/menus.js';
+import {
+  ensureDockTimeline,
+  importAllVideosToTimeline,
+  toggleTimelineOutputMenu,
+  toggleTimeline,
+  closeTimelinePreview,
+  playTimeline,
+} from './app/timeline.js';
 import { exportTimelineVideo, stopTimelineExport } from './app/timeline-export.js';
 import { testMuseSession, detectMuse } from './app/muse-client.js';
 import { stopGeneration, onWorkflowRunButtonClick } from './app/runner.js';
@@ -58,7 +96,10 @@ $('#workflowFileInput').onchange = event => {
   event.target.value = '';
   if (file) void importWorkflowFile(file);
 };
-$('#settingsBtn').onclick = () => $('#settingsModal').classList.remove('hidden');
+$('#settingsBtn').onclick = () => {
+  syncSettingsUI();
+  $('#settingsModal').classList.remove('hidden');
+};
 $('#buyCoffeeBtn').onclick = () => $('#donationModal').classList.remove('hidden');
 $('#closeDonationBtn').onclick = () => $('#donationModal').classList.add('hidden');
 $('#donationModal').onclick = event => {
@@ -71,6 +112,7 @@ $('#donationQrImage').onerror = () => {
 $('#testMuseBtn').onclick = () => testMuseSession();
 $('#closeSettingsBtn').onclick = () => $('#settingsModal').classList.add('hidden');
 $('#saveSettingsBtn').onclick = async () => {
+  readSettingsUI();
   $('#settingsModal').classList.add('hidden');
   await saveState();
 };
@@ -283,6 +325,8 @@ chrome.tabs.onCreated.addListener(tab => {
     setTimeout(() => testMuseSession(tab.id), 1200);
 });
 
+$('#brandVersion').textContent = APP_VERSION;
+document.title = `${APP_NAME} ${APP_VERSION}`;
 loadState();
 detectMuse();
 applyCanvasTransform();

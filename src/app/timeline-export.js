@@ -122,10 +122,7 @@ export async function exportTimelineMp4WithFFmpeg(node, clips, button, formatSel
         concatData = new TextEncoder().encode(sourceUrls.map(path => `file '${path}'`).join('\n') + '\n');
       await ffmpeg.writeFile(concatFile, concatData, { signal });
       button.textContent = 'Joining MP4 clips…';
-      setRunStatus(
-        'Joining compatible timeline clips without re-encoding (fast, original quality)…',
-        'warn',
-      );
+      setRunStatus('Joining compatible timeline clips without re-encoding (fast, original quality)…', 'warn');
       const exitCode = await ffmpeg.exec(
         [
           '-f',
@@ -139,7 +136,7 @@ export async function exportTimelineMp4WithFFmpeg(node, clips, button, formatSel
           '-movflags',
           '+faststart',
           '-y',
-          '/museflow-timeline.mp4',
+          '/museta-timeline.mp4',
         ],
         -1,
         { signal },
@@ -209,7 +206,7 @@ export async function exportTimelineMp4WithFFmpeg(node, clips, button, formatSel
         '-max_muxing_queue_size',
         '1024',
         '-y',
-        '/museflow-timeline.mp4',
+        '/museta-timeline.mp4',
       );
       button.textContent = 'Encoding MP4…';
       setRunStatus('FFmpeg is assembling and encoding the complete timeline locally…', 'warn');
@@ -224,7 +221,7 @@ export async function exportTimelineMp4WithFFmpeg(node, clips, button, formatSel
         );
     }
     throwIfStopped();
-    const output = await ffmpeg.readFile('/museflow-timeline.mp4', 'binary', { signal });
+    const output = await ffmpeg.readFile('/museta-timeline.mp4', 'binary', { signal });
     if (!(output instanceof Uint8Array) || !output.length)
       throw new Error('FFmpeg produced an empty MP4 file.');
     if (state.timelineExportUrl) URL.revokeObjectURL(state.timelineExportUrl);
@@ -242,7 +239,7 @@ export async function exportTimelineMp4WithFFmpeg(node, clips, button, formatSel
     player.classList.add('is-active');
     const link = document.createElement('a');
     link.href = state.timelineExportUrl;
-    link.download = `MuseFlow-Timeline-${new Date().toISOString().replace(/[:.]/g, '-')}.mp4`;
+    link.download = `Museta-Timeline-${new Date().toISOString().replace(/[:.]/g, '-')}.mp4`;
     link.click();
     setRunStatus('Timeline exported as MP4 (H.264) with local FFmpeg.', 'ok');
   } catch (error) {
@@ -527,7 +524,7 @@ export async function exportTimelineVideo() {
     player.classList.add('is-active');
     const link = document.createElement('a');
     link.href = state.timelineExportUrl;
-    link.download = `MuseFlow-Timeline-${new Date().toISOString().replace(/[:.]/g, '-')}.${extension}`;
+    link.download = `Museta-Timeline-${new Date().toISOString().replace(/[:.]/g, '-')}.${extension}`;
     link.click();
     setRunStatus(`Stitched timeline exported as ${extension.toUpperCase()}.`, 'ok');
   } catch (error) {

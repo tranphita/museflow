@@ -1,38 +1,54 @@
 import { state } from '../core/state.js';
 import { starter } from '../core/node-defs.js';
 import { normalizeSavedGraph } from '../core/graph.js';
+import { mediaRefs } from '../core/history.js';
 import { $, runStatus, backendStatus, setRunStatus } from './dom.js';
 import { blobAsDataUrl } from './media.js';
-import { getMedia, idbMediaPrefix, dehydrateMediaUrl, hydrateWorkflowMedia } from './media-store.js';
+import {
+  getMedia,
+  storedMediaKey,
+  dehydrateNodeMedia,
+  hydrateWorkflowMedia,
+  pruneMedia,
+} from './media-store.js';
 import { createUndoSnapshot } from './undo.js';
 import { render } from './render.js';
 import { syncTimelineDock } from './timeline.js';
+import { APP_NAME, APP_VERSION } from './app-info.js';
 
-export let autoSaveTimer = 0,
-  workflowSaveQueue = Promise.resolve();
-export async function saveWorkflowSnapshot() {
-  const snapshot = structuredClone({
+const STORAGE_KEY = 'museta';
+const LEGACY_STORAGE_KEYS = ['museflow'];
+const WORKFLOW_FORMAT = 'museta-workflow';
+const LEGACY_WORKFLOW_FORMATS = ['26flow-workflow'];
+
+const timestamp = () => new Date().toISOString().replace(/[:.]/g, '-');
+
+function workflowSnapshot() {
+  return structuredClone({
     nodes: state.nodes,
     edges: state.edges,
     groups: state.groups,
     notes: state.notes,
     settings: state.settings,
   });
-  for (const node of snapshot.nodes) {
-    const data = node.data || {};
-    if (data.localDataUrl)
-      data.localDataUrl = await dehydrateMediaUrl(data.localDataUrl, `input:${node.id}`);
-    for (const field of ['asset', 'endFrame']) {
-      const media = data[field];
-      if (media?.url) media.url = await dehydrateMediaUrl(media.url, `${field}:${media.id || node.id}`);
-    }
-  }
-  await chrome.storage.local.set({ museflow: snapshot });
 }
+
+export let autoSaveTimer = 0;
+let workflowSaveQueue = Promise.resolve();
+let mediaPruneAllowed = false;
+
+async function saveWorkflowSnapshot() {
+  const snapshot = workflowSnapshot();
+  const usedMedia = await dehydrateNodeMedia(snapshot.nodes);
+  await chrome.storage.local.set({ [STORAGE_KEY]: snapshot });
+  if (mediaPruneAllowed) await pruneMedia(usedMedia).catch(() => {});
+}
+
 export function queueWorkflowSave() {
   workflowSaveQueue = workflowSaveQueue.catch(() => {}).then(saveWorkflowSnapshot);
   return workflowSaveQueue;
 }
+
 export function scheduleAutoSave() {
   clearTimeout(autoSaveTimer);
   autoSaveTimer = setTimeout(() => {
@@ -42,6 +58,7 @@ export function scheduleAutoSave() {
     });
   }, 650);
 }
+
 export async function saveState() {
   clearTimeout(autoSaveTimer);
   try {
@@ -51,24 +68,19 @@ export async function saveState() {
     setRunStatus(`Could not save workflow: ${error?.message || String(error)}`, 'error');
   }
 }
+
 export async function exportWorkflowFile() {
   const button = $('#workflowExportBtn');
   button.disabled = true;
   try {
-    const workflow = structuredClone({
-      nodes: state.nodes,
-      edges: state.edges,
-      groups: state.groups,
-      notes: state.notes,
-      settings: state.settings,
-    });
+    const workflow = workflowSnapshot();
     let externalMedia = 0;
     const packageUrl = async url => {
       if (!url || url.startsWith('data:')) return url;
       try {
         let blob;
-        if (url.startsWith(idbMediaPrefix))
-          blob = await getMedia(decodeURIComponent(url.slice(idbMediaPrefix.length)));
+        const storedKey = storedMediaKey(url);
+        if (storedKey !== null) blob = await getMedia(storedKey);
         else if (/^(?:blob:|https?:)/i.test(url)) {
           const response = await fetch(url, { credentials: 'include' });
           if (!response.ok) throw new Error(`HTTP ${response.status}`);
@@ -81,16 +93,12 @@ export async function exportWorkflowFile() {
         return url;
       }
     };
-    for (const node of workflow.nodes) {
-      const data = node.data || {};
-      if (data.localDataUrl) data.localDataUrl = await packageUrl(data.localDataUrl);
-      for (const field of ['asset', 'endFrame'])
-        if (data[field]?.url) data[field].url = await packageUrl(data[field].url);
-    }
+    for (const node of workflow.nodes)
+      for (const ref of mediaRefs(node.data)) ref.holder[ref.key] = await packageUrl(ref.holder[ref.key]);
     const file = {
-      format: '26flow-workflow',
+      format: WORKFLOW_FORMAT,
       version: 1,
-      appVersion: '0.5.0',
+      appVersion: APP_VERSION,
       exportedAt: new Date().toISOString(),
       workflow,
     };
@@ -98,7 +106,7 @@ export async function exportWorkflowFile() {
       url = URL.createObjectURL(blob),
       link = document.createElement('a');
     link.href = url;
-    link.download = `26MuseFlow-Workflow-${new Date().toISOString().replace(/[:.]/g, '-')}.json`;
+    link.download = `${APP_NAME}-Workflow-${timestamp()}.json`;
     link.click();
     setTimeout(() => URL.revokeObjectURL(url), 5000);
     setRunStatus(
@@ -113,18 +121,25 @@ export async function exportWorkflowFile() {
     button.disabled = false;
   }
 }
+
+export function parseWorkflowFile(text) {
+  const parsed = JSON.parse(text);
+  const isWrapped = [WORKFLOW_FORMAT, ...LEGACY_WORKFLOW_FORMATS].includes(parsed?.format);
+  const workflow = isWrapped ? parsed.workflow : parsed;
+  if (!workflow || !Array.isArray(workflow.nodes) || !Array.isArray(workflow.edges))
+    throw new Error(`This file does not contain a valid ${APP_NAME} workflow.`);
+  return workflow;
+}
+
 export async function importWorkflowFile(file) {
   if (!file) return;
   if (state.isRunning) {
     setRunStatus('Stop the running workflow before importing another one.', 'warn');
     return;
   }
-  let parsed, workflow;
+  let workflow;
   try {
-    parsed = JSON.parse(await file.text());
-    workflow = parsed?.format === '26flow-workflow' ? parsed.workflow : parsed;
-    if (!workflow || !Array.isArray(workflow.nodes) || !Array.isArray(workflow.edges))
-      throw new Error('This file does not contain a valid MuseFlow workflow.');
+    workflow = parseWorkflowFile(await file.text());
   } catch (error) {
     setRunStatus(`Could not import workflow: ${error?.message || String(error)}`, 'error');
     return;
@@ -143,7 +158,7 @@ export async function importWorkflowFile(file) {
     state.edges = workflow.edges;
     state.groups = Array.isArray(workflow.groups) ? workflow.groups : [];
     state.notes = Array.isArray(workflow.notes) ? workflow.notes : [];
-    state.settings = workflow.settings && typeof workflow.settings === 'object' ? workflow.settings : {};
+    state.settings = normalizeSettings(workflow.settings);
     await hydrateWorkflowMedia();
     normalizeSavedGraph();
     state.selectedNodeIds = [];
@@ -163,15 +178,28 @@ export async function importWorkflowFile(file) {
     setRunStatus(`Could not import workflow: ${error?.message || String(error)}`, 'error');
   }
 }
+
+async function readSavedWorkflow() {
+  const keys = [STORAGE_KEY, ...LEGACY_STORAGE_KEYS];
+  const got = await chrome.storage.local.get(keys);
+  const key = keys.find(item => got[item]);
+  return key
+    ? { saved: got[key], legacyKey: key === STORAGE_KEY ? null : key }
+    : { saved: null, legacyKey: null };
+}
+
 export async function loadState() {
+  let legacyKey = null;
   try {
-    const got = await chrome.storage.local.get('museflow');
-    if (got.museflow) {
-      state.nodes = Array.isArray(got.museflow.nodes) ? got.museflow.nodes : [];
-      state.edges = Array.isArray(got.museflow.edges) ? got.museflow.edges : [];
-      state.groups = Array.isArray(got.museflow.groups) ? got.museflow.groups : [];
-      state.notes = Array.isArray(got.museflow.notes) ? got.museflow.notes : [];
-      state.settings = got.museflow.settings || {};
+    const result = await readSavedWorkflow();
+    legacyKey = result.legacyKey;
+    const saved = result.saved;
+    if (saved) {
+      state.nodes = Array.isArray(saved.nodes) ? saved.nodes : [];
+      state.edges = Array.isArray(saved.edges) ? saved.edges : [];
+      state.groups = Array.isArray(saved.groups) ? saved.groups : [];
+      state.notes = Array.isArray(saved.notes) ? saved.notes : [];
+      state.settings = normalizeSettings(saved.settings);
       if (!state.nodes.length) {
         const s = starter();
         state.nodes = s.nodes;
@@ -181,14 +209,17 @@ export async function loadState() {
       const s = starter();
       state.nodes = s.nodes;
       state.edges = s.edges;
+      state.settings = normalizeSettings();
     }
     await hydrateWorkflowMedia();
+    mediaPruneAllowed = true;
   } catch (error) {
     const s = starter();
     state.nodes = s.nodes;
     state.edges = s.edges;
     state.groups = [];
     state.notes = [];
+    state.settings = normalizeSettings();
     setRunStatus(`Could not load saved workflow: ${error.message}`, 'error');
   }
   normalizeSavedGraph();
@@ -198,13 +229,15 @@ export async function loadState() {
   try {
     clearTimeout(autoSaveTimer);
     await queueWorkflowSave();
+    if (legacyKey) {
+      await chrome.storage.local.remove(legacyKey);
+      setRunStatus(`Workflow migrated from ${legacyKey} to ${APP_NAME}.`, 'ok');
+    }
   } catch (error) {
-    setRunStatus(
-      `Workflow is open, but media migration failed: ${error?.message || String(error)}`,
-      'warn',
-    );
+    setRunStatus(`Workflow is open, but media migration failed: ${error?.message || String(error)}`, 'warn');
   }
 }
+
 export async function resetState() {
   if (state.isRunning) return;
   createUndoSnapshot('Reset workflow', { preserveRuntime: false });
@@ -218,6 +251,29 @@ export async function resetState() {
   render();
   await saveState();
 }
+
+export function normalizeSettings(settings) {
+  const source = settings && typeof settings === 'object' && !Array.isArray(settings) ? settings : {};
+  return {
+    ...source,
+    autoRetry: Math.max(0, Math.min(2, Math.round(Number(source.autoRetry) || 0))),
+    continueOnError: Boolean(source.continueOnError),
+  };
+}
+
 export function syncSettingsUI() {
-  backendStatus.textContent = 'Muse session · v0.5.0';
+  state.settings = normalizeSettings(state.settings);
+  backendStatus.textContent = `Muse session · ${APP_NAME} v${APP_VERSION}`;
+  const retry = $('#autoRetrySetting'),
+    continueOnError = $('#continueOnErrorSetting');
+  if (retry) retry.value = String(state.settings.autoRetry);
+  if (continueOnError) continueOnError.checked = state.settings.continueOnError;
+}
+
+export function readSettingsUI() {
+  state.settings = normalizeSettings({
+    ...state.settings,
+    autoRetry: $('#autoRetrySetting')?.value,
+    continueOnError: $('#continueOnErrorSetting')?.checked,
+  });
 }
