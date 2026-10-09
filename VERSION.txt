@@ -1,3 +1,4 @@
-MuseFlow 0.5.0
-Build type: Chrome Extension Manifest V3, zero dependency
+Museta 0.6.0
+Build type: Chrome Extension Manifest V3, no runtime dependencies, no build step
 Integration: signed-in Muse.ai tab; no local backend
+Based on: MuseFlow 0.5.0 by bynne2602

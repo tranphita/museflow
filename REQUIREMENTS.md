@@ -1,11 +1,15 @@
-# MuseFlow MVP — Requirements
+# Museta — Requirements
 
 ## Required
 
-1. Google Chrome or Chromium
+1. Google Chrome or another Chromium browser with Manifest V3 support
 2. A Muse.ai account
-3. A signed-in Muse chat tab in the same Chrome profile
+3. A signed-in Muse chat tab in the same browser profile
 
-MuseFlow itself has **zero npm/pip dependencies**. The supplied folder is already a loadable Chrome extension. After replacing files, open `chrome://extensions` and click Reload on MuseFlow. The Muse session check runs automatically on canvas open and when a Muse tab finishes loading.
+Museta has **no runtime dependencies** and no build step. The folder is a loadable Chrome extension. After replacing files, click **Reload** on the extensions page and reload the Muse tab.
 
-MuseFlow uses the signed-in Muse.ai tab directly and no longer requires `muse2api`, an API key, or a local backend. Keep the Muse chat tab open while generating. Text-to-image is supported; reference-image upload is not yet implemented. The integration follows Muse's current page UI and may need updating if Muse changes its interface.
+Museta uses the signed-in Muse.ai tab directly; it does not need a local backend or API key. Keep the Muse chat tab open while generating. Text-to-image, text-to-video and reference images are supported. The integration follows Muse's current page UI; if Muse changes it, **Settings → Check Muse session** shows which page hooks in `bridge/muse-ui.js` need updating.
+
+## Development only
+
+Node.js 22+ for `npm test`. Lint and format run through `npx` and are not installed into the project.

@@ -5,7 +5,9 @@
   "description": "Museta Chrome extension. No runtime dependencies; these scripts are for development only.",
   "scripts": {
     "test": "node --test \"tests/unit/**/*.test.js\"",
-    "lint": "npx --yes eslint@9.13.0 src bridge background.js tests scripts",
-    "format": "npx --yes prettier@3.3.3 --write src bridge background.js tests scripts"
-  }
+    "lint": "npx --yes eslint@9.13.0 src bridge background.js tests",
+    "format": "npx --yes prettier@3.3.3 --write src bridge background.js tests",
+    "package": "git archive --format=zip --prefix=Museta/ -o downloads/Museta-extension.zip HEAD"
+  },
+  "version": "0.6.0"
 }

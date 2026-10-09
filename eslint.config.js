@@ -77,4 +77,15 @@ export default [
     },
     rules: { 'no-undef': 'error', 'no-unused-vars': 'warn' },
   },
+  {
+    files: ['tests/smoke/**/*.js'],
+    languageOptions: {
+      globals: {
+        ...browserGlobals,
+        performance: 'readonly',
+        sessionStorage: 'readonly',
+        sendToBridge: 'readonly',
+      },
+    },
+  },
 ];

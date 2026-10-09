@@ -1,100 +1,112 @@
-# 26Flow
+# Museta
 
-**26Flow** is a visual workflow extension for creating images and videos with your signed-in [Muse.ai](https://muse.ai) session. Build workflows by connecting nodes on a canvas, generate media, and arrange video clips on a timeline.
+**Museta** is a visual workflow extension for creating images and videos with your signed-in [Muse.ai](https://muse.ai) session. Connect nodes on a canvas, generate media, and arrange video clips on a timeline with background music.
 
 [Tiếng Việt](README-vi.md)
 
-**Quick install:** [Download MuseFlow-extension.zip](https://github.com/bynne2602/museflow/raw/refs/heads/main/downloads/MuseFlow-extension.zip) · No npm install or build step required.
+**Quick install:** [Download Museta-extension.zip](https://github.com/tranphita/museflow/raw/refs/heads/main/downloads/Museta-extension.zip) · No npm install or build step required.
+
+Museta is based on [MuseFlow / 26Flow](https://github.com/bynne2602/museflow) by bynne2602 and keeps its GPL-2.0-or-later license.
 
 ## Screenshots
+
+The screenshots and demo video show the original MuseFlow interface; Museta's layout is the same.
 
 ### Demo video
 
 [![Watch MuseFlow: create images, generate videos, and assemble scenes with Muse.ai](https://img.youtube.com/vi/w7mJwTJyzKw/maxresdefault.jpg)](https://www.youtube.com/watch?v=w7mJwTJyzKw)
 
-[▶ Watch on YouTube](https://www.youtube.com/watch?v=w7mJwTJyzKw) · [Download the MP4 demo](https://github.com/bynne2602/museflow/releases/download/demo-2026-10-09/2026-10-09.11-17-18.mp4)
-
 ### Workflow canvas and Muse.ai
 
-![26Flow workflow canvas connected to a Muse.ai session](docs/screenshots/26flow-workflow-canvas.png)
+![Workflow canvas connected to a Muse.ai session](docs/screenshots/26flow-workflow-canvas.png)
 
-### Timeline preview
+### Timeline
 
-![26Flow playing a generated scene in the timeline preview panel](docs/screenshots/26flow-timeline-preview.png)
+![Timeline preview playing a generated scene](docs/screenshots/26flow-timeline-preview.png)
 
-### Timeline editor
-
-![26Flow timeline with ordered clips, thumbnails, and duration controls](docs/screenshots/26flow-timeline-editor.png)
+![Timeline with ordered clips, thumbnails, and duration controls](docs/screenshots/26flow-timeline-editor.png)
 
 ## Features
 
-- **Visual node canvas:** add, move, connect, multi-select, and arrange workflow nodes. Hold **Alt** while dragging to copy a node or selection with its incoming connections; press **Ctrl+Z** to undo the last canvas or workflow edit. Press **G** and drag on the canvas to draw a group region; press **T** to add a freeform text note directly to the canvas. Notes can be edited, moved, and saved with the workflow. Group regions are saved with the workflow. Pan and zoom the canvas, and use the context menu for node actions.
-- **Prompt tools:** create prompts, negative prompts, append or merge text; Text Merge accepts multiple text sources on one input and joins them in connection order with a configurable separator.
-- **Image workflows:** provide image inputs and references, generate images, resize outputs, and preview connected media.
-- **Video workflows:** generate video clips, optionally use the preceding timeline clip's end frame as a continuity reference, and preview connected video.
-- **Timeline:** add and reorder clips, set clip durations, preview the sequence, export WebM, or assemble the full timeline as MP4 (H.264) with the bundled local FFmpeg engine. MP4 processing stays on your device.
-- **Script to nodes:** turn a scene-based script into connected image/video nodes and an ordered timeline.
-- **Workflow files:** use **Save workflow** to download a reusable JSON file and **Import workflow** to restore it later. Generated and input media are embedded when available; inaccessible remote media remains linked to its original URL.
-- **Local workflow saving:** **Save** and autosave keep the current workflow in the extension's browser storage.
+- **Visual node canvas:** add, move, connect, multi-select, and arrange nodes. Hold **Alt** while dragging to copy nodes with their incoming connections; **Ctrl+Z** undoes the last canvas edit. Press **G** and drag to draw a group region; press **T** to add a text note. Pan, zoom, and use the context menu for node actions.
+- **Prompt tools:** prompts, negative prompts, Text Append, and Text Merge (several text sources joined in connection order with a custom separator).
+- **Image workflows:** image inputs, up to 8 reference images through a References node, image generation, resizing, and previews.
+- **Video workflows:** video clips with optional end-frame continuity from the previous timeline clip, and **↻ Again** to regenerate with stronger prompt adherence.
+- **Output versions:** every Generate Image and Generate Video node keeps its last 8 results. Click a thumbnail under the node to switch back to an earlier version.
+- **Reliable runs:** optionally retry a failed generation automatically, and keep running the rest of the workflow when one node fails (nodes that depend on it are skipped). Both options are in **Settings**.
+- **Timeline:** reorder clips, set durations, scrub and preview the sequence, add **background music** with a volume control, and export WebM or MP4 (H.264). MP4 is assembled locally with the bundled FFmpeg engine.
+- **Script → Nodes:** turn a scene script into connected image/video nodes and an ordered timeline.
+- **Workflow files:** **Save workflow** downloads a JSON file with media embedded where possible; **Import workflow** restores it. Files saved by MuseFlow 0.5 still import.
+- **Autosave:** the current workflow and its media are stored in the extension's browser storage. Workflows saved by MuseFlow are migrated automatically on first launch.
 
 ## Requirements
 
 - A Chromium-based browser with Manifest V3 extension support.
-- An active, signed-in Muse.ai session. Keep the Muse.ai chat page open while generating media.
-- Muse.ai account and page features that support the requested generation. Aspect ratio, audio, and video availability depend on Muse.ai.
+- A signed-in Muse.ai session with its chat page open while generating.
+- Muse.ai account features that support the requested generation. Aspect ratio, audio, and video availability depend on Muse.ai.
 
-26Flow communicates with Muse.ai through the extension's page bridge. It does not use muse2api, a separate generation backend, API keys, Docker, or an npm build step. Prompts and selected reference images are submitted to Muse.ai when you run a generation. Timeline MP4 export uses the FFmpeg WebAssembly engine packaged with the extension and processes video locally.
+Museta talks to Muse.ai through a page bridge inside the extension. It does not use a separate backend, API keys, or Docker. Prompts and selected reference images are sent to Muse.ai when you run a generation. Timeline export runs locally.
 
 ## Install
 
-1. Download [MuseFlow-extension.zip](https://github.com/bynne2602/museflow/raw/refs/heads/main/downloads/MuseFlow-extension.zip) and extract it to a permanent folder. Alternatively, [download the repository ZIP](https://github.com/bynne2602/museflow/archive/refs/heads/main.zip).
-2. Open your browser's extensions page (for Chrome, `chrome://extensions`).
+1. Download [Museta-extension.zip](https://github.com/tranphita/museflow/raw/refs/heads/main/downloads/Museta-extension.zip) and extract it to a permanent folder.
+2. Open `chrome://extensions` (or your browser's extensions page).
 3. Enable **Developer mode**.
-4. Select **Load unpacked** and choose the folder containing `manifest.json`.
+4. Select **Load unpacked** and choose the extracted folder that contains `manifest.json`.
 5. Open Muse.ai, sign in, and open its chat page.
-6. Open **26Flow** and check the Muse session status.
-
-There is no npm install or build step. The downloaded ZIP contains the extension source and bundled local FFmpeg files. Choose the extracted repository folder that directly contains `manifest.json` when using **Load unpacked**.
-
-### Download a packaged ZIP
-
-The packaged ZIP contains the extension, bundled FFmpeg files, and their required license notices. Extract it first, then select the folder containing `manifest.json` in **Load unpacked**. Do not select the ZIP file itself.
+6. Click the **Museta** toolbar icon and check the Muse session status.
 
 ### Update
 
-Replace the project files with the updated version, then select **Reload** on the browser extensions page. Reload the Muse.ai tab as well so its extension bridge is refreshed.
-
-## View MuseFlow and Muse.ai side by side
-
-For a clearer view while you work, keep the Muse.ai chat and the MuseFlow canvas visible at the same time:
-
-1. Open the Muse.ai chat in one browser window.
-2. Click the MuseFlow extension icon to open its canvas in a tab. Move that tab into a separate window by dragging it out of the tab strip.
-3. In Windows, select the MuseFlow window and press **Windows key + Left Arrow**. Select the Muse.ai window and press **Windows key + Right Arrow**. You can also drag each window to the left or right edge of the screen.
-4. Keep both pages open during generation so you can follow the active workflow node in MuseFlow and the generation response in Muse.ai.
+Replace the files with the new version, select **Reload** on the extensions page, then reload the Muse.ai tab so its bridge is refreshed. If you are upgrading from MuseFlow, remove the old MuseFlow extension after Museta has opened your workflow once.
 
 ## Quick start
 
-1. Add a **Prompt** node and enter your prompt.
+1. Add a **Prompt** node and type your prompt.
 2. Add a **Generate Image** or **Generate Video** node.
-3. Drag the prompt node's output to the generator's prompt input. Connect any reference image or other inputs you need.
-4. Choose the output settings and click **Run Image** or **Run Video** on that node, or run the workflow from the toolbar.
-5. Connect generated media to a **Preview** node. For video, add clips to the **Timeline**, arrange their order, and preview or export the sequence.
+3. Drag the prompt's output to the generator's prompt input. Connect references if needed.
+4. Click **Run Image** / **Run Video** on the node, or **Run workflow** in the toolbar.
+5. Connect results to a **Preview** node. For video, add clips to the **Timeline**, arrange them, optionally add **♪ Music**, then preview or export.
 
-For a scene script, use **Script → Nodes**, paste the script, and create the workflow. Scene headings should use a format such as `CẢNH 1 (0:00–0:07): Scene title`, with fields such as `Prompt ảnh`, `Prompt video`, and optional `Audio`.
+For a scene script, use **Script → Nodes**. Scene headings look like `CẢNH 1 (0:00–0:07): Scene title`, followed by `Prompt ảnh`, `Prompt video`, and an optional `Audio` field.
 
-## Data and permissions
+## View Museta and Muse.ai side by side
 
-Workflows and locally stored media are kept in browser extension storage on your device. When you run a workflow, 26Flow submits the relevant prompt and reference media to Muse.ai through your signed-in session. The extension requests browser storage and tab access to save workflows and communicate with Muse.ai; it does not configure a separate 26Flow account or generation server.
+Drag the Museta tab into its own window, then press **Windows + Left Arrow** on it and **Windows + Right Arrow** on the Muse.ai window. Keep both open to follow the running node and Muse's response.
 
 ## Troubleshooting
 
-- **Muse session is unavailable:** sign in to Muse.ai, keep its chat page open, then reload 26Flow and the Muse.ai tab.
-- **Generation does not start or media is missing:** check the Muse.ai page and session, then retry. Muse.ai may change its interface or generation behavior, which can require an extension update.
-- **Muse declines a scene:** 26Flow detects refusal messages, including Vietnamese replies that say a scene cannot be created or offer to make an equivalent, and retries that scene once with a close, safer alternative prompt. It does not wait for confirmation. The retry keeps the scene's narrative role and settings; Muse.ai still determines whether the result can be generated.
-- **Timeline export fails:** reload the extension and try again. MP4 uses the bundled FFmpeg engine; WebM uses browser `MediaRecorder` and canvas capture.
-- **Output differs from requested settings:** Muse.ai controls the generated media; the requested aspect ratio, audio, and video options may not always be honored by the service.
+- **Muse session is unavailable:** sign in to Muse.ai, keep its chat page open, then reload Museta and the Muse.ai tab.
+- **"Muse page changed" in the status bar:** Muse updated its interface. Open **Settings → Check Muse session** to see which part of the page Museta can no longer find. All page hooks live in [`bridge/muse-ui.js`](bridge/muse-ui.js), so a fix is usually a one-line selector change there.
+- **Muse declines a scene:** Museta detects refusals (including Vietnamese replies) and retries that scene once with a close, safe alternative prompt. Muse.ai still decides whether the result can be generated.
+- **Timeline export fails:** reload the extension and try again. MP4 uses the bundled FFmpeg; WebM uses the browser's `MediaRecorder`.
+- **Output differs from requested settings:** Muse.ai controls the generated media and may not always honor the requested ratio, audio, or video options.
+
+## Data and permissions
+
+Workflows and media are kept in extension storage on your device; media that is no longer referenced is cleaned up automatically. The extension requests storage, tab, and scripting access to save workflows and communicate with the Muse.ai tab. There is no Museta account or server.
+
+## Development
+
+No build step: the extension loads `src/main.js` as an ES module. Node.js 22+ is only needed for checks.
+
+```sh
+npm test          # unit tests (node:test, no dependencies)
+npm run lint      # eslint via npx
+npm run format    # prettier via npx
+npm run package   # build downloads/Museta-extension.zip from the committed HEAD
+```
+
+| Path | Contents |
+| --- | --- |
+| `src/core/` | DOM-free logic: graph resolution and ordering, scene-script parser, prompt building, output history, FFmpeg argument plans |
+| `src/app/` | UI and browser integration: canvas rendering, connections, timeline and export, runner, persistence, Muse tab messaging |
+| `bridge/` | Content scripts injected into Muse.ai: page hooks (`muse-ui.js`), refusal detection, and the generation bridge |
+| `tests/unit/` | Unit tests for `src/core` and the refusal detector |
+| `tests/smoke/` | Browser smoke tests with a `chrome.*` stub, a fake Muse page, and a real FFmpeg export run |
+
+To run the smoke tests, serve the repository root (for example `python -m http.server 8765`) and run the scripts in `tests/smoke/` with Playwright.
 
 ## License
 
-MuseFlow is licensed under the [GNU General Public License v2.0 or later (GPL-2.0-or-later)](LICENSE), matching the bundled FFmpeg core. The FFmpeg JavaScript wrapper remains MIT-licensed. See [third-party notices](THIRD_PARTY_NOTICES.md) and the included license texts.
+Museta is licensed under the [GNU General Public License v2.0 or later](LICENSE), matching the bundled FFmpeg core. The FFmpeg JavaScript wrapper remains MIT-licensed. See [third-party notices](THIRD_PARTY_NOTICES.md).
