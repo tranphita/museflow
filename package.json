@@ -1,0 +1,11 @@
+{
+  "name": "museta",
+  "private": true,
+  "type": "module",
+  "description": "Museta Chrome extension. No runtime dependencies; these scripts are for development only.",
+  "scripts": {
+    "test": "node --test tests/unit/",
+    "lint": "npx --yes eslint@9.13.0 src bridge background.js tests scripts",
+    "format": "npx --yes prettier@3.3.3 --write src bridge background.js tests scripts"
+  }
+}
