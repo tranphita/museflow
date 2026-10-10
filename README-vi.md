@@ -87,6 +87,8 @@ Museta sẽ:
 - bật continuity cho các clip sau (clip mới bắt đầu từ frame cuối của clip trước) và yêu cầu mỗi clip kết thúc bằng khung hình ổn định dẫn sang cảnh kế tiếp;
 - đặt chuyển cảnh **Crossfade 0.5s** cho timeline. Đổi kiểu (Cut, Crossfade, Fade through black, Dissolve, Slide left) và độ dài ở ô **⇄** trên dock timeline; hiệu ứng được áp dụng khi xuất MP4.
 
+Muốn có sẵn file để **Import workflow** thay vì dán kịch bản: chạy `npm run script-to-workflow -- kich-ban.txt` để tạo `kich-ban.workflow.json` (ví dụ: [docs/sample-film.workflow.json](docs/sample-film.workflow.json)).
+
 Mẹo: chạy riêng các node nhân vật trước, chọn phiên bản ảnh ưng ý (dải **Versions** dưới node), rồi mới **Run workflow** cho cả phim.
 
 ## Mở Museta và Muse.ai cạnh nhau

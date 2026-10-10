@@ -1,0 +1,461 @@
+{
+  "format": "museta-workflow",
+  "version": 1,
+  "appVersion": "0.7.0",
+  "exportedAt": "2026-10-10T02:14:41.270Z",
+  "workflow": {
+    "nodes": [
+      {
+        "id": "references-ec6aeea6-b2b2-47ec-9b72-0a2a31f29007",
+        "type": "references",
+        "x": -280,
+        "y": 40,
+        "data": {}
+      },
+      {
+        "id": "prompt-d65f8f5a-4704-4760-bc9f-14174c2e8223",
+        "type": "prompt",
+        "x": 80,
+        "y": 40,
+        "data": {
+          "text": "Character reference sheet for \"Linh\": cô gái 20 tuổi, tóc bob ngắn màu đen, mắt nâu to, áo khoác len vàng mù tạt, quần jean xanh, giày vải trắng. Full body and close-up face side by side, front view, neutral expression, plain light-grey background, even soft lighting, no text or labels.",
+          "sceneLabel": "Character: Linh"
+        }
+      },
+      {
+        "id": "generateImage-f15b8962-55e8-49b0-86ac-d3928f1f527d",
+        "type": "generateImage",
+        "x": 410,
+        "y": 40,
+        "data": {
+          "model": "muse-image",
+          "size": "3:4",
+          "status": "idle",
+          "sceneLabel": "Character: Linh",
+          "characterName": "Linh"
+        }
+      },
+      {
+        "id": "prompt-a34ebcc5-5dfb-4dca-8c07-33a0431d7d62",
+        "type": "prompt",
+        "x": 730,
+        "y": 40,
+        "data": {
+          "text": "Character reference sheet for \"Mun\": mèo đen lông mượt, mắt xanh lá, vòng cổ đỏ có chuông vàng nhỏ. Full body and close-up face side by side, front view, neutral expression, plain light-grey background, even soft lighting, no text or labels.",
+          "sceneLabel": "Character: Mun"
+        }
+      },
+      {
+        "id": "generateImage-43b9196b-0998-4d23-8884-541d214cf84d",
+        "type": "generateImage",
+        "x": 1060,
+        "y": 40,
+        "data": {
+          "model": "muse-image",
+          "size": "3:4",
+          "status": "idle",
+          "sceneLabel": "Character: Mun",
+          "characterName": "Mun"
+        }
+      },
+      {
+        "id": "prompt-2cf32c96-fd2a-47f5-9cd9-1c6840be5dce",
+        "type": "prompt",
+        "x": 80,
+        "y": 660,
+        "data": {
+          "text": "Linh ngồi trên bậc thềm gỗ trước tiệm sách nhỏ, Mun nhảy lên bậc thềm cạnh cô, 9:16\n\nCharacters in this shot (keep each one identical to their reference image): Linh — cô gái 20 tuổi, tóc bob ngắn màu đen, mắt nâu to, áo khoác len vàng mù tạt, quần jean xanh, giày vải trắng; Mun — mèo đen lông mượt, mắt xanh lá, vòng cổ đỏ có chuông vàng nhỏ.\n\nVisual style for the whole film: hoạt hình 3D ấm áp kiểu Pixar, ánh sáng hoàng hôn vàng cam, màu pastel, khung dọc 9:16.",
+          "sceneLabel": "Scene 1: Gặp gỡ"
+        }
+      },
+      {
+        "id": "generateImage-efe7f451-b4a1-445b-aa32-33c66f40b779",
+        "type": "generateImage",
+        "x": 410,
+        "y": 660,
+        "data": {
+          "model": "muse-image",
+          "size": "9:16",
+          "status": "idle",
+          "sceneLabel": "Scene 1: Gặp gỡ"
+        }
+      },
+      {
+        "id": "prompt-0755de61-4931-451d-b9f9-18ee31656852",
+        "type": "prompt",
+        "x": 80,
+        "y": 1200,
+        "data": {
+          "text": "Linh mỉm cười, đưa tay vuốt ve đầu Mun. Mun dụi đầu vào tay cô. Máy quay đẩy nhẹ vào gần.\n\nAudio direction: tiếng piano nhẹ, tiếng chuông mèo leng keng\n\nCharacters in this shot (keep each one identical to their reference image): Linh — cô gái 20 tuổi, tóc bob ngắn màu đen, mắt nâu to, áo khoác len vàng mù tạt, quần jean xanh, giày vải trắng; Mun — mèo đen lông mượt, mắt xanh lá, vòng cổ đỏ có chuông vàng nhỏ.\n\nVisual style for the whole film: hoạt hình 3D ấm áp kiểu Pixar, ánh sáng hoàng hôn vàng cam, màu pastel, khung dọc 9:16.",
+          "sceneLabel": "Scene 1: Gặp gỡ"
+        }
+      },
+      {
+        "id": "generateVideo-c6057a44-6970-48c5-884d-ca6fa4b80cc9",
+        "type": "generateVideo",
+        "x": 410,
+        "y": 1200,
+        "data": {
+          "model": "muse-video",
+          "size": "9:16",
+          "duration": 6,
+          "continuity": false,
+          "nextShot": "Dạo phố: Linh và Mun cùng đi dọc con phố, máy quay lùi chậm phía trước họ.",
+          "status": "idle",
+          "sceneLabel": "Scene 1: Gặp gỡ"
+        }
+      },
+      {
+        "id": "prompt-2bcfdcf1-1418-435a-9d3e-f1126b64fc6b",
+        "type": "prompt",
+        "x": 730,
+        "y": 660,
+        "data": {
+          "text": "Linh đi bộ trên con phố lát đá, Mun đi bên cạnh, đèn đường vừa bật\n\nCharacters in this shot (keep each one identical to their reference image): Linh — cô gái 20 tuổi, tóc bob ngắn màu đen, mắt nâu to, áo khoác len vàng mù tạt, quần jean xanh, giày vải trắng; Mun — mèo đen lông mượt, mắt xanh lá, vòng cổ đỏ có chuông vàng nhỏ.\n\nVisual style for the whole film: hoạt hình 3D ấm áp kiểu Pixar, ánh sáng hoàng hôn vàng cam, màu pastel, khung dọc 9:16.",
+          "sceneLabel": "Scene 2: Dạo phố"
+        }
+      },
+      {
+        "id": "generateImage-e367839d-2d7d-4080-9141-9fface866d25",
+        "type": "generateImage",
+        "x": 1060,
+        "y": 660,
+        "data": {
+          "model": "muse-image",
+          "size": "9:16",
+          "status": "idle",
+          "sceneLabel": "Scene 2: Dạo phố"
+        }
+      },
+      {
+        "id": "prompt-0e74b459-94dd-4737-a47f-c7d6d2f1886f",
+        "type": "prompt",
+        "x": 730,
+        "y": 1200,
+        "data": {
+          "text": "Linh và Mun cùng đi dọc con phố, máy quay lùi chậm phía trước họ. Lá vàng bay nhẹ.\n\nAudio direction: tiếng bước chân, gió nhẹ, piano tiếp tục\n\nCharacters in this shot (keep each one identical to their reference image): Linh — cô gái 20 tuổi, tóc bob ngắn màu đen, mắt nâu to, áo khoác len vàng mù tạt, quần jean xanh, giày vải trắng; Mun — mèo đen lông mượt, mắt xanh lá, vòng cổ đỏ có chuông vàng nhỏ.\n\nVisual style for the whole film: hoạt hình 3D ấm áp kiểu Pixar, ánh sáng hoàng hôn vàng cam, màu pastel, khung dọc 9:16.",
+          "sceneLabel": "Scene 2: Dạo phố"
+        }
+      },
+      {
+        "id": "generateVideo-6af97d44-c226-470e-a4c6-d2cb5835bd3c",
+        "type": "generateVideo",
+        "x": 1060,
+        "y": 1200,
+        "data": {
+          "model": "muse-video",
+          "size": "9:16",
+          "duration": 6,
+          "continuity": true,
+          "nextShot": "Ngắm sao: Linh chỉ tay lên bầu trời, Mun ngước nhìn theo.",
+          "status": "idle",
+          "sceneLabel": "Scene 2: Dạo phố"
+        }
+      },
+      {
+        "id": "prompt-3118b480-286e-4885-aeb4-dd5fb5f8019d",
+        "type": "prompt",
+        "x": 1380,
+        "y": 660,
+        "data": {
+          "text": "Linh và Mun ngồi trên mái nhà nhìn bầu trời đầy sao\n\nCharacters in this shot (keep each one identical to their reference image): Linh — cô gái 20 tuổi, tóc bob ngắn màu đen, mắt nâu to, áo khoác len vàng mù tạt, quần jean xanh, giày vải trắng; Mun — mèo đen lông mượt, mắt xanh lá, vòng cổ đỏ có chuông vàng nhỏ.\n\nVisual style for the whole film: hoạt hình 3D ấm áp kiểu Pixar, ánh sáng hoàng hôn vàng cam, màu pastel, khung dọc 9:16.",
+          "sceneLabel": "Scene 3: Ngắm sao"
+        }
+      },
+      {
+        "id": "generateImage-73ed5810-4c89-43f6-8f9e-5f99651c2e62",
+        "type": "generateImage",
+        "x": 1710,
+        "y": 660,
+        "data": {
+          "model": "muse-image",
+          "size": "9:16",
+          "status": "idle",
+          "sceneLabel": "Scene 3: Ngắm sao"
+        }
+      },
+      {
+        "id": "prompt-5a15036b-d2fd-44d4-9468-06b03607e132",
+        "type": "prompt",
+        "x": 1380,
+        "y": 1200,
+        "data": {
+          "text": "Linh chỉ tay lên bầu trời, Mun ngước nhìn theo. Một ngôi sao băng vụt qua. Máy quay nâng lên bầu trời.\n\nAudio direction: piano chậm lại, kết thúc êm\n\nCharacters in this shot (keep each one identical to their reference image): Linh — cô gái 20 tuổi, tóc bob ngắn màu đen, mắt nâu to, áo khoác len vàng mù tạt, quần jean xanh, giày vải trắng; Mun — mèo đen lông mượt, mắt xanh lá, vòng cổ đỏ có chuông vàng nhỏ.\n\nVisual style for the whole film: hoạt hình 3D ấm áp kiểu Pixar, ánh sáng hoàng hôn vàng cam, màu pastel, khung dọc 9:16.",
+          "sceneLabel": "Scene 3: Ngắm sao"
+        }
+      },
+      {
+        "id": "generateVideo-d5f56797-7011-4bc5-b0e5-9c693546d101",
+        "type": "generateVideo",
+        "x": 1710,
+        "y": 1200,
+        "data": {
+          "model": "muse-video",
+          "size": "9:16",
+          "duration": 6,
+          "continuity": true,
+          "nextShot": "",
+          "status": "idle",
+          "sceneLabel": "Scene 3: Ngắm sao"
+        }
+      },
+      {
+        "id": "timeline-801458e8-2e94-42cc-aad4-41ad2ebc731e",
+        "type": "timeline",
+        "x": 0,
+        "y": 0,
+        "data": {
+          "dockOnly": true,
+          "clipOrder": [
+            "generateVideo-c6057a44-6970-48c5-884d-ca6fa4b80cc9",
+            "generateVideo-6af97d44-c226-470e-a4c6-d2cb5835bd3c",
+            "generateVideo-d5f56797-7011-4bc5-b0e5-9c693546d101"
+          ],
+          "durations": {
+            "generateVideo-c6057a44-6970-48c5-884d-ca6fa4b80cc9": 6,
+            "generateVideo-6af97d44-c226-470e-a4c6-d2cb5835bd3c": 6,
+            "generateVideo-d5f56797-7011-4bc5-b0e5-9c693546d101": 6
+          },
+          "transition": {
+            "type": "fade",
+            "duration": 0.5
+          }
+        }
+      }
+    ],
+    "edges": [
+      {
+        "id": "edge-2d34030a-b344-4795-be3e-e488d553184d",
+        "source": "prompt-d65f8f5a-4704-4760-bc9f-14174c2e8223",
+        "sourcePort": "text",
+        "target": "generateImage-f15b8962-55e8-49b0-86ac-d3928f1f527d",
+        "targetPort": "prompt"
+      },
+      {
+        "id": "edge-5b1de7c4-720e-4193-be3d-d532d6ec227c",
+        "source": "prompt-a34ebcc5-5dfb-4dca-8c07-33a0431d7d62",
+        "sourcePort": "text",
+        "target": "generateImage-43b9196b-0998-4d23-8884-541d214cf84d",
+        "targetPort": "prompt"
+      },
+      {
+        "id": "edge-20a67d1d-033b-4ce7-9751-8089e65d3396",
+        "source": "prompt-2cf32c96-fd2a-47f5-9cd9-1c6840be5dce",
+        "sourcePort": "text",
+        "target": "generateImage-efe7f451-b4a1-445b-aa32-33c66f40b779",
+        "targetPort": "prompt"
+      },
+      {
+        "id": "edge-81b7bf45-3231-419c-b952-9e272e6f0d34",
+        "source": "generateImage-f15b8962-55e8-49b0-86ac-d3928f1f527d",
+        "sourcePort": "image",
+        "target": "generateImage-efe7f451-b4a1-445b-aa32-33c66f40b779",
+        "targetPort": "reference"
+      },
+      {
+        "id": "edge-0b937828-3e9e-4e5c-93fa-65f96f6c4298",
+        "source": "generateImage-43b9196b-0998-4d23-8884-541d214cf84d",
+        "sourcePort": "image",
+        "target": "generateImage-efe7f451-b4a1-445b-aa32-33c66f40b779",
+        "targetPort": "reference"
+      },
+      {
+        "id": "edge-a5d3c891-3f3c-451a-9bcf-fc94d4dd1bdc",
+        "source": "prompt-0755de61-4931-451d-b9f9-18ee31656852",
+        "sourcePort": "text",
+        "target": "generateVideo-c6057a44-6970-48c5-884d-ca6fa4b80cc9",
+        "targetPort": "prompt"
+      },
+      {
+        "id": "edge-d5a8802a-ee38-48ab-8823-7cc7be0cd265",
+        "source": "generateImage-efe7f451-b4a1-445b-aa32-33c66f40b779",
+        "sourcePort": "image",
+        "target": "generateVideo-c6057a44-6970-48c5-884d-ca6fa4b80cc9",
+        "targetPort": "reference"
+      },
+      {
+        "id": "edge-b5a9be65-4195-4698-8267-3a2391268eb9",
+        "source": "generateImage-f15b8962-55e8-49b0-86ac-d3928f1f527d",
+        "sourcePort": "image",
+        "target": "generateVideo-c6057a44-6970-48c5-884d-ca6fa4b80cc9",
+        "targetPort": "reference"
+      },
+      {
+        "id": "edge-e20e564c-5d24-4ef5-8b2a-70c588d6d239",
+        "source": "generateImage-43b9196b-0998-4d23-8884-541d214cf84d",
+        "sourcePort": "image",
+        "target": "generateVideo-c6057a44-6970-48c5-884d-ca6fa4b80cc9",
+        "targetPort": "reference"
+      },
+      {
+        "id": "edge-97d4db86-7ef2-4ae4-a6a0-a1dbbb002380",
+        "source": "prompt-2bcfdcf1-1418-435a-9d3e-f1126b64fc6b",
+        "sourcePort": "text",
+        "target": "generateImage-e367839d-2d7d-4080-9141-9fface866d25",
+        "targetPort": "prompt"
+      },
+      {
+        "id": "edge-4b5314f3-a743-446f-b52a-7f00e3980b33",
+        "source": "generateImage-f15b8962-55e8-49b0-86ac-d3928f1f527d",
+        "sourcePort": "image",
+        "target": "generateImage-e367839d-2d7d-4080-9141-9fface866d25",
+        "targetPort": "reference"
+      },
+      {
+        "id": "edge-16e7644c-064a-4db4-bd33-387a02c92659",
+        "source": "generateImage-43b9196b-0998-4d23-8884-541d214cf84d",
+        "sourcePort": "image",
+        "target": "generateImage-e367839d-2d7d-4080-9141-9fface866d25",
+        "targetPort": "reference"
+      },
+      {
+        "id": "edge-9af3711c-3b58-4c7b-92ad-fb00e055b142",
+        "source": "prompt-0e74b459-94dd-4737-a47f-c7d6d2f1886f",
+        "sourcePort": "text",
+        "target": "generateVideo-6af97d44-c226-470e-a4c6-d2cb5835bd3c",
+        "targetPort": "prompt"
+      },
+      {
+        "id": "edge-b000501b-953b-4381-865c-03e1af94dbc3",
+        "source": "generateImage-e367839d-2d7d-4080-9141-9fface866d25",
+        "sourcePort": "image",
+        "target": "generateVideo-6af97d44-c226-470e-a4c6-d2cb5835bd3c",
+        "targetPort": "reference"
+      },
+      {
+        "id": "edge-e230b5fa-03ca-4e19-9382-c1d6c9cc5dfb",
+        "source": "generateImage-f15b8962-55e8-49b0-86ac-d3928f1f527d",
+        "sourcePort": "image",
+        "target": "generateVideo-6af97d44-c226-470e-a4c6-d2cb5835bd3c",
+        "targetPort": "reference"
+      },
+      {
+        "id": "edge-98663033-b0d0-4ef2-804f-cb8165d80769",
+        "source": "generateImage-43b9196b-0998-4d23-8884-541d214cf84d",
+        "sourcePort": "image",
+        "target": "generateVideo-6af97d44-c226-470e-a4c6-d2cb5835bd3c",
+        "targetPort": "reference"
+      },
+      {
+        "id": "edge-cbaa3ef4-e87c-42f1-8052-e89739f35c14",
+        "source": "prompt-3118b480-286e-4885-aeb4-dd5fb5f8019d",
+        "sourcePort": "text",
+        "target": "generateImage-73ed5810-4c89-43f6-8f9e-5f99651c2e62",
+        "targetPort": "prompt"
+      },
+      {
+        "id": "edge-f11c0d98-6765-4f8e-b8be-52be5ef4a05b",
+        "source": "generateImage-f15b8962-55e8-49b0-86ac-d3928f1f527d",
+        "sourcePort": "image",
+        "target": "generateImage-73ed5810-4c89-43f6-8f9e-5f99651c2e62",
+        "targetPort": "reference"
+      },
+      {
+        "id": "edge-51193549-b140-4bb0-8dc7-3d6267a21326",
+        "source": "generateImage-43b9196b-0998-4d23-8884-541d214cf84d",
+        "sourcePort": "image",
+        "target": "generateImage-73ed5810-4c89-43f6-8f9e-5f99651c2e62",
+        "targetPort": "reference"
+      },
+      {
+        "id": "edge-56043e6d-ec01-46bd-b1c6-dd6fbba5672d",
+        "source": "prompt-5a15036b-d2fd-44d4-9468-06b03607e132",
+        "sourcePort": "text",
+        "target": "generateVideo-d5f56797-7011-4bc5-b0e5-9c693546d101",
+        "targetPort": "prompt"
+      },
+      {
+        "id": "edge-4c504bf8-3203-496c-aac4-1dcad52faefc",
+        "source": "generateImage-73ed5810-4c89-43f6-8f9e-5f99651c2e62",
+        "sourcePort": "image",
+        "target": "generateVideo-d5f56797-7011-4bc5-b0e5-9c693546d101",
+        "targetPort": "reference"
+      },
+      {
+        "id": "edge-a4f97fc2-34fb-469a-9115-14d2953271da",
+        "source": "generateImage-f15b8962-55e8-49b0-86ac-d3928f1f527d",
+        "sourcePort": "image",
+        "target": "generateVideo-d5f56797-7011-4bc5-b0e5-9c693546d101",
+        "targetPort": "reference"
+      },
+      {
+        "id": "edge-5a72e496-35b7-416c-b32a-9bc8de8df555",
+        "source": "generateImage-43b9196b-0998-4d23-8884-541d214cf84d",
+        "sourcePort": "image",
+        "target": "generateVideo-d5f56797-7011-4bc5-b0e5-9c693546d101",
+        "targetPort": "reference"
+      },
+      {
+        "id": "edge-48ca95bd-2ded-422d-b50b-da375d7e8a81",
+        "source": "references-ec6aeea6-b2b2-47ec-9b72-0a2a31f29007",
+        "sourcePort": "image",
+        "target": "generateImage-f15b8962-55e8-49b0-86ac-d3928f1f527d",
+        "targetPort": "reference"
+      },
+      {
+        "id": "edge-42e7dfc1-e8a4-4ac9-8ab9-cb48e502d95e",
+        "source": "references-ec6aeea6-b2b2-47ec-9b72-0a2a31f29007",
+        "sourcePort": "image",
+        "target": "generateImage-43b9196b-0998-4d23-8884-541d214cf84d",
+        "targetPort": "reference"
+      },
+      {
+        "id": "edge-1ca568f1-c55e-46d1-ab6e-9c5e1236f888",
+        "source": "references-ec6aeea6-b2b2-47ec-9b72-0a2a31f29007",
+        "sourcePort": "image",
+        "target": "generateImage-efe7f451-b4a1-445b-aa32-33c66f40b779",
+        "targetPort": "reference"
+      },
+      {
+        "id": "edge-8d2b015d-29af-471c-a21c-5415a1a190d9",
+        "source": "references-ec6aeea6-b2b2-47ec-9b72-0a2a31f29007",
+        "sourcePort": "image",
+        "target": "generateVideo-c6057a44-6970-48c5-884d-ca6fa4b80cc9",
+        "targetPort": "reference"
+      },
+      {
+        "id": "edge-9591ec81-1a3b-4671-8389-c4cb47e83e98",
+        "source": "references-ec6aeea6-b2b2-47ec-9b72-0a2a31f29007",
+        "sourcePort": "image",
+        "target": "generateImage-e367839d-2d7d-4080-9141-9fface866d25",
+        "targetPort": "reference"
+      },
+      {
+        "id": "edge-00278094-78ef-401b-9dd6-e4a31a6f1a04",
+        "source": "references-ec6aeea6-b2b2-47ec-9b72-0a2a31f29007",
+        "sourcePort": "image",
+        "target": "generateVideo-6af97d44-c226-470e-a4c6-d2cb5835bd3c",
+        "targetPort": "reference"
+      },
+      {
+        "id": "edge-c08ea986-08fb-4253-a84a-1365a4e617f2",
+        "source": "references-ec6aeea6-b2b2-47ec-9b72-0a2a31f29007",
+        "sourcePort": "image",
+        "target": "generateImage-73ed5810-4c89-43f6-8f9e-5f99651c2e62",
+        "targetPort": "reference"
+      },
+      {
+        "id": "edge-d2e43167-d895-41a1-ba25-4760b880032c",
+        "source": "references-ec6aeea6-b2b2-47ec-9b72-0a2a31f29007",
+        "sourcePort": "image",
+        "target": "generateVideo-d5f56797-7011-4bc5-b0e5-9c693546d101",
+        "targetPort": "reference"
+      }
+    ],
+    "groups": [],
+    "notes": [
+      {
+        "id": "note-1703a86c-1971-4912-8fb3-9d83cb3a8134",
+        "x": -280,
+        "y": 300,
+        "width": 300,
+        "height": 190,
+        "text": "1. Run each \"Character\" image node first and pick the best version in its Versions strip.\n2. Run workflow to generate every scene in timeline order.\n3. Check the Timeline, add ♪ Music if you like, then export MP4."
+      }
+    ],
+    "settings": {
+      "autoRetry": 0,
+      "continueOnError": true
+    }
+  }
+}

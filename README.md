@@ -89,6 +89,8 @@ Prompt video: ...
 
 Museta then creates a character reference sheet for each character and connects it to every scene that features them (from the scene's `Nhân vật:` line, or from names mentioned in its prompts). Each scene prompt gets the character descriptions, the film style, and a **CHARACTER LOCK** instruction. Later clips use end-frame continuity and are asked to end on a steady frame that leads into the next shot, and the timeline defaults to a 0.5 s crossfade. Change the transition (Cut, Crossfade, Fade through black, Dissolve, Slide left) and its length with the **⇄** control in the timeline dock; transitions are applied in MP4 export.
 
+To get a file for **Import workflow** instead of pasting the script, run `npm run script-to-workflow -- my-script.txt` to write `my-script.workflow.json` (example: [docs/sample-film.workflow.json](docs/sample-film.workflow.json)).
+
 Tip: run the character nodes first, pick the best version from the **Versions** strip, then run the whole workflow.
 
 ## View Museta and Muse.ai side by side
