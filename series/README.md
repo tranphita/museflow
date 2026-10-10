@@ -29,7 +29,8 @@ Mỗi thư mục con là một bộ phim. Nhân vật được giữ nguyên qua
 
 3. **Build lại workflow.** Chạy lại lệnh ở bước 1. Từ giờ mọi tập dùng ảnh trong `characters/` (node **Image Input**) thay vì tạo nhân vật mới, nên gương mặt giống nhau ở mọi tập.
 
-4. **Làm từng tập.** Import workflow của tập, bấm **▶ Run workflow**, kiểm tra timeline, thêm **♪ Music** nếu muốn, rồi **⇩ Export** MP4.
+4. **Chạy cả bộ một lần:** bấm **Batch** → **Add workflow files** → chọn tất cả file trong `workflows/` → **Start queue**. Museta chạy từng tập và lưu `epXX-....mp4` vào thư mục Downloads. Muốn nhanh hơn: mở 2–3 tab chat Muse mới và chọn số tab tương ứng trong **Settings**.
+5. **Làm từng tập.** Import workflow của tập, bấm **▶ Run workflow**, kiểm tra timeline, thêm **♪ Music** nếu muốn, rồi **⇩ Export** MP4.
 
 ## Dùng chính bạn (và người thân) làm nhân vật
 

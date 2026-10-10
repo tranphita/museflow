@@ -17,9 +17,10 @@ export function queryMuseTabs() {
   return chrome.tabs.query({ url: MUSE_TAB_URLS });
 }
 
-export async function museTabMessage(message, preferredTabId, signal) {
+export async function museTabMessage(message, preferredTabId, signal, { onlyThisTab = false } = {}) {
   if (signal?.aborted) throw stoppedError();
-  const tabs = await queryMuseTabs();
+  const allTabs = await queryMuseTabs();
+  const tabs = onlyThisTab ? allTabs.filter(tab => tab.id === preferredTabId) : allTabs;
   if (!tabs.length) throw new Error('Open Muse.ai and sign in, then retry.');
   const preferred = preferredTabId ?? preferredMuseTabId;
   if (preferred) {

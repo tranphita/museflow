@@ -48,7 +48,8 @@ async function loadTimelineMusic(ffmpeg, node, signal) {
   return { path, volume: music.volume };
 }
 
-export async function exportTimelineMp4WithFFmpeg(node, clips, button, formatSelect) {
+export async function exportTimelineMp4WithFFmpeg(node, clips, button, formatSelect, fileName = '') {
+  let exported = false;
   const stopButton = $('#timelineExportStopBtn'),
     abortController = new AbortController(),
     signal = abortController.signal,
@@ -203,8 +204,9 @@ export async function exportTimelineMp4WithFFmpeg(node, clips, button, formatSel
     player.classList.add('is-active');
     const link = document.createElement('a');
     link.href = state.timelineExportUrl;
-    link.download = `Museta-Timeline-${new Date().toISOString().replace(/[:.]/g, '-')}.mp4`;
+    link.download = `${fileName || `Museta-Timeline-${new Date().toISOString().replace(/[:.]/g, '-')}`}.mp4`;
     link.click();
+    exported = true;
     setRunStatus('Timeline exported as MP4 (H.264) with local FFmpeg.', 'ok');
   } catch (error) {
     if (error?.name === 'AbortError' || signal.aborted) setRunStatus('Timeline export stopped.', 'warn');
@@ -221,20 +223,22 @@ export async function exportTimelineMp4WithFFmpeg(node, clips, button, formatSel
     button.textContent = '⇩ Export';
     stopButton.classList.add('hidden');
   }
+  return exported;
 }
 
-export async function exportTimelineVideo() {
-  if (state.timelineExporting) return;
+export async function exportTimelineVideo({ format = '', fileName = '' } = {}) {
+  if (state.timelineExporting) return false;
+  let exported = false;
   const node = ensureDockTimeline(),
     clips = visibleTimelineClipOrder(node)
       .map(id => nodeById(id))
       .filter(clip => clip?.type === 'generateVideo' && clip.data?.asset?.url),
     button = $('#timelineExportBtn'),
     formatSelect = $('#timelineExportFormat'),
-    requestedFormat = formatSelect.value;
+    requestedFormat = format || formatSelect.value;
   if (!clips.length) {
     setRunStatus('Add completed video clips to the Timeline before exporting.', 'warn');
-    return;
+    return false;
   }
   if (requestedFormat === 'mp4') {
     if (!window.FFmpegWASM?.FFmpeg) {
@@ -242,13 +246,13 @@ export async function exportTimelineVideo() {
         'The bundled FFmpeg engine could not be loaded. Reload the extension and try again.',
         'error',
       );
-      return;
+      return false;
     }
-    return exportTimelineMp4WithFFmpeg(node, clips, button, formatSelect);
+    return exportTimelineMp4WithFFmpeg(node, clips, button, formatSelect, fileName);
   }
   if (!window.MediaRecorder || !HTMLCanvasElement.prototype.captureStream) {
     setRunStatus('This browser cannot export a stitched video from the Timeline.', 'error');
-    return;
+    return false;
   }
   state.timelineExporting = true;
   state.timelineExportAbortController = new AbortController();
@@ -497,8 +501,9 @@ export async function exportTimelineVideo() {
     player.classList.add('is-active');
     const link = document.createElement('a');
     link.href = state.timelineExportUrl;
-    link.download = `Museta-Timeline-${new Date().toISOString().replace(/[:.]/g, '-')}.${extension}`;
+    link.download = `${fileName || `Museta-Timeline-${new Date().toISOString().replace(/[:.]/g, '-')}`}.${extension}`;
     link.click();
+    exported = true;
     const transitionNote =
       (node.data.transition?.type || 'cut') !== 'cut' ? ' Transitions are applied in MP4 export only.' : '';
     setRunStatus(`Stitched timeline exported as ${extension.toUpperCase()}.${transitionNote}`, 'ok');
@@ -527,6 +532,7 @@ export async function exportTimelineVideo() {
     button.textContent = '⇩ Export';
     stopButton.classList.add('hidden');
   }
+  return exported;
 }
 
 export function stopTimelineExport() {

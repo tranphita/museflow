@@ -1,3 +1,4 @@
+import { initBatch } from './app/batch.js';
 import { initRunPanel } from './app/run-panel.js';
 import { getTtsApiKey, setTtsApiKey } from './app/tts-client.js';
 import { APP_VERSION } from './app/app-info.js';
@@ -349,6 +350,7 @@ chrome.tabs.onCreated.addListener(tab => {
 
 $('#brandVersion').textContent = APP_VERSION;
 initRunPanel();
+initBatch();
 loadState();
 detectMuse();
 applyCanvasTransform();

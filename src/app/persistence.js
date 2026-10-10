@@ -131,20 +131,21 @@ export function parseWorkflowFile(text) {
   return workflow;
 }
 
-export async function importWorkflowFile(file) {
-  if (!file) return;
+export async function importWorkflowFile(file, { confirm = true } = {}) {
+  if (!file) return false;
   if (state.isRunning) {
     setRunStatus('Stop the running workflow before importing another one.', 'warn');
-    return;
+    return false;
   }
   let workflow;
   try {
     workflow = parseWorkflowFile(await file.text());
   } catch (error) {
     setRunStatus(`Could not import workflow: ${error?.message || String(error)}`, 'error');
-    return;
+    return false;
   }
-  if (!window.confirm('Importing this workflow will replace the current canvas. Continue?')) return;
+  if (confirm && !window.confirm('Importing this workflow will replace the current canvas. Continue?'))
+    return false;
   createUndoSnapshot('Import workflow', { preserveRuntime: false });
   const previous = {
     nodes: state.nodes,
@@ -168,6 +169,7 @@ export async function importWorkflowFile(file) {
     render();
     await queueWorkflowSave();
     setRunStatus(`Workflow imported: ${file.name}`, 'ok');
+    return true;
   } catch (error) {
     state.nodes = previous.nodes;
     state.edges = previous.edges;
@@ -176,6 +178,7 @@ export async function importWorkflowFile(file) {
     state.settings = previous.settings;
     render();
     setRunStatus(`Could not import workflow: ${error?.message || String(error)}`, 'error');
+    return false;
   }
 }
 
@@ -258,6 +261,7 @@ export function normalizeSettings(settings) {
     ...source,
     autoRetry: Math.max(0, Math.min(2, Math.round(Number(source.autoRetry) || 0))),
     continueOnError: Boolean(source.continueOnError),
+    museTabs: Math.max(1, Math.min(3, Math.round(Number(source.museTabs) || 1))),
   };
 }
 
@@ -268,6 +272,7 @@ export function syncSettingsUI() {
     continueOnError = $('#continueOnErrorSetting');
   if (retry) retry.value = String(state.settings.autoRetry);
   if (continueOnError) continueOnError.checked = state.settings.continueOnError;
+  if ($('#museTabsSetting')) $('#museTabsSetting').value = String(state.settings.museTabs);
 }
 
 export function readSettingsUI() {
@@ -275,5 +280,6 @@ export function readSettingsUI() {
     ...state.settings,
     autoRetry: $('#autoRetrySetting')?.value,
     continueOnError: $('#continueOnErrorSetting')?.checked,
+    museTabs: $('#museTabsSetting')?.value,
   });
 }

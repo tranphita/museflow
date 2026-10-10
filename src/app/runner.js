@@ -22,7 +22,7 @@ import { $, runStatus, setRunStatus } from './dom.js';
 import { loadImage, drawResized, mediaDimensions, extractVideoEndFrame, persistImage } from './media.js';
 import { autoSaveTimer, queueWorkflowSave } from './persistence.js';
 import { render } from './render.js';
-import { MESSAGE, preferredMuseTabId, museTabMessage, sendMuseStop } from './muse-client.js';
+import { MESSAGE, preferredMuseTabId, museTabMessage, sendMuseStop, queryMuseTabs } from './muse-client.js';
 
 export function validateTargetPrompt(targetId) {
   const target = nodeById(targetId);
@@ -47,7 +47,6 @@ export function stopGeneration(nodeId = state.activeGenerationId) {
   if (!nodeId) return;
   const node = nodeById(nodeId);
   if (!node || node.data.status !== 'running') return;
-  const requestId = state.activeGenerationId === nodeId ? state.generationRequestId : null;
   if (state.activeGenerationId === nodeId) state.generationAbortController?.abort();
   if (node) {
     node.data.status = 'stopped';
@@ -56,7 +55,7 @@ export function stopGeneration(nodeId = state.activeGenerationId) {
   setRunStatus(`Stopped ${node?.type === 'generateVideo' ? 'video' : 'image'} generation: ${nodeId}`, 'warn');
   render();
   // Cancellation is best-effort for Muse, but never wait for its response to unlock the UI.
-  void sendMuseStop(requestId);
+  void sendMuseStop(null);
   try {
     clearTimeout(autoSaveTimer);
     void queueWorkflowSave();
@@ -178,26 +177,30 @@ export async function runVoiceoverNode(nodeId) {
   }
 }
 
-async function requestMuseMedia(node, request, signal) {
-  let reply = await museTabMessage(request, preferredMuseTabId, signal);
+async function requestMuseMedia(node, request, signal, tabId) {
+  const send = message =>
+    tabId === undefined
+      ? museTabMessage(message, preferredMuseTabId, signal)
+      : museTabMessage(message, tabId, signal, { onlyThisTab: true });
+  let reply = await send(request);
   if (signal.aborted) throw stoppedError();
   if (!reply?.ok && reply?.code === 'SCENE_REFUSED') {
     setRunStatus(
       `Muse could not create ${node.data.sceneLabel || 'this scene'}; retrying once with a close, safe alternative…`,
       'warn',
     );
-    reply = await museTabMessage(
-      { ...request, requestId: uid('generation'), prompt: buildRefusalRetryPrompt(request.prompt) },
-      preferredMuseTabId,
-      signal,
-    );
+    reply = await send({
+      ...request,
+      requestId: uid('generation'),
+      prompt: buildRefusalRetryPrompt(request.prompt),
+    });
   }
   if (signal.aborted) throw stoppedError();
   if (!reply?.ok) throw new Error(reply?.error || `Muse.ai did not return a generated ${request.mediaType}.`);
   return reply;
 }
 
-async function generateNode(node, { again, signal, progressLabel }) {
+async function generateNode(node, { again, signal, progressLabel, tabId }) {
   const isVideo = node.type === 'generateVideo',
     mediaType = isVideo ? 'video' : 'image';
   const prompt = resolvePrompt(node.id);
@@ -251,7 +254,7 @@ async function generateNode(node, { again, signal, progressLabel }) {
       };
       state.generationRequestId = request.requestId;
       try {
-        reply = await requestMuseMedia(node, request, signal);
+        reply = await requestMuseMedia(node, request, signal, tabId);
         break;
       } catch (error) {
         if (isAbort(error, signal) || attempt >= retries) throw error;
@@ -298,13 +301,28 @@ async function generateNode(node, { again, signal, progressLabel }) {
   }
 }
 
-function failedUpstream(nodeId, failed) {
-  const direct = state.edges.find(edge => edge.target === nodeId && failed.has(edge.source));
-  if (direct) return direct.source;
+const TTS_PARALLEL = 3;
+
+function stepDependencies(nodeId, inRun) {
+  const deps = new Set(state.edges.filter(edge => edge.target === nodeId).map(edge => edge.source));
   const node = nodeById(nodeId);
   const previous =
     node?.type === 'generateVideo' && node.data?.continuity ? timelinePredecessor(nodeId) : null;
-  return previous && failed.has(previous.id) ? previous.id : null;
+  if (previous) deps.add(previous.id);
+  return [...deps].filter(id => inRun.has(id));
+}
+
+async function museTabPool() {
+  const wanted = Math.max(1, Math.min(3, Number(state.settings?.museTabs) || 1));
+  if (wanted === 1) return [undefined];
+  const seen = new Set();
+  const tabs = (await queryMuseTabs()).filter(tab => {
+    const thread = /\/thread\/[^/?#]+/.exec(tab.url || '')?.[0];
+    if (!tab.id || (thread && seen.has(thread))) return false;
+    if (thread) seen.add(thread);
+    return true;
+  });
+  return tabs.length > 1 ? tabs.slice(0, wanted).map(tab => tab.id) : [undefined];
 }
 
 async function saveAfterRun() {
@@ -374,50 +392,112 @@ export async function execute(targetId = null, { again = false } = {}) {
     }
     let generationStep = 0;
     const totalGenerations = order.filter(id => isGenerator(nodeById(id))).length;
-    const failed = new Set();
-    for (const id of order) {
-      if (signal.aborted) throw stoppedError();
-      const n = nodeById(id);
-      if (!n) continue;
-      if (!targetId && producesMedia(n) && n.data.locked && n.data.asset?.url) {
-        if (isGenerator(n)) generationStep++;
-        publishToPreviews(n);
-        markStep(id, 'kept');
-        continue;
-      }
-      const blocker = continueOnError ? failedUpstream(id, failed) : null;
-      if (blocker) {
-        failed.add(id);
-        const reason = `Skipped: it needs “${stepLabel(nodeById(blocker))}”, which did not finish.`;
-        if (isGenerator(n)) {
-          generationStep++;
-          n.data.status = 'error';
-          n.data.error = reason;
-          render();
+    const failed = new Set(),
+      settled = new Set(),
+      inRun = new Set(order);
+    const tabPool = await museTabPool();
+    const capacity = { muse: tabPool.length, tts: TTS_PARALLEL, local: 1 },
+      busy = { muse: 0, tts: 0, local: 0 };
+    const laneOf = node => (isGenerator(node) ? 'muse' : node.type === 'voiceover' ? 'tts' : 'local');
+    const runController = new AbortController();
+    const stopRun = () => runController.abort();
+    signal.addEventListener('abort', stopRun, { once: true });
+    const pending = [...order],
+      running = new Map();
+    let fatal = null;
+    const startStep = node => {
+      const lane = laneOf(node),
+        tabId = lane === 'muse' ? tabPool.shift() : undefined;
+      busy[lane]++;
+      markStep(node.id, 'running');
+      const work =
+        node.type === 'imageResize'
+          ? runImageResize(node)
+          : node.type === 'voiceover'
+            ? runVoiceover(node, runController.signal)
+            : generateNode(node, {
+                again,
+                signal: runController.signal,
+                tabId,
+                progressLabel: targetId
+                  ? 'Selected node'
+                  : `Generation ${++generationStep}/${totalGenerations}`,
+              });
+      const task = work
+        .then(
+          () => markStep(node.id, 'done'),
+          error => {
+            const stopped = isAbort(error, runController.signal);
+            markStep(node.id, stopped ? 'stopped' : 'error', error?.message || String(error));
+            failed.add(node.id);
+            if (stopped || !continueOnError) fatal ??= error;
+            else failures.push({ node, message: error?.message || String(error) });
+          },
+        )
+        .finally(() => {
+          busy[lane]--;
+          if (lane === 'muse') tabPool.push(tabId);
+          settled.add(node.id);
+          running.delete(node.id);
+        });
+      running.set(node.id, task);
+    };
+    try {
+      while ((pending.length && !fatal) || running.size) {
+        if (signal.aborted) throw stoppedError();
+        for (let index = 0; index < pending.length && !fatal; ) {
+          const id = pending[index],
+            n = nodeById(id);
+          const waitingOn = n ? stepDependencies(id, inRun).filter(dep => !settled.has(dep)) : [];
+          if (waitingOn.length) {
+            index++;
+            continue;
+          }
+          if (!n || !(producesMedia(n) || n.type === 'imageResize')) {
+            pending.splice(index, 1);
+            settled.add(id);
+            continue;
+          }
+          if (!targetId && producesMedia(n) && n.data.locked && n.data.asset?.url) {
+            if (isGenerator(n)) generationStep++;
+            publishToPreviews(n);
+            markStep(id, 'kept');
+            pending.splice(index, 1);
+            settled.add(id);
+            continue;
+          }
+          const blocker = stepDependencies(id, inRun).find(dep => failed.has(dep));
+          if (blocker) {
+            const reason = `Skipped: it needs “${stepLabel(nodeById(blocker))}”, which did not finish.`;
+            if (isGenerator(n)) {
+              generationStep++;
+              n.data.status = 'error';
+              n.data.error = reason;
+              render();
+            }
+            markStep(id, 'skipped', reason);
+            failed.add(id);
+            pending.splice(index, 1);
+            settled.add(id);
+            continue;
+          }
+          const lane = laneOf(n);
+          if (busy[lane] >= capacity[lane]) {
+            index++;
+            continue;
+          }
+          pending.splice(index, 1);
+          startStep(n);
         }
-        markStep(id, 'skipped', reason);
-        continue;
+        if (fatal) stopRun();
+        if (!running.size) break;
+        await Promise.race(running.values());
       }
-      markStep(id, 'running');
-      try {
-        if (n.type === 'imageResize') await runImageResize(n);
-        else if (n.type === 'voiceover') await runVoiceover(n, signal);
-        else if (isGenerator(n)) {
-          generationStep++;
-          await generateNode(n, {
-            again,
-            signal,
-            progressLabel: targetId ? 'Selected node' : `Generation ${generationStep}/${totalGenerations}`,
-          });
-        }
-        markStep(id, 'done');
-      } catch (error) {
-        markStep(id, isAbort(error, signal) ? 'stopped' : 'error', error?.message || String(error));
-        if (isAbort(error, signal) || !continueOnError) throw error;
-        failed.add(id);
-        failures.push({ node: n, message: error?.message || String(error) });
-      }
+    } finally {
+      signal.removeEventListener('abort', stopRun);
     }
+    if (signal.aborted) throw stoppedError();
+    if (fatal) throw fatal;
     finishRun(
       'done',
       failures.length

@@ -68,6 +68,8 @@ async page => {
 
   await page.locator('.node-history-item > button:first-child').last().click();
   results.restoredOldest = await page.locator('.node-history-item.active').count();
+  results.lockedAfterRestore = await page.locator('.keep-result-toggle input').first().isChecked();
+  await page.locator('.keep-result-toggle input').first().uncheck();
 
   await page.click('#settingsBtn');
   await page.selectOption('#autoRetrySetting', '0');

@@ -31,6 +31,7 @@
       <button id="workflowExportBtn" type="button" title="Save workflow as a reusable JSON file">Save workflow</button>
       <button id="workflowImportBtn" type="button" title="Import a saved Museta workflow">Import workflow</button>
       <input id="workflowFileInput" type="file" accept=".json,application/json" hidden />
+      <button id="batchBtn" type="button" title="Run several workflow files one after another and export each as MP4">Batch</button>
       <button id="settingsBtn">Settings</button>
       <button id="resetBtn" class="danger">Reset</button>
       <button id="runBtn" class="primary" title="Run every node in the workflow in dependency order">▶ Run workflow</button>
@@ -103,6 +104,30 @@
     <button data-context-action="disconnect-all" role="menuitem">Remove all connections</button>
   </div>
 
+  <div id="batchModal" class="modal-backdrop hidden">
+    <section class="modal batch-modal" role="dialog" aria-modal="true" aria-labelledby="batchTitle">
+      <h2 id="batchTitle">Run several workflows</h2>
+      <p>Add workflow files (for example every episode in a series). Museta imports each one, runs it, exports the MP4, then moves to the next. Keep the Muse tab open.</p>
+      <div class="batch-toolbar">
+        <button id="batchAddBtn" type="button">＋ Add workflow files</button>
+        <input id="batchFileInput" type="file" accept=".json,application/json" multiple hidden />
+        <button id="batchClearBtn" type="button">Clear finished</button>
+        <span id="batchSummary"></span>
+      </div>
+      <div class="settings-options">
+        <label><input id="batchExport" type="checkbox" checked /> Export MP4 after each workflow</label>
+        <label><input id="batchStopOnFail" type="checkbox" /> Stop the queue when a workflow has failed steps</label>
+      </div>
+      <div id="batchEmpty" class="batch-empty">No workflows queued yet.</div>
+      <ol id="batchList" class="batch-list"></ol>
+      <div class="modal-actions">
+        <button id="batchCloseBtn" type="button">Close</button>
+        <button id="batchStopBtn" type="button" class="hidden">■ Stop queue</button>
+        <button id="batchStartBtn" type="button" class="primary">▶ Start queue</button>
+      </div>
+    </section>
+  </div>
+
   <div id="settingsModal" class="modal-backdrop hidden">
     <section class="modal">
       <h2>Muse.ai session</h2>
@@ -117,6 +142,10 @@
         <p>Each automatic retry submits the prompt to Muse again and may use extra credits.</p>
         <label><input id="continueOnErrorSetting" type="checkbox" /> Keep running other nodes when one node fails</label>
         <p>Nodes that depend on a failed node are skipped.</p>
+        <label for="museTabsSetting">Muse tabs used at the same time
+          <select id="museTabsSetting"><option value="1">1 tab</option><option value="2">2 tabs</option><option value="3">3 tabs</option></select>
+        </label>
+        <p>Open that many Muse chat tabs, each on its own chat. Images and voices then generate in parallel; videos chained with end-frame continuity still run one after another.</p>
       </div>
       <h2>Voiceover (tvoiceai)</h2>
       <div class="settings-options">

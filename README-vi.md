@@ -25,6 +25,9 @@ Museta phát triển tiếp từ [MuseFlow / 26Flow](https://github.com/bynne260
 - **Ảnh:** ảnh đầu vào, tối đa 8 ảnh tham chiếu qua node References, tạo ảnh, đổi kích thước, xem trước.
 - **Video:** tạo clip, tuỳ chọn dùng frame cuối của clip trước để nối liền cảnh, nút **↻ Again** để tạo lại bám prompt chặt hơn.
 - **Phiên bản kết quả:** mỗi node Generate Image/Video giữ 8 kết quả gần nhất. Bấm vào ảnh nhỏ dưới node để quay lại phiên bản cũ.
+- **Chạy nhanh hơn:** giọng đọc TTS chạy song song với Muse; **Settings → Muse tabs used at the same time** (1–3) chia việc tạo ảnh/video cho nhiều tab chat Muse. Video nối frame (continuity) vẫn chạy lần lượt.
+- **Hàng đợi (Batch):** chọn nhiều file workflow (ví dụ cả bộ phim), Museta tự nạp, chạy và xuất từng tập thành `<tên file>.mp4`.
+- **Bảng tiến trình:** liệt kê từng bước, thời gian và lý do lỗi; node đang chạy nhấp nháy và canvas tự theo dõi.
 - **Chạy ổn định hơn:** tuỳ chọn tự thử lại khi tạo lỗi, và tiếp tục chạy phần còn lại của workflow khi một node lỗi (các node phụ thuộc vào node lỗi sẽ bị bỏ qua). Cả hai nằm trong **Settings**.
 - **Timeline:** sắp xếp clip, đặt thời lượng, tua và xem trước, thêm **nhạc nền** có chỉnh âm lượng, chọn **hiệu ứng chuyển cảnh**, xuất WebM hoặc MP4 (H.264). MP4 được ghép ngay trên máy bằng FFmpeg đi kèm.
 - **Lời thoại TTS:** node **Voiceover** đọc văn bản bằng giọng [tvoiceai](https://tvoiceai.com); nối vào cổng **voice** của Generate Video thì khi xuất MP4, giọng đọc được trộn vào đúng clip đó (âm thanh gốc hạ nhỏ, clip tự kéo dài nếu câu dài hơn). Kịch bản dùng dòng `Lời thoại:` cho từng cảnh và `GIỌNG ĐỌC:` cho cả bộ. Dán API key vào **Settings → Voiceover**; key chỉ lưu trong trình duyệt, không nằm trong workflow.
