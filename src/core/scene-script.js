@@ -59,26 +59,58 @@ export function voiceFor(voices, speaker) {
   return (speaker && voices.byName[speaker.normalize('NFC').toLowerCase()]) || voices.default;
 }
 
+const TRANSLATION_SPLIT = /\s+\|\s+/;
+const HIGHLIGHT = /\*(\S(?:[^*\n]*\S)?)\*/g;
+
+export const stripHighlights = text => text.replace(HIGHLIGHT, '$1');
+
+function bilingual(raw) {
+  const split = TRANSLATION_SPLIT.exec(raw);
+  const en = (split ? raw.slice(0, split.index) : raw).trim(),
+    vi = split ? raw.slice(split.index + split[0].length).trim() : '';
+  const marked = Boolean(split) || new RegExp(HIGHLIGHT.source).test(en);
+  return { text: stripHighlights(en), ...(marked ? { subtitle: { en, vi } } : {}) };
+}
+
+const joinText = (first, second) => [first, second].filter(Boolean).join(' ');
+
+function mergeLines(previous, line) {
+  const subtitle =
+    previous.subtitle || line.subtitle
+      ? {
+          en: joinText(previous.subtitle?.en ?? previous.text, line.subtitle?.en ?? line.text),
+          vi: joinText(previous.subtitle?.vi, line.subtitle?.vi),
+        }
+      : null;
+  previous.text = joinText(previous.text, line.text);
+  if (subtitle) previous.subtitle = subtitle;
+}
+
 export function parseVoiceLines(voiceText, speakerNames = []) {
   const known = new Set(speakerNames.map(name => name.normalize('NFC').toLowerCase()));
   const unquote = line => line.replace(/^["“”']+|["“”']+$/g, '').trim();
   const lines = voiceText
     .split(/\r?\n/)
-    .map(line => line.replace(/^\s*[-*•]\s*/, '').trim())
+    .map(line => line.replace(/^\s*[-*•]\s+|^\s*[-•]/, '').trim())
     .filter(Boolean)
     .map(line => {
       const spoken = /^([^:\n]{1,40}?)\s*:\s*(.+)$/.exec(line);
       return spoken && known.has(spoken[1].trim().normalize('NFC').toLowerCase())
-        ? { speaker: spoken[1].trim(), text: unquote(spoken[2]) }
-        : { speaker: '', text: unquote(line) };
+        ? { speaker: spoken[1].trim(), ...bilingual(unquote(spoken[2])) }
+        : { speaker: '', ...bilingual(unquote(line)) };
     });
   const merged = [];
   for (const line of lines) {
     const previous = merged.at(-1);
-    if (previous && !line.speaker && !previous.speaker) previous.text = `${previous.text} ${line.text}`;
+    if (previous && !line.speaker && !previous.speaker) mergeLines(previous, line);
     else merged.push(line);
   }
   return merged.filter(line => line.text);
+}
+
+export function parseSubtitleMode(text) {
+  const value = /^\s*(?:PHỤ\s+ĐỀ|SUBTITLES?)\s*:\s*(.+?)\s*$/im.exec(scriptPreamble(text))?.[1] || '';
+  return /song\s*ngữ|bilingual/i.test(value) ? 'bilingual' : 'off';
 }
 
 export function parseAvoid(text) {
