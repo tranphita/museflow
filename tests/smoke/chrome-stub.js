@@ -33,8 +33,35 @@
         window.__museTabMessages.push({ tabId, message });
         return window.__museReply ? window.__museReply(message) : { ok: true };
       },
+      async get(id) {
+        return { id, status: 'complete', url: 'https://muse.ai/chat', windowId: 1 };
+      },
+      async update(id) {
+        return { id };
+      },
+      async create({ url }) {
+        window.__createdTabs = [...(window.__createdTabs || []), url];
+        return { id: 900 + window.__createdTabs.length };
+      },
+      async remove() {},
       onUpdated: listeners(),
       onCreated: listeners(),
+    },
+    windows: {
+      async create() {
+        window.__createdWindows = (window.__createdWindows || 0) + 1;
+        return { id: window.__createdWindows, tabs: [{ id: 800 + window.__createdWindows }] };
+      },
+      async remove() {},
+    },
+    power: {
+      requestKeepAwake(level) {
+        window.__keepAwake = level;
+        window.__keepAwakeEver = true;
+      },
+      releaseKeepAwake() {
+        window.__keepAwake = null;
+      },
     },
     scripting: { async executeScript() {} },
   };
