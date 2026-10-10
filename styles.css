@@ -3324,3 +3324,19 @@ body[data-view='studio'] .toolbar-actions {
   font-weight: 600;
   color: var(--studio-muted);
 }
+.worker-banner {
+  padding: 8px 16px;
+  background: #2a2140;
+  color: var(--studio-text);
+  font-size: 13px;
+  border-bottom: 1px solid var(--studio-line);
+}
+.worker-banner[hidden] {
+  display: none;
+}
+body[data-mode='worker'] .view-switch,
+body[data-mode='worker'] .toolbar-tools,
+body[data-mode='worker'] .toolbar-group,
+body[data-mode='worker'] #runBtn {
+  display: none !important;
+}

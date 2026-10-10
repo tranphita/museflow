@@ -12,6 +12,8 @@ const browserGlobals = Object.fromEntries(
     'cancelAnimationFrame',
     'fetch',
     'URL',
+    'URLSearchParams',
+    'CustomEvent',
     'Blob',
     'File',
     'FileReader',
