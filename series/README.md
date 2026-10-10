@@ -4,7 +4,7 @@ Mỗi thư mục con là một bộ phim. Nhân vật được giữ nguyên qua
 
 | Bộ | Thư mục | Nội dung |
 | --- | --- | --- |
-| Vợ chồng Hảo & Phi Ta học tiếng Anh | [hoc-tieng-anh/](hoc-tieng-anh/) | Mỗi tập là một tình huống giao tiếp (chào hỏi, gọi món, hỏi đường), hội thoại tiếng Anh nói chậm, rõ |
+| Vợ dạy chồng tiếng Anh (Hảo & Phi Ta) | [hoc-tieng-anh/](hoc-tieng-anh/) | Hảo giỏi tiếng Anh, Phi Ta giao tiếp cơ bản. Mỗi tập theo format "chồng nói sai → vợ sửa → luyện → twist hài → nhắc lại": lỗi sai ở nhà, gọi đồ uống, đi siêu thị, check-in khách sạn, ngày kỷ niệm |
 | Hảo Fit — nhật ký tập gym | [gym-idol/](gym-idol/) | Vlog thể hình hằng ngày của nữ fitness creator Hảo: leg day, thân trên, ngày nghỉ và meal prep |
 
 ## Cấu trúc một bộ
