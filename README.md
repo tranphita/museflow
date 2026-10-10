@@ -152,7 +152,7 @@ npm run package   # build downloads/Museta-extension.zip from the committed HEAD
 | `src/app/` | UI and browser integration: canvas rendering, connections, timeline and export, runner, persistence, Muse tab messaging |
 | `bridge/` | Content scripts injected into Muse.ai: page hooks (`muse-ui.js`), refusal detection, and the generation bridge |
 | `tests/unit/` | Unit tests for `src/core` and the refusal detector |
-| `tests/smoke/` | Browser smoke tests with a `chrome.*` stub, a fake Muse page, and a real FFmpeg export run |
+| `tests/smoke/` | Browser smoke tests with a `chrome.*` stub, a fake Muse page, and real FFmpeg export runs (with and without bilingual subtitles) |
 
 To run the smoke tests, serve the repository root (for example `python -m http.server 8765`) and run the scripts in `tests/smoke/` with Playwright.
 

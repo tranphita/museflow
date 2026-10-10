@@ -19,3 +19,10 @@ The bundled FFmpeg core includes FFmpeg n5.1.4 and codec libraries including x26
 - Source: https://github.com/ffmpegwasm/ffmpeg.wasm/tree/v0.12.15/packages/ffmpeg
 - Package: https://www.npmjs.com/package/@ffmpeg/ffmpeg/v/0.12.15
 - Package integrity: `sha512-1C8Obr4GsN3xw+/1Ww6PFM84wSQAGsdoTuTWPOj2OizsRDLT4CXTaVjPhkw6ARyDus1B9X/L2LiXHqYYsGnRFw==`
+
+## Be Vietnam Pro font
+
+`vendor/fonts/BeVietnamPro-ExtraBold.ttf` is used to burn bilingual subtitles into MP4 exports. It is Copyright 2021 The Be Vietnam Pro Project Authors and licensed under the **SIL Open Font License 1.1**. A copy is included at [licenses/OFL-1.1.txt](licenses/OFL-1.1.txt).
+
+- Source: https://github.com/bettergui/BeVietnamPro
+- File: https://github.com/google/fonts/tree/main/ofl/bevietnampro
