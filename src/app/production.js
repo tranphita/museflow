@@ -5,7 +5,9 @@ import { deleteMediaWithPrefix } from './media-store.js';
 import { loadWorkflowObject } from './persistence.js';
 import {
   deleteJob,
+  deleteOutput,
   getQueueControl,
+  getSeries,
   listJobs,
   updateEpisode,
   updateJob,
@@ -118,8 +120,11 @@ async function closeWorkers() {
 }
 
 async function approve(job) {
+  const series = await getSeries(job.seriesId);
+  const previous = series?.episodes.find(episode => episode.id === job.episodeId)?.outputKey;
   await updateJob(job.id, { status: 'done', checkpoint: null });
   await deleteMediaWithPrefix(jobMediaPrefix(job.id)).catch(() => {});
+  if (previous && previous !== job.outputKey) await deleteOutput(previous).catch(() => {});
   await updateEpisode(job.seriesId, job.episodeId, {
     status: 'done',
     outputKey: job.outputKey,
@@ -134,6 +139,7 @@ async function redo(job) {
   if (!window.confirm(`Throw away this version of “${job.title}” and produce it again from the start?`))
     return;
   await deleteMediaWithPrefix(jobMediaPrefix(job.id)).catch(() => {});
+  if (job.outputKey) await deleteOutput(job.outputKey).catch(() => {});
   const last = Math.max(0, ...production.jobs.map(item => item.order || 0));
   await updateJob(job.id, {
     status: 'queued',

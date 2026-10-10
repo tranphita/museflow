@@ -12,7 +12,7 @@ import { checkEpisode, checkSeries } from '../core/script-check.js';
 import { $, el, setRunStatus } from './dom.js';
 import { blobAsDataUrl } from './media.js';
 import { importWorkflowFile } from './persistence.js';
-import { OPEN_STATUSES, createJob, interleave } from '../core/jobs.js';
+import { createJob, episodeView, interleave } from '../core/jobs.js';
 import { jobMediaPrefix } from '../core/checkpoint.js';
 import { deleteMediaWithPrefix } from './media-store.js';
 import {
@@ -164,24 +164,14 @@ function latestJob(series, episode) {
 
 function episodeState(series, episode) {
   const job = latestJob(series, episode);
-  if (!job)
-    return {
-      job: null,
-      status: episode.status,
-      text: STATUS_TEXT[episode.status] || episode.status,
-      open: false,
-      outputKey: episode.outputKey || '',
-      error: ['failed', 'stopped'].includes(episode.status) ? episode.error : '',
-    };
-  const progress = job.progress?.total ? `, step ${job.progress.done}/${job.progress.total}` : '';
-  return {
-    job,
-    status: job.status,
-    text: job.status === 'running' ? `Running${progress}, worker ${job.workerId}` : JOB_TEXT[job.status],
-    open: OPEN_STATUSES.has(job.status),
-    outputKey: job.outputKey || episode.outputKey || '',
-    error: job.error && ['failed', 'queued'].includes(job.status) ? job.error : '',
-  };
+  const view = episodeView(episode, job, series.importedAt);
+  const fromJob = job && view.status === job.status;
+  const progress = job?.progress?.total ? `, step ${job.progress.done}/${job.progress.total}` : '';
+  const text =
+    fromJob && job.status === 'running'
+      ? `Running${progress}, worker ${job.workerId}`
+      : (fromJob && JOB_TEXT[view.status]) || STATUS_TEXT[view.status] || view.status;
+  return { ...view, job, text };
 }
 
 async function refreshJobs() {

@@ -13,6 +13,7 @@ const browserGlobals = Object.fromEntries(
     'fetch',
     'URL',
     'URLSearchParams',
+    'history',
     'CustomEvent',
     'Blob',
     'File',

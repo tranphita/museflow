@@ -5,6 +5,9 @@ import {
   LEASE_MS,
   QUEUE_CONTROL_ID,
   applyJobPatch,
+  episodeView,
+  exhaustedLeases,
+  jobOutputKey,
   claimPatch,
   createJob,
   defaultControl,
@@ -175,4 +178,53 @@ test('account problems and three Muse failures in a row pause the queue', () => 
   assert.deepEqual(next.recentKinds, []);
   const broken = recordOutcome(recordOutcome(recordOutcome(control, 'bridge'), 'ok'), 'bridge');
   assert.equal(broken.paused, false);
+});
+
+test('each job keeps its own MP4 so a new run never overwrites an approved one', () => {
+  const created = job({ id: 'job-9', seriesId: 'demo', episodeId: 'ep01.txt' });
+  assert.equal(jobOutputKey(created), 'demo/ep01.txt/job-9');
+});
+
+test('a run that never started is classified from the status message', () => {
+  assert.deepEqual(
+    runFailure(
+      null,
+      'Museta 0.10.0 · Paste your tvoiceai API key in Settings → Voiceover, press Save, then run again.',
+    ),
+    {
+      kind: 'tts-key',
+      message:
+        'Museta 0.10.0 · Paste your tvoiceai API key in Settings → Voiceover, press Save, then run again.',
+    },
+  );
+});
+
+test('a job whose workers kept dying stops being claimed once it used every attempt', () => {
+  const crashing = job({ id: 'crash', status: 'running', heartbeatAt: 0, attempts: 3, order: 1 });
+  const next = job({ id: 'next', order: 2 });
+  assert.equal(pickNextJob([crashing, next], LEASE_MS + 1, LEASE_MS, 3).id, 'next');
+  assert.deepEqual(
+    exhaustedLeases([crashing, next], LEASE_MS + 1, LEASE_MS, 3).map(item => item.id),
+    ['crash'],
+  );
+  assert.equal(pickNextJob([crashing], LEASE_MS + 1, LEASE_MS, 4).id, 'crash');
+});
+
+test('a script edited after its last run shows as changed instead of done', () => {
+  const edited = { status: 'changed', outputKey: 'old' };
+  assert.deepEqual(episodeView(edited, job({ status: 'done', queuedAt: 5, outputKey: 's/e/j' }), 10), {
+    status: 'changed',
+    open: false,
+    outputKey: 's/e/j',
+    error: '',
+  });
+  assert.equal(episodeView(edited, job({ status: 'done', queuedAt: 20 }), 10).status, 'done');
+  assert.equal(episodeView(edited, job({ status: 'queued', queuedAt: 5 }), 10).open, true);
+  assert.deepEqual(episodeView({ status: 'failed', error: 'x' }, null, 0), {
+    status: 'failed',
+    open: false,
+    outputKey: '',
+    error: 'x',
+  });
+  assert.equal(episodeView({ status: 'new' }, job({ status: 'failed', error: 'boom' }), 0).error, 'boom');
 });

@@ -3,6 +3,7 @@ import {
   applyJobPatch,
   claimPatch,
   defaultControl,
+  exhaustedLeases,
   isJob,
   pickNextJob,
 } from '../core/jobs.js';
@@ -108,11 +109,39 @@ export function claimJob(workerId, now = Date.now()) {
     req.onsuccess = () => {
       const records = req.result || [];
       const control = { ...defaultControl(), ...records.find(record => !isJob(record)) };
-      const job = control.paused ? null : pickNextJob(records, now, control.leaseMs);
+      for (const stuck of exhaustedLeases(records, now, control.leaseMs, control.maxAttempts))
+        store.put({
+          ...stuck,
+          status: 'failed',
+          workerId: null,
+          endedAt: now,
+          errorKind: 'unknown',
+          error: `The worker stopped responding in all ${stuck.attempts} attempts; its tab may have crashed.`,
+        });
+      const job = control.paused ? null : pickNextJob(records, now, control.leaseMs, control.maxAttempts);
       if (!job) return done(null);
       const claimed = { ...job, ...claimPatch(job, workerId, now) };
       store.put(claimed);
       done(claimed);
     };
+  });
+}
+
+export async function finishJob(id, owner, outputKey, blob, patch) {
+  const database = await db();
+  return new Promise((resolve, reject) => {
+    const tx = database.transaction([JOBS, OUTPUTS], 'readwrite');
+    let result = null;
+    const req = tx.objectStore(JOBS).get(id);
+    req.onsuccess = () => {
+      const next = applyJobPatch(req.result, patch, owner);
+      if (!next) return;
+      tx.objectStore(OUTPUTS).put(blob, outputKey);
+      tx.objectStore(JOBS).put(next);
+      result = next;
+    };
+    tx.oncomplete = () => resolve(result);
+    tx.onerror = () => reject(tx.error || new Error('Could not save the episode MP4.'));
+    tx.onabort = () => reject(tx.error || new Error('Saving the episode MP4 was cancelled.'));
   });
 }

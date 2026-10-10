@@ -73,7 +73,7 @@ Tab **Studio** liệt kê các bộ phim và từng tập. Bấm **Import folder
 ## Hàng đợi sản xuất (Production)
 
 1. Xếp tập vào hàng đợi trong Studio.
-2. Mở tab **Production**, xem **Queue settings** (số worker, số lần thử mỗi tập, thời gian nghỉ giữa các lượt gửi Muse, URL chat mới) rồi bấm **Start**. Mỗi worker mở một cửa sổ Muse và một tab worker. Lần đầu hãy đăng nhập Muse trong từng cửa sổ và giữ chúng mở.
+2. Mở tab **Production**, xem **Queue settings** (số worker, số lần thử mỗi tập, thời gian nghỉ giữa các lượt gửi Muse, URL chat mới) rồi bấm **Start**. Mỗi worker mở một cửa sổ Muse và một tab worker. Lần đầu hãy đăng nhập Muse trong từng cửa sổ và giữ chúng mở. Để các cửa sổ Muse hiện trên màn hình, không thu nhỏ và không bị cửa sổ khác che kín, vì Chrome làm chậm trang trong cửa sổ bị ẩn.
 3. Để Chrome chạy qua đêm. Máy không ngủ khi hàng đợi còn việc; mỗi tập bắt đầu bằng một cuộc chat Muse mới; MP4 được xuất lần lượt từng tập.
 4. Sáng ra duyệt: **Play**, rồi **Approve** (tập chuyển sang Done trong Studio), **Redo** (làm lại từ đầu) hoặc **Open in canvas** để sửa tay từng cảnh. **Download all** tải các MP4 đã duyệt.
 5. Hàng đợi tự tạm dừng khi Muse hết credit, một cửa sổ worker bị đăng xuất hoặc bị đóng, API key tvoiceai thiếu hoặc sai, hoặc ba tập liên tiếp không gửi được tới Muse. Xử lý xong bấm **Resume**: các tập dở chạy tiếp từ bước đã xong. Lỗi khác tự thử lại sau 1, 5 và 15 phút; tập lỗi mãi hoặc bị Muse từ chối sẽ nằm ở **Needs attention** kèm lý do.

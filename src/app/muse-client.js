@@ -1,3 +1,5 @@
+import { state } from '../core/state.js';
+import { pinnedMuseTabIds, selectableMuseTabs } from '../core/worker-tabs.js';
 import { $, museStatus } from './dom.js';
 
 export const MESSAGE = Object.freeze({
@@ -13,8 +15,11 @@ const stoppedError = () => new DOMException('Generation stopped by user.', 'Abor
 
 export let preferredMuseTabId = null;
 
-export function queryMuseTabs() {
-  return chrome.tabs.query({ url: MUSE_TAB_URLS });
+export async function queryMuseTabs() {
+  const museTabs = await chrome.tabs.query({ url: MUSE_TAB_URLS });
+  if (state.pinnedMuseTabId) return selectableMuseTabs(museTabs, { pinnedId: state.pinnedMuseTabId });
+  const pinnedIds = pinnedMuseTabIds(await chrome.tabs.query({}), chrome.runtime.getURL('app.html'));
+  return selectableMuseTabs(museTabs, { pinnedIds });
 }
 
 export async function museTabMessage(message, preferredTabId, signal, { onlyThisTab = false } = {}) {

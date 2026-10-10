@@ -61,12 +61,12 @@ async page => {
     });
   watch(page);
   context.on('page', watch);
-  const until = async (label, predicate, timeout = 240000) => {
+  const until = async (label, predicate, timeout = 240000, interval = 500) => {
     const end = Date.now() + timeout;
     while (Date.now() < end) {
       const value = await page.evaluate(predicate);
       if (value) return value;
-      await page.waitForTimeout(500);
+      await page.waitForTimeout(interval);
     }
     throw new Error(`Timed out waiting for ${label}`);
   };
@@ -159,6 +159,43 @@ async page => {
   const counts = await page.evaluate(() => JSON.parse(localStorage.getItem('smoke-counts') || '{}'));
 
   await page.evaluate(async () => {
+    localStorage.setItem('smoke-delay', '300');
+    const store = await import('/src/app/library-store.js');
+    const { createJob } = await import('/src/core/jobs.js');
+    await store.putJobs([
+      createJob({
+        seriesId: 'smoke-a',
+        episodeId: 'ep03.txt',
+        title: 'D1',
+        fileName: 'D1.mp4',
+        script: 'TÊN BỘ: smoke-a\n\nCẢNH 1 (0:00–0:02): x\nPrompt ảnh: title:D1 a ball\nPrompt video: title:D1 it rolls',
+        order: 5,
+      }),
+    ]);
+  });
+  const stolenId = await until(
+    'D1 to start exporting',
+    async () => {
+      const store = await import('/src/app/library-store.js');
+      const job = (await store.listJobs()).find(item => item.title === 'D1' && item.status === 'exporting');
+      if (!job) return null;
+      await store.updateJob(job.id, { workerId: '9', heartbeatAt: Date.now() + 600000 });
+      return job.id;
+    },
+    120000,
+    100,
+  );
+  await page.waitForTimeout(8000);
+  const theft = await page.evaluate(async id => {
+    const store = await import('/src/app/library-store.js');
+    const { jobOutputKey } = await import('/src/core/jobs.js');
+    const job = (await store.listJobs()).find(item => item.id === id);
+    const output = (await store.getOutput(jobOutputKey(job))) || (await store.getOutput('smoke-a/ep03.txt'));
+    await store.deleteJob(id);
+    return { status: job.status, workerId: job.workerId, output: Boolean(output) };
+  }, stolenId);
+
+  await page.evaluate(async () => {
     localStorage.setItem('smoke-mode', 'credits');
     const store = await import('/src/app/library-store.js');
     const { createJob } = await import('/src/core/jobs.js');
@@ -195,6 +232,9 @@ async page => {
       .filter(([title]) => title !== killed.title && title !== 'C1')
       .every(([, count]) => count === 4) &&
     finished.find(item => item.title === killed.title).attempts === 2 &&
+    theft.status === 'exporting' &&
+    theft.workerId === '9' &&
+    !theft.output &&
     paused.reason === 'credits' &&
     paused.status === 'queued' &&
     paused.attempts === 0 &&
@@ -202,5 +242,5 @@ async page => {
     /credits/i.test(ui.banner) &&
     ui.keepAwakeEver &&
     errors.length === 0;
-  return { pass, killed, finished, counts, paused, ui, errors };
+  return { pass, killed, finished, counts, theft, paused, ui, errors };
 }

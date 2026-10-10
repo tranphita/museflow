@@ -81,7 +81,7 @@ The **Studio** tab lists your series and their episodes. Use **Import folder** t
 ## Production queue
 
 1. Queue episodes in the Studio.
-2. Open **Production**, check **Queue settings** (Workers, Attempts per episode, Pause between Muse requests, New chat URL), then press **Start**. Each worker opens one Muse window and one worker tab. Sign in to Muse in each window the first time and keep them open.
+2. Open **Production**, check **Queue settings** (Workers, Attempts per episode, Pause between Muse requests, New chat URL), then press **Start**. Each worker opens one Muse window and one worker tab. Sign in to Muse in each window the first time and keep them open. Leave the Muse windows visible on screen, not minimized or fully covered by another window: Chrome slows down pages in hidden windows.
 3. Leave Chrome running. The computer stays awake while the queue has work, and each episode starts in a fresh Muse chat. MP4 exports run one at a time.
 4. Review in the morning: **Play**, then **Approve** (the episode is marked Done in the Studio), **Redo** (produce it again from the start) or **Open in canvas** to fix single scenes. **Download all** saves the approved MP4s.
 5. The queue pauses by itself when Muse runs out of credits, a worker window is signed out or closed, the tvoiceai key is missing or rejected, or three episodes in a row cannot reach Muse. Fix the cause and press **Resume**: unfinished episodes continue from their last finished step. Other failures retry after 1, 5 and 15 minutes; an episode that keeps failing, or that Muse refuses, moves to **Needs attention** with the reason.

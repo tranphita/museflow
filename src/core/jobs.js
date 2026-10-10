@@ -13,7 +13,7 @@ export const PAUSE_REASONS = {
   stop: 'Stopped. Unfinished episodes went back to the queue and continue from their last finished step.',
   credits: 'Muse ran out of credits. Top up, then press Resume.',
   'signed-out':
-    'Muse is signed out in a worker window, or the window was closed. Sign in there, then press Resume.',
+    'Muse is signed out in a worker window, or the window was closed. Sign in there, then press Resume; a closed window opens again by itself.',
   'tts-key':
     'The tvoiceai API key is missing or was rejected. Fix it in Settings → Voiceover, then press Resume.',
   breaker:
@@ -70,12 +70,22 @@ export function isLeaseExpired(job, now, leaseMs = LEASE_MS) {
   return ACTIVE_STATUSES.has(job.status) && now - (job.heartbeatAt || 0) > leaseMs;
 }
 
-export function pickNextJob(records, now, leaseMs = LEASE_MS) {
+export const jobOutputKey = job => `${job.seriesId}/${job.episodeId}/${job.id}`;
+
+export function exhaustedLeases(records, now, leaseMs = LEASE_MS, maxAttempts = Infinity) {
+  return records.filter(
+    job => isJob(job) && isLeaseExpired(job, now, leaseMs) && job.attempts >= maxAttempts,
+  );
+}
+
+export function pickNextJob(records, now, leaseMs = LEASE_MS, maxAttempts = Infinity) {
   return (
     records
       .filter(isJob)
       .filter(
-        job => (job.status === 'queued' && (job.notBefore || 0) <= now) || isLeaseExpired(job, now, leaseMs),
+        job =>
+          (job.status === 'queued' && (job.notBefore || 0) <= now) ||
+          (isLeaseExpired(job, now, leaseMs) && job.attempts < maxAttempts),
       )
       .sort((a, b) => a.order - b.order || a.queuedAt - b.queuedAt)[0] || null
   );
@@ -108,8 +118,11 @@ export function nextAttempt(job, kind, now, maxAttempts = 3) {
   return { patch: { ...released, status: 'queued', notBefore: now + wait }, pause: null };
 }
 
-export function runFailure(run) {
-  if (!run) return { kind: 'unknown', message: 'The episode did not start.' };
+export function runFailure(run, fallbackMessage = '') {
+  if (!run) {
+    const message = fallbackMessage || 'The episode did not start.';
+    return { kind: classifyError(message), message };
+  }
   if (run.outcome === 'stopped') return { kind: 'stopped', message: 'Stopped by you.' };
   const messages = run.steps
     .filter(step => step.status === 'error')
@@ -152,4 +165,23 @@ export function recordOutcome(control, kind) {
   if (recentKinds.length === BREAKER_LIMIT && recentKinds.every(item => BREAKER_KINDS.has(item)))
     return { ...control, recentKinds: [], paused: true, reason: 'breaker' };
   return { ...control, recentKinds };
+}
+
+export function episodeView(episode, job, importedAt = 0) {
+  if (!job)
+    return {
+      status: episode.status,
+      open: false,
+      outputKey: episode.outputKey || '',
+      error: ['failed', 'stopped'].includes(episode.status) ? episode.error || '' : '',
+    };
+  const open = OPEN_STATUSES.has(job.status);
+  if (episode.status === 'changed' && !open && job.queuedAt < importedAt)
+    return { status: 'changed', open: false, outputKey: job.outputKey || episode.outputKey || '', error: '' };
+  return {
+    status: job.status,
+    open,
+    outputKey: job.outputKey || episode.outputKey || '',
+    error: job.error && ['failed', 'queued'].includes(job.status) ? job.error : '',
+  };
 }
