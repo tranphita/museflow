@@ -1,5 +1,6 @@
 import { initStudio } from './app/studio.js';
 import { initWorker } from './app/worker.js';
+import { initProduction } from './app/production.js';
 import { initRunPanel } from './app/run-panel.js';
 import { getTtsApiKey, setTtsApiKey } from './app/tts-client.js';
 import { APP_VERSION } from './app/app-info.js';
@@ -356,6 +357,7 @@ initRunPanel();
 if (bootParams.has('worker')) initWorker(bootParams);
 else {
   initStudio();
+  initProduction();
   loadState();
 }
 detectMuse();

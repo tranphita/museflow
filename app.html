@@ -12,6 +12,7 @@
     <div class="brand"><img class="brand-logo" src="icons/museta.svg" alt="" /><strong class="brand-name">Museta</strong><span id="brandVersion" class="brand-version"></span></div>
     <nav class="view-switch" role="tablist" aria-label="Choose a view">
       <button type="button" role="tab" data-view="studio" aria-selected="true">Studio</button>
+      <button type="button" role="tab" data-view="production" aria-selected="false">Production</button>
       <button type="button" role="tab" data-view="canvas" aria-selected="false">Canvas</button>
     </nav>
     <div class="toolbar-tools canvas-only" aria-label="Build the workflow">
@@ -71,6 +72,8 @@
     </aside>
     <section id="studioMain" class="studio-main" aria-live="polite"></section>
   </main>
+
+  <main id="production" class="production" aria-label="Production queue" aria-live="polite"></main>
 
   <div id="studioPlayerModal" class="modal-backdrop hidden">
     <section class="modal studio-player" role="dialog" aria-modal="true" aria-labelledby="studioPlayerTitle">
