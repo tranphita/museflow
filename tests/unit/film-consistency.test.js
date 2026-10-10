@@ -89,11 +89,20 @@ test('prompts lock connected characters and ask for a flowing ending', () => {
     characterNames: ['Linh', '', 'Linh', 'Mèo Mun'],
     nextShot: 'Đi dạo',
   });
-  assert.match(video, /CHARACTER LOCK: The attached character reference images show Linh, Mèo Mun\./);
+  assert.match(video, /IDENTITY LOCK — highest priority/);
+  assert.match(video, /- Images #1, #3 are real photos of Linh\./);
+  assert.match(video, /- Image #4 is a real photo of Mèo Mun\./);
+  assert.match(video, /never heavier, wider, broader or bulkier/);
+  assert.match(video, /Image #2|composition guide only/);
+  assert.ok(video.indexOf('IDENTITY LOCK') < video.indexOf('Prompt: x'));
   assert.match(video, /ENDING: .*\(Đi dạo\)/);
   const image = buildMusePrompt({ mediaType: 'image', size: '1:1', prompt: 'x', characterNames: ['Linh'] });
-  assert.match(image, /reference image shows Linh\. Keep this character identical/);
-  assert.doesNotMatch(image, /ENDING/);
+  assert.match(image, /^IDENTITY LOCK/);
+  assert.match(image, /- Image #1 is a real photo of Linh\./);
+  assert.doesNotMatch(image, /composition guide|ENDING/);
+  const continuity = characterLockInstruction(['', 'Linh'], { continuityFrame: true });
+  assert.match(continuity, /correct it to match the identity photos/);
+  assert.doesNotMatch(continuity, /composition guide/);
 });
 
 const clip = duration => ({

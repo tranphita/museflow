@@ -227,10 +227,10 @@ export function timelinePredecessor(nodeId) {
 export function resolveReferences(nodeId) {
   const references = [],
     seen = new Set();
-  const add = (url, name, character = '') => {
+  const add = (url, name, character = '', role = character ? 'character' : 'guide') => {
     if (url && !seen.has(url)) {
       seen.add(url);
-      references.push({ url, name: name || `Reference ${references.length + 1}`, character });
+      references.push({ url, name: name || `Reference ${references.length + 1}`, character, role });
     }
   };
   const visit = (source, sourcePort, visited = new Set()) => {
@@ -257,9 +257,15 @@ export function resolveReferences(nodeId) {
     add(
       previous.data?.endFrame?.url,
       `CONTINUITY START FRAME · ${previous.data?.endFrame?.name || 'previous clip end'}`,
+      '',
+      'continuity',
     );
   for (const edge of getIncoming(nodeId, 'reference')) visit(nodeById(edge.source), edge.sourcePort);
-  return references;
+  const rank = { continuity: 0, character: 1, guide: 2 };
+  return references
+    .map((reference, index) => ({ reference, index }))
+    .sort((a, b) => rank[a.reference.role] - rank[b.reference.role] || a.index - b.index)
+    .map(({ reference }) => reference);
 }
 
 export function topoOrder() {

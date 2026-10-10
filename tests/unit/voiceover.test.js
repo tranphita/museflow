@@ -1,8 +1,19 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { parseSceneScript, parseVoiceId, parseVoices, parseVoiceLines, voiceFor } from '../../src/core/scene-script.js';
+import {
+  parseSceneScript,
+  parseVoiceId,
+  parseVoices,
+  parseVoiceLines,
+  voiceFor,
+} from '../../src/core/scene-script.js';
 import { workflowFromScript } from '../../src/core/film-graph.js';
-import { buildEncodeArgs, canJoinWithoutReencode, clipLengthForVoices, scheduleVoices } from '../../src/core/ffmpeg-plan.js';
+import {
+  buildEncodeArgs,
+  canJoinWithoutReencode,
+  clipLengthForVoices,
+  scheduleVoices,
+} from '../../src/core/ffmpeg-plan.js';
 import { DEFAULT_VOICE_ID } from '../../src/core/node-defs.js';
 import { state } from '../../src/core/state.js';
 import { normalizeSavedGraph } from '../../src/core/graph.js';
@@ -83,15 +94,18 @@ test('dialogue lines are delayed into place and mixed over the lowered clip audi
   assert.match(filter, /\[0:a:0\][^;]*,volume=0\.35\[bed0\]/);
   assert.match(filter, /\[3:a:0\][^;]*adelay=200\|200\[voice0_0\]/);
   assert.match(filter, /\[4:a:0\][^;]*adelay=2550\|2550\[voice0_1\]/);
-  assert.match(filter, /\[bed0\]\[voice0_0\]\[voice0_1\]amix=inputs=3:duration=first:dropout_transition=0,volume=3\[a0\]/);
+  assert.match(
+    filter,
+    /\[bed0\]\[voice0_0\]\[voice0_1\]amix=inputs=3:duration=first:dropout_transition=0,volume=3\[a0\]/,
+  );
   assert.match(filter, /\[2:a:0\][^;]*atrim=duration=6\.000\[a1\]/);
 });
 
 test('speaker lines get their own voice and fall back to the series voice', () => {
-  const lines = parseVoiceLines('- Hảo: "Good morning, honey!"\n- Phi Ta: Good morning!\nNarrator text\ncontinues here', [
-    'Hảo',
-    'Phi Ta',
-  ]);
+  const lines = parseVoiceLines(
+    '- Hảo: "Good morning, honey!"\n- Phi Ta: Good morning!\nNarrator text\ncontinues here',
+    ['Hảo', 'Phi Ta'],
+  );
   assert.deepEqual(lines, [
     { speaker: 'Hảo', text: 'Good morning, honey!' },
     { speaker: 'Phi Ta', text: 'Good morning!' },

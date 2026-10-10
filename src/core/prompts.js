@@ -31,15 +31,15 @@ export function buildMusePrompt({
   nextShot = '',
 }) {
   const plural = referenceCount === 1 ? '' : 's';
-  const characterLock = characterLockInstruction(characterNames);
+  const characterLock = characterLockInstruction(characterNames, { continuityFrame });
   if (mediaType === 'video') {
     const sections = [
       `Create a ${size} aspect ratio video clip, ${duration} seconds long. ${sizeInstruction(size)}`,
+      characterLock,
       AUDIO_REQUIRED,
       continuityFrame && CONTINUITY_LOCK,
       referenceCount &&
         `Use the attached reference image${plural} as visual guidance${continuityFrame ? ' while keeping image 1 as the exact opening frame.' : '.'}`,
-      characterLock,
       `Prompt: ${prompt}`,
       nextShot &&
         `ENDING: Finish on a steady, well-composed frame that flows naturally into the next shot (${nextShot}). Avoid an abrupt cut, fade, or camera jump in the final second.`,
@@ -49,20 +49,42 @@ export function buildMusePrompt({
     return sections.filter(Boolean).join('\n\n');
   }
   const sections = [
+    characterLock,
     prompt,
     referenceCount &&
       `Use the attached reference image${plural} as visual guidance; follow the prompt while preserving relevant subject details.`,
-    characterLock,
     sizeInstruction(size),
     negativePrompt && `Avoid the following (negative prompt): ${negativePrompt}`,
   ];
   return sections.filter(Boolean).join('\n\n');
 }
 
-export function characterLockInstruction(names) {
-  const unique = [...new Set(names.filter(Boolean))];
-  if (!unique.length) return '';
-  return `CHARACTER LOCK: The attached character reference image${unique.length === 1 ? ' shows' : 's show'} ${unique.join(', ')}. Keep ${unique.length === 1 ? 'this character' : 'every character'} identical to the reference: same face, age, hairstyle, skin tone, body shape, and outfit. Do not redesign or swap characters.`;
+function imageList(indexes) {
+  const labels = indexes.map(index => `#${index + 1}`);
+  return labels.length === 1
+    ? `Image ${labels[0]} is a real photo`
+    : `Images ${labels.join(', ')} are real photos`;
+}
+
+export function characterLockInstruction(names, { continuityFrame = false } = {}) {
+  const people = new Map();
+  names.forEach((name, index) => {
+    if (name) people.set(name, [...(people.get(name) || []), index]);
+  });
+  if (!people.size) return '';
+  const guides = names.some((name, index) => !name && !(continuityFrame && index === 0));
+  return [
+    'IDENTITY LOCK — highest priority, overrides every other instruction:',
+    ...[...people].map(([name, indexes]) => `- ${imageList(indexes)} of ${name}.`),
+    '- These are real people. Recreate each face exactly as in their own photos: same face shape, jawline, eyes, eyelids, eyebrows, nose, lips, skin tone, hairline and hairstyle, and glasses where shown. Same apparent age. No beautifying, stylizing, makeup or feature changes, and never mix faces between people.',
+    "- Bodies: keep each person's natural, slim, well-proportioned figure exactly as in the photos — never heavier, wider, broader or bulkier — with relaxed, natural posture.",
+    guides &&
+      '- Any other attached image is a composition guide only: use it for setting, framing and pose, never for faces or bodies.',
+    continuityFrame &&
+      '- If the opening frame shows a slightly different face, correct it to match the identity photos within the first moments.',
+  ]
+    .filter(Boolean)
+    .join('\n');
 }
 
 export function buildRefusalRetryPrompt(prompt) {

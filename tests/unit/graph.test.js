@@ -186,3 +186,23 @@ test('normalizeSavedGraph keeps one source per single input and maps legacy Text
     ['a', 'b'],
   );
 });
+
+test('resolveReferences puts the continuity frame first, then identity photos, then guides', () => {
+  state.nodes = [
+    node('prev', 'generateVideo', { endFrame: { url: 'data:end', name: 'end' } }),
+    node('scene', 'generateImage', { asset: { kind: 'image', url: 'data:scene', name: 'scene' } }),
+    node('hao', 'imageInput', { localDataUrl: 'data:hao', characterName: 'Hảo' }),
+    node('ta', 'imageInput', { localDataUrl: 'data:ta', characterName: 'Phi Ta' }),
+    node('video', 'generateVideo', { continuity: true }),
+    node('tl', 'timeline', { clipOrder: ['prev', 'video'], durations: {} }),
+  ];
+  state.edges = [
+    edge('scene', 'image', 'video', 'reference'),
+    edge('hao', 'image', 'video', 'reference'),
+    edge('ta', 'image', 'video', 'reference'),
+  ];
+  assert.deepEqual(
+    resolveReferences('video').map(ref => `${ref.role}:${ref.character || ref.url}`),
+    ['continuity:data:end', 'character:Hảo', 'character:Phi Ta', 'guide:data:scene'],
+  );
+});
