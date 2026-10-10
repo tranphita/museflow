@@ -13,7 +13,7 @@ import {
   resolveText,
   normalizeSavedGraph,
 } from '../core/graph.js';
-import { synthesizeSpeech } from './tts-client.js';
+import { synthesizeSpeech, getTtsApiKey } from './tts-client.js';
 import { buildMusePrompt, buildRefusalRetryPrompt, isRatioMismatch } from '../core/prompts.js';
 import { recordGeneration } from '../core/history.js';
 import { APP_NAME, APP_VERSION } from './app-info.js';
@@ -136,9 +136,23 @@ function audioDuration(url) {
   });
 }
 
+async function ensureTtsApiKey() {
+  if (await getTtsApiKey()) return true;
+  $('#settingsModal').classList.remove('hidden');
+  $('#ttsApiKeySetting').focus();
+  return false;
+}
+
 export async function runVoiceoverNode(nodeId) {
   const node = nodeById(nodeId);
   if (!node || node.type !== 'voiceover' || state.isRunning) return;
+  if (!(await ensureTtsApiKey())) {
+    setRunStatus(
+      'Paste your tvoiceai API key in Settings → Voiceover, press Save, then run the voice again.',
+      'warn',
+    );
+    return;
+  }
   state.isRunning = true;
   const controller = new AbortController();
   state.generationAbortController = controller;
@@ -326,6 +340,12 @@ export async function execute(targetId = null, { again = false } = {}) {
           return id === targetId || !producesMedia(prerequisite) || !prerequisite.data?.asset?.url;
         })
       : topoOrder();
+    const voicesToCreate = order.some(id => {
+      const item = nodeById(id);
+      return item?.type === 'voiceover' && !(item.data.asset?.url && (item.data.locked || targetId));
+    });
+    if (voicesToCreate && !(await ensureTtsApiKey()))
+      throw new Error('Paste your tvoiceai API key in Settings → Voiceover, press Save, then run again.');
     for (const n of state.nodes) {
       if (n.type === 'imageInput' && n.data.localDataUrl)
         n.data.asset = {

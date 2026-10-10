@@ -1,4 +1,6 @@
-PHONG CÁCH: phim người thật, photorealistic như quay bằng máy cinema 35mm, ánh sáng tự nhiên ấm, màu tươi sáng, không khí vui vẻ thân thiện, khung dọc 9:16, không hoạt hình, không 3D, không tranh vẽ, không chữ hay phụ đề trên hình
+PHONG CÁCH: phim người thật, photorealistic như quay bằng máy cinema 35mm, ánh sáng tự nhiên ấm, màu tươi sáng, không khí vui vẻ thân thiện, khung dọc 9:16, quay bằng ống kính chân dung 50–85mm từ khoảng cách tự nhiên, không hoạt hình, không 3D, không tranh vẽ, không chữ hay phụ đề trên hình
+
+TRÁNH: mặt mập, má phúng phính, mặt bè, mặt tròn hơn ảnh gốc, nọng cằm, cổ ngắn, người mập, bụng to, vai bè, méo hình do ống kính góc rộng, làm đẹp quá mức, da nhựa, đổi khuôn mặt, chữ hoặc logo trên hình
 
 GIỌNG ĐỌC: VIENEU_CLONE_1788933824331
 GIỌNG ĐỌC Phi Ta: VIENEU_CLONE_1787387365149

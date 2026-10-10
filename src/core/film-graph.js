@@ -3,6 +3,7 @@ import {
   parseSceneScript,
   parseCharacters,
   parseFilmStyle,
+  parseAvoid,
   parseVoices,
   parseVoiceLines,
   voiceFor,
@@ -12,7 +13,7 @@ import {
   nextShotHint,
 } from './scene-script.js';
 
-export const MAX_PHOTOS_PER_CHARACTER = 3;
+export const MAX_PHOTOS_PER_CHARACTER = 4;
 export const DEFAULT_FILM_TRANSITION = Object.freeze({ type: 'fade', duration: 0.5 });
 
 const edge = (source, sourcePort, target, targetPort) => ({
@@ -140,6 +141,14 @@ export function buildSceneGraph(script, { baseY = 40, characterImages = {} } = {
       videos.push({ node: videoNode, seconds: scene.seconds });
     }
   });
+  const avoid = parseAvoid(script);
+  if (avoid) {
+    const negative = makeNode('negativePrompt', -280, baseY + 560);
+    negative.data = { text: avoid, sceneLabel: 'Avoid in every shot' };
+    nodes.push(negative);
+    for (const target of nodes.filter(isGenerator))
+      edges.push(edge(negative.id, 'text', target.id, 'negative'));
+  }
   return { nodes, edges, scenes, cast, videos };
 }
 

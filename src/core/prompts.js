@@ -77,7 +77,9 @@ export function characterLockInstruction(names, { continuityFrame = false } = {}
     'IDENTITY LOCK — highest priority, overrides every other instruction:',
     ...[...people].map(([name, indexes]) => `- ${imageList(indexes)} of ${name}.`),
     '- These are real people. Recreate each face exactly as in their own photos: same face shape, jawline, eyes, eyelids, eyebrows, nose, lips, skin tone, hairline and hairstyle, and glasses where shown. Same apparent age. No beautifying, stylizing, makeup or feature changes, and never mix faces between people.',
+    '- Faces must never look rounder, wider, puffier or heavier than in the photos: keep the same cheek and jaw width, no double chin.',
     "- Bodies: keep each person's natural, slim, well-proportioned figure exactly as in the photos — never heavier, wider, broader or bulkier — with relaxed, natural posture.",
+    '- Film people with a 50–85 mm portrait lens look from a natural distance; no wide-angle or close-up lens distortion that widens faces.',
     guides &&
       '- Any other attached image is a composition guide only: use it for setting, framing and pose, never for faces or bodies.',
     continuityFrame &&

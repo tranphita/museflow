@@ -81,6 +81,10 @@ export function parseVoiceLines(voiceText, speakerNames = []) {
   return merged.filter(line => line.text);
 }
 
+export function parseAvoid(text) {
+  return /^\s*(?:TRÁNH|AVOID)\s*:\s*(.+?)\s*$/im.exec(scriptPreamble(text))?.[1] || '';
+}
+
 export function parseFilmStyle(text) {
   return /^\s*(?:PHONG\s+CÁCH|STYLE)\s*:\s*(.+?)\s*$/im.exec(scriptPreamble(text))?.[1] || '';
 }

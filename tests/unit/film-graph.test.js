@@ -73,14 +73,25 @@ test('several photos of one person all become references for their scenes', () =
     'data:image/png;base64,A2',
     'data:image/png;base64,A3',
     'data:x4',
+    'data:x5',
   ];
   const workflow = workflowFromScript(script, { characterImages: { Linh: photos } });
   const inputs = workflow.nodes.filter(node => node.data.characterName === 'Linh');
-  assert.equal(inputs.length, 3);
+  assert.equal(inputs.length, 4);
   assert.ok(inputs.every(node => node.type === 'imageInput'));
   const firstScene = workflow.nodes.find(node => node.type === 'generateImage' && !node.data.characterName);
   const linkedPhotos = workflow.edges.filter(
     edge => edge.target === firstScene.id && inputs.some(input => input.id === edge.source),
   );
-  assert.equal(linkedPhotos.length, 3);
+  assert.equal(linkedPhotos.length, 4);
+});
+
+test('an AVOID line becomes one negative prompt shared by every generator', () => {
+  const workflow = workflowFromScript(`TRÁNH: mặt mập, nọng cằm\n\n${script}`);
+  const negatives = workflow.nodes.filter(node => node.type === 'negativePrompt');
+  assert.equal(negatives.length, 1);
+  assert.equal(negatives[0].data.text, 'mặt mập, nọng cằm');
+  const generators = workflow.nodes.filter(node => ['generateImage', 'generateVideo'].includes(node.type));
+  const linked = workflow.edges.filter(edge => edge.source === negatives[0].id && edge.targetPort === 'negative');
+  assert.equal(linked.length, generators.length);
 });
