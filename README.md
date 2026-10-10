@@ -75,7 +75,7 @@ For a scene script, use **Script → Nodes**. Scene headings look like `CẢNH 1
 Add a cast to your scene script and use **Script → Nodes** (see the [sample script](docs/sample-film-script.txt)):
 
 ```
-PHONG CÁCH: warm 3D animation, golden-hour light
+PHONG CÁCH: live-action, photorealistic, natural light, no animation, no 3D
 
 NHÂN VẬT:
 - Linh: 20-year-old woman, short black bob, mustard jacket

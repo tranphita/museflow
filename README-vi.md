@@ -67,7 +67,7 @@ Với kịch bản, chọn **Script → Nodes**. Tiêu đề cảnh có dạng `
 Dùng **Script → Nodes** với kịch bản có phần nhân vật (xem [kịch bản mẫu](docs/sample-film-script.txt)):
 
 ```
-PHONG CÁCH: hoạt hình 3D ấm áp, ánh sáng hoàng hôn
+PHONG CÁCH: phim người thật, photorealistic, ánh sáng tự nhiên, không hoạt hình, không 3D
 
 NHÂN VẬT:
 - Linh: cô gái 20 tuổi, tóc bob đen, áo khoác vàng

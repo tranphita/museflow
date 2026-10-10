@@ -38,7 +38,7 @@ export function buildSceneGraph(script, { baseY = 40 } = {}) {
     const x = 80 + index * 650,
       label = `Character: ${character.name}`;
     const prompt = makeNode('prompt', x, baseY);
-    prompt.data = { text: characterSheetPrompt(character), sceneLabel: label };
+    prompt.data = { text: characterSheetPrompt(character, filmStyle), sceneLabel: label };
     const image = makeNode('generateImage', x + 330, baseY);
     image.data = {
       model: 'muse-image',

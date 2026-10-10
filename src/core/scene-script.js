@@ -86,8 +86,8 @@ export function parseSceneScript(text) {
     .filter(scene => scene.imagePrompt || scene.videoPrompt);
 }
 
-export function characterSheetPrompt(character) {
-  return `Character reference sheet for "${character.name}": ${character.description}. Full body and close-up face side by side, front view, neutral expression, plain light-grey background, even soft lighting, no text or labels.`;
+export function characterSheetPrompt(character, filmStyle = '') {
+  return `Character reference for "${character.name}": ${character.description}. Full body and close-up of the face side by side, front view, neutral expression, plain light-grey background, even soft lighting, no text or labels.${filmStyle ? ` Style: ${filmStyle}.` : ''}`;
 }
 
 export function castNote(characters) {
