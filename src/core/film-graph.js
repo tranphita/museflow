@@ -39,7 +39,9 @@ export function buildSceneGraph(script, { baseY = 40, characterImages = {} } = {
     edges = [],
     videos = [];
   const savedImages = name => {
-    const match = Object.entries(characterImages).find(([key]) => key.toLowerCase() === name.toLowerCase());
+    const match = Object.entries(characterImages).find(
+      ([key]) => key.normalize('NFC').toLowerCase() === name.normalize('NFC').toLowerCase(),
+    );
     return [match?.[1] || []].flat().slice(0, MAX_PHOTOS_PER_CHARACTER);
   };
   const cast = characters.map((character, index) => {

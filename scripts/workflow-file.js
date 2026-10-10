@@ -12,6 +12,7 @@ const IMAGE_TYPES = {
 
 export function characterNameFromFile(file) {
   return basename(file, extname(file))
+    .normalize('NFC')
     .replace(/(?:[\s_-]+\d+|\s*\(\d+\))$/, '')
     .trim();
 }
