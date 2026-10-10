@@ -9,3 +9,4 @@ eslint.config.js export-ignore
 .gitignore export-ignore
 .gitattributes export-ignore
 .remember/ export-ignore
+series/ export-ignore

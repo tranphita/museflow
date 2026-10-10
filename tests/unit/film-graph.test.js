@@ -47,3 +47,20 @@ test('the generated workflow survives import normalization and runs characters f
 test('a script without scenes is rejected', () => {
   assert.throws(() => workflowFromScript('NHÂN VẬT:\n- A: b'), /No scenes found/);
 });
+
+test('saved character images replace generated character references', () => {
+  const workflow = structuredClone(workflowFromScript(script, { characterImages: { linh: 'data:image/png;base64,AA' } }));
+  const linh = workflow.nodes.find(node => node.data.characterName === 'Linh');
+  const mun = workflow.nodes.find(node => node.data.characterName === 'Mun');
+  assert.equal(linh.type, 'imageInput');
+  assert.equal(linh.data.localDataUrl, 'data:image/png;base64,AA');
+  assert.equal(mun.type, 'generateImage');
+  state.nodes = workflow.nodes;
+  state.edges = workflow.edges;
+  normalizeSavedGraph();
+  const firstScene = state.nodes.find(node => node.type === 'generateImage' && !node.data.characterName);
+  assert.deepEqual(
+    resolveReferences(firstScene.id).map(ref => ref.character),
+    ['Linh'],
+  );
+});

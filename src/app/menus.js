@@ -88,6 +88,8 @@ export function openCanvasMenu(e) {
     addAction('Create Preview node', 'node-create-preview');
   if (node.type === 'imageInput') addAction('Choose / replace image', 'node-choose-image');
   if (node.type === 'imageResize') addAction('Download resized image', 'node-download-image');
+  if (node.type === 'generateImage' && node.data.asset?.url)
+    addAction(node.data.characterName ? 'Save character image' : 'Download image', 'node-download-image');
   if (node.type === 'preview') addAction('Download preview', 'node-download-preview');
   if (node.type === 'prompt' || node.type === 'negativePrompt' || node.type === 'textAppend')
     addAction('Focus text field', 'node-focus-text');
@@ -226,7 +228,10 @@ export function runNodeContextAction(action) {
     if (url) {
       const link = document.createElement('a');
       link.href = url;
-      link.download = node.data.asset.name || 'museta-output';
+      const extension = /^data:image\/(\w+)/.exec(url)?.[1]?.replace('jpeg', 'jpg') || 'png';
+      link.download = node.data.characterName
+        ? `${node.data.characterName}.${extension}`
+        : node.data.asset.name || 'museta-output';
       link.click();
     } else setRunStatus('This node has no output to download.', 'warn');
     return;

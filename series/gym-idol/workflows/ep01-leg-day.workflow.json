@@ -1,0 +1,578 @@
+{
+  "format": "museta-workflow",
+  "version": 1,
+  "appVersion": "0.7.0",
+  "exportedAt": "2026-10-10T02:26:05.865Z",
+  "workflow": {
+    "nodes": [
+      {
+        "id": "references-adc0daae-5d3d-4147-9aa1-e75609f9975a",
+        "type": "references",
+        "x": -280,
+        "y": 40,
+        "data": {}
+      },
+      {
+        "id": "prompt-5ad725af-4b64-4c79-a05e-4df4b1b9d022",
+        "type": "prompt",
+        "x": 80,
+        "y": 40,
+        "data": {
+          "text": "Character reference for \"Vy\": nữ fitness creator người Việt 25 tuổi, người thật, dáng khỏe khoắn săn chắc, tóc đen dài buộc đuôi ngựa cao, nụ cười rạng rỡ, đồ tập thể thao kín đáo gồm áo croptop thể thao màu hồng pastel và quần legging đen, giày chạy bộ trắng, đồng hồ thông minh. Full body and close-up of the face side by side, front view, neutral expression, plain light-grey background, even soft lighting, no text or labels. Style: vlog thể hình người thật, photorealistic như quay bằng máy cinema, phòng gym hiện đại sáng sủa, ánh sáng tự nhiên kết hợp đèn LED trắng, màu sắc năng động, cảm hứng tích cực và lành mạnh, khung dọc 9:16, không hoạt hình, không 3D, không chữ hay phụ đề trên hình.",
+          "sceneLabel": "Character: Vy"
+        }
+      },
+      {
+        "id": "generateImage-7bff87d8-6eca-4343-a0b9-0c212d09c9f6",
+        "type": "generateImage",
+        "x": 410,
+        "y": 40,
+        "data": {
+          "model": "muse-image",
+          "size": "3:4",
+          "status": "idle",
+          "sceneLabel": "Character: Vy",
+          "characterName": "Vy"
+        }
+      },
+      {
+        "id": "prompt-2a7548f9-da57-458d-8bef-36b05cb0480f",
+        "type": "prompt",
+        "x": 80,
+        "y": 660,
+        "data": {
+          "text": "Vy đứng ở cửa phòng gym lúc sáng sớm, đeo túi tập, tay cầm bình nước, nắng sớm chiếu qua cửa kính\n\nCharacters in this shot (keep each one identical to their reference image): Vy — nữ fitness creator người Việt 25 tuổi, người thật, dáng khỏe khoắn săn chắc, tóc đen dài buộc đuôi ngựa cao, nụ cười rạng rỡ, đồ tập thể thao kín đáo gồm áo croptop thể thao màu hồng pastel và quần legging đen, giày chạy bộ trắng, đồng hồ thông minh.\n\nVisual style for the whole film: vlog thể hình người thật, photorealistic như quay bằng máy cinema, phòng gym hiện đại sáng sủa, ánh sáng tự nhiên kết hợp đèn LED trắng, màu sắc năng động, cảm hứng tích cực và lành mạnh, khung dọc 9:16, không hoạt hình, không 3D, không chữ hay phụ đề trên hình.",
+          "sceneLabel": "Scene 1: Bắt đầu ngày mới"
+        }
+      },
+      {
+        "id": "generateImage-0c475ed6-7dc8-4f00-a456-ed124e0fb596",
+        "type": "generateImage",
+        "x": 410,
+        "y": 660,
+        "data": {
+          "model": "muse-image",
+          "size": "9:16",
+          "status": "idle",
+          "sceneLabel": "Scene 1: Bắt đầu ngày mới"
+        }
+      },
+      {
+        "id": "prompt-77155f3e-c573-4540-8502-986a63840459",
+        "type": "prompt",
+        "x": 80,
+        "y": 1200,
+        "data": {
+          "text": "Vy bước vào phòng gym, quay sang ống kính vẫy tay chào đầy năng lượng rồi đặt túi xuống. Máy quay cầm tay theo cô.\n\nAudio direction: Vy nói vui vẻ bằng tiếng Việt: \"Chào cả nhà! Hôm nay là leg day, cùng Vy tập nha!\" Nhạc nền sôi động nhẹ.\n\nCharacters in this shot (keep each one identical to their reference image): Vy — nữ fitness creator người Việt 25 tuổi, người thật, dáng khỏe khoắn săn chắc, tóc đen dài buộc đuôi ngựa cao, nụ cười rạng rỡ, đồ tập thể thao kín đáo gồm áo croptop thể thao màu hồng pastel và quần legging đen, giày chạy bộ trắng, đồng hồ thông minh.\n\nVisual style for the whole film: vlog thể hình người thật, photorealistic như quay bằng máy cinema, phòng gym hiện đại sáng sủa, ánh sáng tự nhiên kết hợp đèn LED trắng, màu sắc năng động, cảm hứng tích cực và lành mạnh, khung dọc 9:16, không hoạt hình, không 3D, không chữ hay phụ đề trên hình.",
+          "sceneLabel": "Scene 1: Bắt đầu ngày mới"
+        }
+      },
+      {
+        "id": "generateVideo-85419713-d22c-4ea7-90c6-84cb133caed9",
+        "type": "generateVideo",
+        "x": 410,
+        "y": 1200,
+        "data": {
+          "model": "muse-video",
+          "size": "9:16",
+          "duration": 6,
+          "continuity": false,
+          "nextShot": "Khởi động: Vy làm các động tác khởi động: xoay hông, đá chân nhẹ, nhảy tại chỗ.",
+          "status": "idle",
+          "sceneLabel": "Scene 1: Bắt đầu ngày mới"
+        }
+      },
+      {
+        "id": "prompt-d37a106d-308e-47dc-b552-dabce23b0d22",
+        "type": "prompt",
+        "x": 730,
+        "y": 660,
+        "data": {
+          "text": "Vy khởi động xoay khớp gối và hông trên thảm tập, khu vực tập tự do rộng rãi\n\nCharacters in this shot (keep each one identical to their reference image): Vy — nữ fitness creator người Việt 25 tuổi, người thật, dáng khỏe khoắn săn chắc, tóc đen dài buộc đuôi ngựa cao, nụ cười rạng rỡ, đồ tập thể thao kín đáo gồm áo croptop thể thao màu hồng pastel và quần legging đen, giày chạy bộ trắng, đồng hồ thông minh.\n\nVisual style for the whole film: vlog thể hình người thật, photorealistic như quay bằng máy cinema, phòng gym hiện đại sáng sủa, ánh sáng tự nhiên kết hợp đèn LED trắng, màu sắc năng động, cảm hứng tích cực và lành mạnh, khung dọc 9:16, không hoạt hình, không 3D, không chữ hay phụ đề trên hình.",
+          "sceneLabel": "Scene 2: Khởi động"
+        }
+      },
+      {
+        "id": "generateImage-55ed40a4-e8fc-40bc-b12e-e3fe89f3c562",
+        "type": "generateImage",
+        "x": 1060,
+        "y": 660,
+        "data": {
+          "model": "muse-image",
+          "size": "9:16",
+          "status": "idle",
+          "sceneLabel": "Scene 2: Khởi động"
+        }
+      },
+      {
+        "id": "prompt-379c66cd-8ae2-4d13-b8cc-1d01fd1a44ff",
+        "type": "prompt",
+        "x": 730,
+        "y": 1200,
+        "data": {
+          "text": "Vy làm các động tác khởi động: xoay hông, đá chân nhẹ, nhảy tại chỗ. Máy quay toàn thân, góc chính diện.\n\nAudio direction: Nhạc sôi động, tiếng thở đều, tiếng giày trên sàn.\n\nCharacters in this shot (keep each one identical to their reference image): Vy — nữ fitness creator người Việt 25 tuổi, người thật, dáng khỏe khoắn săn chắc, tóc đen dài buộc đuôi ngựa cao, nụ cười rạng rỡ, đồ tập thể thao kín đáo gồm áo croptop thể thao màu hồng pastel và quần legging đen, giày chạy bộ trắng, đồng hồ thông minh.\n\nVisual style for the whole film: vlog thể hình người thật, photorealistic như quay bằng máy cinema, phòng gym hiện đại sáng sủa, ánh sáng tự nhiên kết hợp đèn LED trắng, màu sắc năng động, cảm hứng tích cực và lành mạnh, khung dọc 9:16, không hoạt hình, không 3D, không chữ hay phụ đề trên hình.",
+          "sceneLabel": "Scene 2: Khởi động"
+        }
+      },
+      {
+        "id": "generateVideo-a576e437-fe0a-4128-9157-41509e4905ea",
+        "type": "generateVideo",
+        "x": 1060,
+        "y": 1200,
+        "data": {
+          "model": "muse-video",
+          "size": "9:16",
+          "duration": 6,
+          "continuity": true,
+          "nextShot": "Squat với tạ đòn: Vy thực hiện squat chậm và chuẩn kỹ thuật, lưng thẳng, đầu gối hướng theo mũi chân.",
+          "status": "idle",
+          "sceneLabel": "Scene 2: Khởi động"
+        }
+      },
+      {
+        "id": "prompt-f0037475-e1fd-43d3-ae88-c30d0aaccce8",
+        "type": "prompt",
+        "x": 1380,
+        "y": 660,
+        "data": {
+          "text": "Vy đứng trong khung squat rack, tạ đòn trên vai, tư thế chuẩn, gương lớn phía sau\n\nCharacters in this shot (keep each one identical to their reference image): Vy — nữ fitness creator người Việt 25 tuổi, người thật, dáng khỏe khoắn săn chắc, tóc đen dài buộc đuôi ngựa cao, nụ cười rạng rỡ, đồ tập thể thao kín đáo gồm áo croptop thể thao màu hồng pastel và quần legging đen, giày chạy bộ trắng, đồng hồ thông minh.\n\nVisual style for the whole film: vlog thể hình người thật, photorealistic như quay bằng máy cinema, phòng gym hiện đại sáng sủa, ánh sáng tự nhiên kết hợp đèn LED trắng, màu sắc năng động, cảm hứng tích cực và lành mạnh, khung dọc 9:16, không hoạt hình, không 3D, không chữ hay phụ đề trên hình.",
+          "sceneLabel": "Scene 3: Squat với tạ đòn"
+        }
+      },
+      {
+        "id": "generateImage-98803261-1e85-4f4e-b285-e71af2b20bd3",
+        "type": "generateImage",
+        "x": 1710,
+        "y": 660,
+        "data": {
+          "model": "muse-image",
+          "size": "9:16",
+          "status": "idle",
+          "sceneLabel": "Scene 3: Squat với tạ đòn"
+        }
+      },
+      {
+        "id": "prompt-5bc185c5-1aaf-43c9-b68c-837be84f0c01",
+        "type": "prompt",
+        "x": 1380,
+        "y": 1200,
+        "data": {
+          "text": "Vy thực hiện squat chậm và chuẩn kỹ thuật, lưng thẳng, đầu gối hướng theo mũi chân. Máy quay góc nghiêng 45 độ toàn thân.\n\nAudio direction: Vy nói ngắn: \"Giữ lưng thẳng, xuống chậm thôi nha.\" Nhạc nền nhịp mạnh.\n\nCharacters in this shot (keep each one identical to their reference image): Vy — nữ fitness creator người Việt 25 tuổi, người thật, dáng khỏe khoắn săn chắc, tóc đen dài buộc đuôi ngựa cao, nụ cười rạng rỡ, đồ tập thể thao kín đáo gồm áo croptop thể thao màu hồng pastel và quần legging đen, giày chạy bộ trắng, đồng hồ thông minh.\n\nVisual style for the whole film: vlog thể hình người thật, photorealistic như quay bằng máy cinema, phòng gym hiện đại sáng sủa, ánh sáng tự nhiên kết hợp đèn LED trắng, màu sắc năng động, cảm hứng tích cực và lành mạnh, khung dọc 9:16, không hoạt hình, không 3D, không chữ hay phụ đề trên hình.",
+          "sceneLabel": "Scene 3: Squat với tạ đòn"
+        }
+      },
+      {
+        "id": "generateVideo-e5bf2f44-93d8-4a3e-a8a7-eba5aef3adbe",
+        "type": "generateVideo",
+        "x": 1710,
+        "y": 1200,
+        "data": {
+          "model": "muse-video",
+          "size": "9:16",
+          "duration": 6,
+          "continuity": true,
+          "nextShot": "Lunges: Vy thực hiện lunges luân phiên hai chân, bước đều và cân bằng.",
+          "status": "idle",
+          "sceneLabel": "Scene 3: Squat với tạ đòn"
+        }
+      },
+      {
+        "id": "prompt-bcb99d20-4675-4c35-96ce-faaa9b2fc5c1",
+        "type": "prompt",
+        "x": 2030,
+        "y": 660,
+        "data": {
+          "text": "Vy cầm hai quả tạ đơn, bước lunge về phía trước trên sàn gym\n\nCharacters in this shot (keep each one identical to their reference image): Vy — nữ fitness creator người Việt 25 tuổi, người thật, dáng khỏe khoắn săn chắc, tóc đen dài buộc đuôi ngựa cao, nụ cười rạng rỡ, đồ tập thể thao kín đáo gồm áo croptop thể thao màu hồng pastel và quần legging đen, giày chạy bộ trắng, đồng hồ thông minh.\n\nVisual style for the whole film: vlog thể hình người thật, photorealistic như quay bằng máy cinema, phòng gym hiện đại sáng sủa, ánh sáng tự nhiên kết hợp đèn LED trắng, màu sắc năng động, cảm hứng tích cực và lành mạnh, khung dọc 9:16, không hoạt hình, không 3D, không chữ hay phụ đề trên hình.",
+          "sceneLabel": "Scene 4: Lunges"
+        }
+      },
+      {
+        "id": "generateImage-74d2ae56-bb7b-4daf-b37c-5160fdb65d44",
+        "type": "generateImage",
+        "x": 2360,
+        "y": 660,
+        "data": {
+          "model": "muse-image",
+          "size": "9:16",
+          "status": "idle",
+          "sceneLabel": "Scene 4: Lunges"
+        }
+      },
+      {
+        "id": "prompt-6a54f39c-8821-40fa-bdca-68cb8d7bafd7",
+        "type": "prompt",
+        "x": 2030,
+        "y": 1200,
+        "data": {
+          "text": "Vy thực hiện lunges luân phiên hai chân, bước đều và cân bằng. Máy quay lùi chậm phía trước cô.\n\nAudio direction: Tiếng đếm nhịp của Vy: \"Một, hai, ba, bốn\". Nhạc nền tiếp tục.\n\nCharacters in this shot (keep each one identical to their reference image): Vy — nữ fitness creator người Việt 25 tuổi, người thật, dáng khỏe khoắn săn chắc, tóc đen dài buộc đuôi ngựa cao, nụ cười rạng rỡ, đồ tập thể thao kín đáo gồm áo croptop thể thao màu hồng pastel và quần legging đen, giày chạy bộ trắng, đồng hồ thông minh.\n\nVisual style for the whole film: vlog thể hình người thật, photorealistic như quay bằng máy cinema, phòng gym hiện đại sáng sủa, ánh sáng tự nhiên kết hợp đèn LED trắng, màu sắc năng động, cảm hứng tích cực và lành mạnh, khung dọc 9:16, không hoạt hình, không 3D, không chữ hay phụ đề trên hình.",
+          "sceneLabel": "Scene 4: Lunges"
+        }
+      },
+      {
+        "id": "generateVideo-309aa550-a2ea-48f2-be64-dd623a08f0e8",
+        "type": "generateVideo",
+        "x": 2360,
+        "y": 1200,
+        "data": {
+          "model": "muse-video",
+          "size": "9:16",
+          "duration": 6,
+          "continuity": true,
+          "nextShot": "Giãn cơ và kết thúc: Vy giãn cơ chân, uống nước, rồi giơ ngón cái về phía ống kính.",
+          "status": "idle",
+          "sceneLabel": "Scene 4: Lunges"
+        }
+      },
+      {
+        "id": "prompt-eb19f677-5876-4823-998b-5924682a9d99",
+        "type": "prompt",
+        "x": 80,
+        "y": 1760,
+        "data": {
+          "text": "Vy ngồi trên thảm giãn cơ đùi sau, mồ hôi lấm tấm, cười mãn nguyện, bình nước bên cạnh\n\nCharacters in this shot (keep each one identical to their reference image): Vy — nữ fitness creator người Việt 25 tuổi, người thật, dáng khỏe khoắn săn chắc, tóc đen dài buộc đuôi ngựa cao, nụ cười rạng rỡ, đồ tập thể thao kín đáo gồm áo croptop thể thao màu hồng pastel và quần legging đen, giày chạy bộ trắng, đồng hồ thông minh.\n\nVisual style for the whole film: vlog thể hình người thật, photorealistic như quay bằng máy cinema, phòng gym hiện đại sáng sủa, ánh sáng tự nhiên kết hợp đèn LED trắng, màu sắc năng động, cảm hứng tích cực và lành mạnh, khung dọc 9:16, không hoạt hình, không 3D, không chữ hay phụ đề trên hình.",
+          "sceneLabel": "Scene 5: Giãn cơ và kết thúc"
+        }
+      },
+      {
+        "id": "generateImage-c31a4748-c41a-4158-b628-d77966e58cb3",
+        "type": "generateImage",
+        "x": 410,
+        "y": 1760,
+        "data": {
+          "model": "muse-image",
+          "size": "9:16",
+          "status": "idle",
+          "sceneLabel": "Scene 5: Giãn cơ và kết thúc"
+        }
+      },
+      {
+        "id": "prompt-f71e19d7-604f-452e-834e-bfd332fc068f",
+        "type": "prompt",
+        "x": 80,
+        "y": 2300,
+        "data": {
+          "text": "Vy giãn cơ chân, uống nước, rồi giơ ngón cái về phía ống kính. Máy quay đẩy nhẹ vào gương mặt cô.\n\nAudio direction: Vy nói: \"Xong leg day rồi! Nhớ uống đủ nước nha, hẹn gặp lại ngày mai!\" Nhạc nền nhẹ dần.\n\nCharacters in this shot (keep each one identical to their reference image): Vy — nữ fitness creator người Việt 25 tuổi, người thật, dáng khỏe khoắn săn chắc, tóc đen dài buộc đuôi ngựa cao, nụ cười rạng rỡ, đồ tập thể thao kín đáo gồm áo croptop thể thao màu hồng pastel và quần legging đen, giày chạy bộ trắng, đồng hồ thông minh.\n\nVisual style for the whole film: vlog thể hình người thật, photorealistic như quay bằng máy cinema, phòng gym hiện đại sáng sủa, ánh sáng tự nhiên kết hợp đèn LED trắng, màu sắc năng động, cảm hứng tích cực và lành mạnh, khung dọc 9:16, không hoạt hình, không 3D, không chữ hay phụ đề trên hình.",
+          "sceneLabel": "Scene 5: Giãn cơ và kết thúc"
+        }
+      },
+      {
+        "id": "generateVideo-ab810448-e432-4df8-9ee9-b9f3cf43e9ac",
+        "type": "generateVideo",
+        "x": 410,
+        "y": 2300,
+        "data": {
+          "model": "muse-video",
+          "size": "9:16",
+          "duration": 6,
+          "continuity": true,
+          "nextShot": "",
+          "status": "idle",
+          "sceneLabel": "Scene 5: Giãn cơ và kết thúc"
+        }
+      },
+      {
+        "id": "timeline-371c1cff-d261-42cb-99fd-9deef19c34ac",
+        "type": "timeline",
+        "x": 0,
+        "y": 0,
+        "data": {
+          "dockOnly": true,
+          "clipOrder": [
+            "generateVideo-85419713-d22c-4ea7-90c6-84cb133caed9",
+            "generateVideo-a576e437-fe0a-4128-9157-41509e4905ea",
+            "generateVideo-e5bf2f44-93d8-4a3e-a8a7-eba5aef3adbe",
+            "generateVideo-309aa550-a2ea-48f2-be64-dd623a08f0e8",
+            "generateVideo-ab810448-e432-4df8-9ee9-b9f3cf43e9ac"
+          ],
+          "durations": {
+            "generateVideo-85419713-d22c-4ea7-90c6-84cb133caed9": 6,
+            "generateVideo-a576e437-fe0a-4128-9157-41509e4905ea": 6,
+            "generateVideo-e5bf2f44-93d8-4a3e-a8a7-eba5aef3adbe": 6,
+            "generateVideo-309aa550-a2ea-48f2-be64-dd623a08f0e8": 6,
+            "generateVideo-ab810448-e432-4df8-9ee9-b9f3cf43e9ac": 6
+          },
+          "transition": {
+            "type": "fade",
+            "duration": 0.5
+          }
+        }
+      }
+    ],
+    "edges": [
+      {
+        "id": "edge-864208e6-f6f1-40f9-a59f-5c7ede87c0bf",
+        "source": "prompt-5ad725af-4b64-4c79-a05e-4df4b1b9d022",
+        "sourcePort": "text",
+        "target": "generateImage-7bff87d8-6eca-4343-a0b9-0c212d09c9f6",
+        "targetPort": "prompt"
+      },
+      {
+        "id": "edge-2014917c-7764-4841-b032-b59fa9be4c7d",
+        "source": "prompt-2a7548f9-da57-458d-8bef-36b05cb0480f",
+        "sourcePort": "text",
+        "target": "generateImage-0c475ed6-7dc8-4f00-a456-ed124e0fb596",
+        "targetPort": "prompt"
+      },
+      {
+        "id": "edge-c3b92159-d803-44f6-bb6c-df24a2f1bc33",
+        "source": "generateImage-7bff87d8-6eca-4343-a0b9-0c212d09c9f6",
+        "sourcePort": "image",
+        "target": "generateImage-0c475ed6-7dc8-4f00-a456-ed124e0fb596",
+        "targetPort": "reference"
+      },
+      {
+        "id": "edge-047829d2-b904-4520-b6fa-e346971599c5",
+        "source": "prompt-77155f3e-c573-4540-8502-986a63840459",
+        "sourcePort": "text",
+        "target": "generateVideo-85419713-d22c-4ea7-90c6-84cb133caed9",
+        "targetPort": "prompt"
+      },
+      {
+        "id": "edge-cb7f88c6-2fd7-4421-b346-c78eba9c07be",
+        "source": "generateImage-0c475ed6-7dc8-4f00-a456-ed124e0fb596",
+        "sourcePort": "image",
+        "target": "generateVideo-85419713-d22c-4ea7-90c6-84cb133caed9",
+        "targetPort": "reference"
+      },
+      {
+        "id": "edge-a602513c-4248-40a1-a867-7991ccb13fd3",
+        "source": "generateImage-7bff87d8-6eca-4343-a0b9-0c212d09c9f6",
+        "sourcePort": "image",
+        "target": "generateVideo-85419713-d22c-4ea7-90c6-84cb133caed9",
+        "targetPort": "reference"
+      },
+      {
+        "id": "edge-05115ce4-daeb-4c3b-a931-8a85d6aed755",
+        "source": "prompt-d37a106d-308e-47dc-b552-dabce23b0d22",
+        "sourcePort": "text",
+        "target": "generateImage-55ed40a4-e8fc-40bc-b12e-e3fe89f3c562",
+        "targetPort": "prompt"
+      },
+      {
+        "id": "edge-f31c9952-9a2f-4f40-8106-73785e7ec9dd",
+        "source": "generateImage-7bff87d8-6eca-4343-a0b9-0c212d09c9f6",
+        "sourcePort": "image",
+        "target": "generateImage-55ed40a4-e8fc-40bc-b12e-e3fe89f3c562",
+        "targetPort": "reference"
+      },
+      {
+        "id": "edge-6ed837b8-8902-4fb5-9186-0c5b09b6d9dc",
+        "source": "prompt-379c66cd-8ae2-4d13-b8cc-1d01fd1a44ff",
+        "sourcePort": "text",
+        "target": "generateVideo-a576e437-fe0a-4128-9157-41509e4905ea",
+        "targetPort": "prompt"
+      },
+      {
+        "id": "edge-a7a7a8a4-c183-4d80-9618-f2ba40e890da",
+        "source": "generateImage-55ed40a4-e8fc-40bc-b12e-e3fe89f3c562",
+        "sourcePort": "image",
+        "target": "generateVideo-a576e437-fe0a-4128-9157-41509e4905ea",
+        "targetPort": "reference"
+      },
+      {
+        "id": "edge-15134815-5dfb-46c0-a493-9f6803805c75",
+        "source": "generateImage-7bff87d8-6eca-4343-a0b9-0c212d09c9f6",
+        "sourcePort": "image",
+        "target": "generateVideo-a576e437-fe0a-4128-9157-41509e4905ea",
+        "targetPort": "reference"
+      },
+      {
+        "id": "edge-6c0a08e7-0ce8-4092-8c4b-150772f76976",
+        "source": "prompt-f0037475-e1fd-43d3-ae88-c30d0aaccce8",
+        "sourcePort": "text",
+        "target": "generateImage-98803261-1e85-4f4e-b285-e71af2b20bd3",
+        "targetPort": "prompt"
+      },
+      {
+        "id": "edge-732cc3ee-d8d0-47f7-a515-29fdb4451e18",
+        "source": "generateImage-7bff87d8-6eca-4343-a0b9-0c212d09c9f6",
+        "sourcePort": "image",
+        "target": "generateImage-98803261-1e85-4f4e-b285-e71af2b20bd3",
+        "targetPort": "reference"
+      },
+      {
+        "id": "edge-03e5dadb-9662-4e9a-b84c-9b2bc5df1003",
+        "source": "prompt-5bc185c5-1aaf-43c9-b68c-837be84f0c01",
+        "sourcePort": "text",
+        "target": "generateVideo-e5bf2f44-93d8-4a3e-a8a7-eba5aef3adbe",
+        "targetPort": "prompt"
+      },
+      {
+        "id": "edge-2e56f31f-53bf-4314-9f77-2fba755c3321",
+        "source": "generateImage-98803261-1e85-4f4e-b285-e71af2b20bd3",
+        "sourcePort": "image",
+        "target": "generateVideo-e5bf2f44-93d8-4a3e-a8a7-eba5aef3adbe",
+        "targetPort": "reference"
+      },
+      {
+        "id": "edge-39af6720-7849-4ae7-a319-f59472bf258f",
+        "source": "generateImage-7bff87d8-6eca-4343-a0b9-0c212d09c9f6",
+        "sourcePort": "image",
+        "target": "generateVideo-e5bf2f44-93d8-4a3e-a8a7-eba5aef3adbe",
+        "targetPort": "reference"
+      },
+      {
+        "id": "edge-b88cb6f9-95f8-4bfb-99f6-784106bdb987",
+        "source": "prompt-bcb99d20-4675-4c35-96ce-faaa9b2fc5c1",
+        "sourcePort": "text",
+        "target": "generateImage-74d2ae56-bb7b-4daf-b37c-5160fdb65d44",
+        "targetPort": "prompt"
+      },
+      {
+        "id": "edge-34a072c1-2f90-4eca-8cf4-b5fddaa572a0",
+        "source": "generateImage-7bff87d8-6eca-4343-a0b9-0c212d09c9f6",
+        "sourcePort": "image",
+        "target": "generateImage-74d2ae56-bb7b-4daf-b37c-5160fdb65d44",
+        "targetPort": "reference"
+      },
+      {
+        "id": "edge-42614e98-b298-446b-8928-81466fffd4c1",
+        "source": "prompt-6a54f39c-8821-40fa-bdca-68cb8d7bafd7",
+        "sourcePort": "text",
+        "target": "generateVideo-309aa550-a2ea-48f2-be64-dd623a08f0e8",
+        "targetPort": "prompt"
+      },
+      {
+        "id": "edge-ae4dda12-6167-473f-81a1-80775f7eb877",
+        "source": "generateImage-74d2ae56-bb7b-4daf-b37c-5160fdb65d44",
+        "sourcePort": "image",
+        "target": "generateVideo-309aa550-a2ea-48f2-be64-dd623a08f0e8",
+        "targetPort": "reference"
+      },
+      {
+        "id": "edge-d2a3e4c5-f7d1-4725-a8b1-6d11ca94f73f",
+        "source": "generateImage-7bff87d8-6eca-4343-a0b9-0c212d09c9f6",
+        "sourcePort": "image",
+        "target": "generateVideo-309aa550-a2ea-48f2-be64-dd623a08f0e8",
+        "targetPort": "reference"
+      },
+      {
+        "id": "edge-6a41a0f3-9dfb-4216-b606-442584c04b2d",
+        "source": "prompt-eb19f677-5876-4823-998b-5924682a9d99",
+        "sourcePort": "text",
+        "target": "generateImage-c31a4748-c41a-4158-b628-d77966e58cb3",
+        "targetPort": "prompt"
+      },
+      {
+        "id": "edge-53160e56-12b9-4cc3-a9ac-e9fe7341a3f8",
+        "source": "generateImage-7bff87d8-6eca-4343-a0b9-0c212d09c9f6",
+        "sourcePort": "image",
+        "target": "generateImage-c31a4748-c41a-4158-b628-d77966e58cb3",
+        "targetPort": "reference"
+      },
+      {
+        "id": "edge-4146c481-b7bc-45db-a3c4-69b6c6213520",
+        "source": "prompt-f71e19d7-604f-452e-834e-bfd332fc068f",
+        "sourcePort": "text",
+        "target": "generateVideo-ab810448-e432-4df8-9ee9-b9f3cf43e9ac",
+        "targetPort": "prompt"
+      },
+      {
+        "id": "edge-b585cd59-7733-4a70-a71d-5cb38f4217a0",
+        "source": "generateImage-c31a4748-c41a-4158-b628-d77966e58cb3",
+        "sourcePort": "image",
+        "target": "generateVideo-ab810448-e432-4df8-9ee9-b9f3cf43e9ac",
+        "targetPort": "reference"
+      },
+      {
+        "id": "edge-008017d8-ee28-44c3-8216-493a1e07cc18",
+        "source": "generateImage-7bff87d8-6eca-4343-a0b9-0c212d09c9f6",
+        "sourcePort": "image",
+        "target": "generateVideo-ab810448-e432-4df8-9ee9-b9f3cf43e9ac",
+        "targetPort": "reference"
+      },
+      {
+        "id": "edge-b19c7cdc-123a-42c7-b1a0-2a3b78cdfe7d",
+        "source": "references-adc0daae-5d3d-4147-9aa1-e75609f9975a",
+        "sourcePort": "image",
+        "target": "generateImage-7bff87d8-6eca-4343-a0b9-0c212d09c9f6",
+        "targetPort": "reference"
+      },
+      {
+        "id": "edge-3d2ac1a6-4edc-46a9-bf27-d4a35fd3822b",
+        "source": "references-adc0daae-5d3d-4147-9aa1-e75609f9975a",
+        "sourcePort": "image",
+        "target": "generateImage-0c475ed6-7dc8-4f00-a456-ed124e0fb596",
+        "targetPort": "reference"
+      },
+      {
+        "id": "edge-37eba164-aefb-48a1-a7bb-341c9fed064f",
+        "source": "references-adc0daae-5d3d-4147-9aa1-e75609f9975a",
+        "sourcePort": "image",
+        "target": "generateVideo-85419713-d22c-4ea7-90c6-84cb133caed9",
+        "targetPort": "reference"
+      },
+      {
+        "id": "edge-eea20015-d013-4e1f-94cb-b10e649a29aa",
+        "source": "references-adc0daae-5d3d-4147-9aa1-e75609f9975a",
+        "sourcePort": "image",
+        "target": "generateImage-55ed40a4-e8fc-40bc-b12e-e3fe89f3c562",
+        "targetPort": "reference"
+      },
+      {
+        "id": "edge-6e448e99-5259-4282-8447-1a0e15fce590",
+        "source": "references-adc0daae-5d3d-4147-9aa1-e75609f9975a",
+        "sourcePort": "image",
+        "target": "generateVideo-a576e437-fe0a-4128-9157-41509e4905ea",
+        "targetPort": "reference"
+      },
+      {
+        "id": "edge-37262bfc-9a25-46ee-a154-7458b356ed24",
+        "source": "references-adc0daae-5d3d-4147-9aa1-e75609f9975a",
+        "sourcePort": "image",
+        "target": "generateImage-98803261-1e85-4f4e-b285-e71af2b20bd3",
+        "targetPort": "reference"
+      },
+      {
+        "id": "edge-62c7b3bb-170b-4709-afd9-1341d1d7e0f7",
+        "source": "references-adc0daae-5d3d-4147-9aa1-e75609f9975a",
+        "sourcePort": "image",
+        "target": "generateVideo-e5bf2f44-93d8-4a3e-a8a7-eba5aef3adbe",
+        "targetPort": "reference"
+      },
+      {
+        "id": "edge-ca755640-845d-41d1-aab6-b8e7d8a5740b",
+        "source": "references-adc0daae-5d3d-4147-9aa1-e75609f9975a",
+        "sourcePort": "image",
+        "target": "generateImage-74d2ae56-bb7b-4daf-b37c-5160fdb65d44",
+        "targetPort": "reference"
+      },
+      {
+        "id": "edge-087facbc-4b8b-460e-a6b0-28602d13ad26",
+        "source": "references-adc0daae-5d3d-4147-9aa1-e75609f9975a",
+        "sourcePort": "image",
+        "target": "generateVideo-309aa550-a2ea-48f2-be64-dd623a08f0e8",
+        "targetPort": "reference"
+      },
+      {
+        "id": "edge-9f6d4381-0123-4eeb-808e-050c16880199",
+        "source": "references-adc0daae-5d3d-4147-9aa1-e75609f9975a",
+        "sourcePort": "image",
+        "target": "generateImage-c31a4748-c41a-4158-b628-d77966e58cb3",
+        "targetPort": "reference"
+      },
+      {
+        "id": "edge-14122df4-9bdf-44a9-90f5-b3f33aebb518",
+        "source": "references-adc0daae-5d3d-4147-9aa1-e75609f9975a",
+        "sourcePort": "image",
+        "target": "generateVideo-ab810448-e432-4df8-9ee9-b9f3cf43e9ac",
+        "targetPort": "reference"
+      }
+    ],
+    "groups": [],
+    "notes": [
+      {
+        "id": "note-b29a9a3c-9e45-42ee-98e1-b61f8c4fef9c",
+        "x": -280,
+        "y": 300,
+        "width": 300,
+        "height": 190,
+        "text": "1. Run each \"Character\" image node first and pick the best version (it is kept 🔒 for Run workflow). Right-click it → Save character image, and put the file in the series characters/ folder so later episodes reuse the same face.\n2. Run workflow to generate every scene in timeline order.\n3. Check the Timeline, add ♪ Music if you like, then export MP4."
+      }
+    ],
+    "settings": {
+      "autoRetry": 0,
+      "continueOnError": true
+    }
+  }
+}

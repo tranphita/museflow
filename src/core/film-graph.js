@@ -26,7 +26,7 @@ function closestVideoDuration(seconds) {
   );
 }
 
-export function buildSceneGraph(script, { baseY = 40 } = {}) {
+export function buildSceneGraph(script, { baseY = 40, characterImages = {} } = {}) {
   const scenes = parseSceneScript(script),
     characters = parseCharacters(script),
     filmStyle = parseFilmStyle(script);
@@ -34,9 +34,18 @@ export function buildSceneGraph(script, { baseY = 40 } = {}) {
   const nodes = [],
     edges = [],
     videos = [];
+  const savedImage = name =>
+    Object.entries(characterImages).find(([key]) => key.toLowerCase() === name.toLowerCase())?.[1];
   const cast = characters.map((character, index) => {
     const x = 80 + index * 650,
-      label = `Character: ${character.name}`;
+      label = `Character: ${character.name}`,
+      imageUrl = savedImage(character.name);
+    if (imageUrl) {
+      const input = makeNode('imageInput', x + 330, baseY);
+      input.data = { localDataUrl: imageUrl, sceneLabel: label, characterName: character.name };
+      nodes.push(input);
+      return { ...character, node: input };
+    }
     const prompt = makeNode('prompt', x, baseY);
     prompt.data = { text: characterSheetPrompt(character, filmStyle), sceneLabel: label };
     const image = makeNode('generateImage', x + 330, baseY);
@@ -95,8 +104,8 @@ export function buildSceneGraph(script, { baseY = 40 } = {}) {
   return { nodes, edges, scenes, cast, videos };
 }
 
-export function workflowFromScript(script) {
-  const graph = buildSceneGraph(script);
+export function workflowFromScript(script, { characterImages = {} } = {}) {
+  const graph = buildSceneGraph(script, { characterImages });
   if (!graph) throw new Error('No scenes found. Use headings like “CẢNH 1 (0:00–0:07): Title”.');
   const references = makeNode('references', -280, 40);
   references.data = {};
@@ -115,12 +124,15 @@ export function workflowFromScript(script) {
   const fanOut = graph.nodes
     .filter(isGenerator)
     .map(node => edge(references.id, 'image', node.id, 'reference'));
+  const newCharacters = graph.cast.filter(character => character.node.type === 'generateImage');
   const steps = [
-    graph.cast.length &&
-      `1. Run each "Character" image node first. Pick the best version in its Versions strip (or tick 🔒 Keep) so Run workflow keeps it.`,
-    `${graph.cast.length ? 2 : 1}. Run workflow to generate every scene in timeline order.`,
-    `${graph.cast.length ? 3 : 2}. Check the Timeline, add ♪ Music if you like, then export MP4.`,
-  ].filter(Boolean);
+    newCharacters.length &&
+      `Run each "Character" image node first and pick the best version (it is kept 🔒 for Run workflow). Right-click it → Save character image, and put the file in the series characters/ folder so later episodes reuse the same face.`,
+    'Run workflow to generate every scene in timeline order.',
+    'Check the Timeline, add ♪ Music if you like, then export MP4.',
+  ]
+    .filter(Boolean)
+    .map((step, index) => `${index + 1}. ${step}`);
   return {
     nodes: [references, ...graph.nodes, timeline],
     edges: [...graph.edges, ...fanOut],

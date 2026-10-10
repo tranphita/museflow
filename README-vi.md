@@ -91,6 +91,10 @@ Muốn có sẵn file để **Import workflow** thay vì dán kịch bản: ch�
 
 Mẹo: chạy riêng các node nhân vật trước, chọn phiên bản ảnh ưng ý (dải **Versions** dưới node) hoặc tick **🔒 Keep this result**, rồi mới **Run workflow** cho cả phim. Node đã khoá sẽ được giữ nguyên khi chạy cả workflow; bấm **Run Image** trên chính node đó vẫn tạo lại được.
 
+## Phim nhiều tập
+
+Thư mục [series/](series/README.md) chứa sẵn hai bộ: **học tiếng Anh cùng Anna & Minh** và **Vy Fit — nhật ký tập gym**. Mỗi bộ có `_series.txt` (phong cách + nhân vật dùng chung), các tập `epXX.txt` và thư mục `characters/` để lưu ảnh nhân vật đã chốt, giúp mọi tập dùng cùng một gương mặt. Tạo workflow cho cả bộ bằng `npm run series -- series/hoc-tieng-anh`.
+
 ## Mở Museta và Muse.ai cạnh nhau
 
 Kéo tab Museta ra thành cửa sổ riêng, nhấn **Windows + mũi tên trái** cho Museta và **Windows + mũi tên phải** cho cửa sổ Muse.ai. Giữ cả hai mở để theo dõi node đang chạy và phản hồi của Muse.

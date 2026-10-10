@@ -93,6 +93,10 @@ To get a file for **Import workflow** instead of pasting the script, run `npm ru
 
 Tip: run the character nodes first, pick the best version from the **Versions** strip (or tick **🔒 Keep this result**), then run the whole workflow. Kept nodes are skipped by Run workflow; their own Run button still regenerates them.
 
+## Series with recurring characters
+
+[series/](series/README.md) holds two ready-made series (an English-learning series and a daily gym vlog). Each has a shared `_series.txt` (style and cast), episode scripts `epXX.txt`, and a `characters/` folder for approved character images so every episode reuses the same faces. Build all episode workflows with `npm run series -- series/<name>`.
+
 ## View Museta and Muse.ai side by side
 
 Drag the Museta tab into its own window, then press **Windows + Left Arrow** on it and **Windows + Right Arrow** on the Muse.ai window. Keep both open to follow the running node and Muse's response.

@@ -1,0 +1,671 @@
+{
+  "format": "museta-workflow",
+  "version": 1,
+  "appVersion": "0.7.0",
+  "exportedAt": "2026-10-10T02:26:05.863Z",
+  "workflow": {
+    "nodes": [
+      {
+        "id": "references-724862e5-b21f-4a94-8227-2acccb7940f8",
+        "type": "references",
+        "x": -280,
+        "y": 40,
+        "data": {}
+      },
+      {
+        "id": "prompt-4a3aa7dc-04a7-4a46-a0c7-0925b4ae689b",
+        "type": "prompt",
+        "x": 80,
+        "y": 40,
+        "data": {
+          "text": "Character reference for \"Anna\": cô giáo tiếng Anh người Úc 28 tuổi, người thật, tóc vàng nâu buộc đuôi ngựa, mắt xanh, nụ cười tươi, áo sơ mi trắng tay xắn, quần tây màu be, đồng hồ đeo tay da nâu. Full body and close-up of the face side by side, front view, neutral expression, plain light-grey background, even soft lighting, no text or labels. Style: phim người thật, photorealistic như quay bằng máy cinema 35mm, ánh sáng tự nhiên ấm, màu tươi sáng, không khí vui vẻ thân thiện, khung dọc 9:16, không hoạt hình, không 3D, không tranh vẽ, không chữ hay phụ đề trên hình.",
+          "sceneLabel": "Character: Anna"
+        }
+      },
+      {
+        "id": "generateImage-a5c0dce4-8eab-4543-9d6f-bbae5d8a6bee",
+        "type": "generateImage",
+        "x": 410,
+        "y": 40,
+        "data": {
+          "model": "muse-image",
+          "size": "3:4",
+          "status": "idle",
+          "sceneLabel": "Character: Anna",
+          "characterName": "Anna"
+        }
+      },
+      {
+        "id": "prompt-c2f7842a-df6c-48fd-a044-8388ba6ecfc9",
+        "type": "prompt",
+        "x": 730,
+        "y": 40,
+        "data": {
+          "text": "Character reference for \"Minh\": chàng trai Việt Nam 25 tuổi làm văn phòng, người thật, tóc đen cắt gọn, kính gọng tròn mảnh, áo polo xanh navy, quần kaki xám, ba lô đen. Full body and close-up of the face side by side, front view, neutral expression, plain light-grey background, even soft lighting, no text or labels. Style: phim người thật, photorealistic như quay bằng máy cinema 35mm, ánh sáng tự nhiên ấm, màu tươi sáng, không khí vui vẻ thân thiện, khung dọc 9:16, không hoạt hình, không 3D, không tranh vẽ, không chữ hay phụ đề trên hình.",
+          "sceneLabel": "Character: Minh"
+        }
+      },
+      {
+        "id": "generateImage-7f411d78-70ec-4e59-aff3-3b23d6e8c9e6",
+        "type": "generateImage",
+        "x": 1060,
+        "y": 40,
+        "data": {
+          "model": "muse-image",
+          "size": "3:4",
+          "status": "idle",
+          "sceneLabel": "Character: Minh",
+          "characterName": "Minh"
+        }
+      },
+      {
+        "id": "prompt-56a3ceef-d875-4cbf-a7f3-12fb5c5f5bd0",
+        "type": "prompt",
+        "x": 80,
+        "y": 660,
+        "data": {
+          "text": "Anna và Minh bước vào một nhà hàng ấm cúng buổi tối, đèn vàng, bàn gỗ, Minh cầm cửa mời Anna vào\n\nCharacters in this shot (keep each one identical to their reference image): Anna — cô giáo tiếng Anh người Úc 28 tuổi, người thật, tóc vàng nâu buộc đuôi ngựa, mắt xanh, nụ cười tươi, áo sơ mi trắng tay xắn, quần tây màu be, đồng hồ đeo tay da nâu; Minh — chàng trai Việt Nam 25 tuổi làm văn phòng, người thật, tóc đen cắt gọn, kính gọng tròn mảnh, áo polo xanh navy, quần kaki xám, ba lô đen.\n\nVisual style for the whole film: phim người thật, photorealistic như quay bằng máy cinema 35mm, ánh sáng tự nhiên ấm, màu tươi sáng, không khí vui vẻ thân thiện, khung dọc 9:16, không hoạt hình, không 3D, không tranh vẽ, không chữ hay phụ đề trên hình.",
+          "sceneLabel": "Scene 1: Đến nhà hàng"
+        }
+      },
+      {
+        "id": "generateImage-4a1ec5ea-7e12-4f00-bb7c-9ad6bed08a52",
+        "type": "generateImage",
+        "x": 410,
+        "y": 660,
+        "data": {
+          "model": "muse-image",
+          "size": "9:16",
+          "status": "idle",
+          "sceneLabel": "Scene 1: Đến nhà hàng"
+        }
+      },
+      {
+        "id": "prompt-d599166d-eb37-4441-a117-d8f73b085818",
+        "type": "prompt",
+        "x": 80,
+        "y": 1200,
+        "data": {
+          "text": "Minh mở cửa mời Anna vào trước. Hai người nhìn quanh nhà hàng rồi đi về phía một bàn trống. Máy quay theo sau lưng họ.\n\nAudio direction: Minh nói bằng tiếng Anh: \"After you, Anna.\" Anna cười: \"Thank you, Minh. This place looks nice!\" Tiếng nhạc jazz nhẹ trong nhà hàng.\n\nCharacters in this shot (keep each one identical to their reference image): Anna — cô giáo tiếng Anh người Úc 28 tuổi, người thật, tóc vàng nâu buộc đuôi ngựa, mắt xanh, nụ cười tươi, áo sơ mi trắng tay xắn, quần tây màu be, đồng hồ đeo tay da nâu; Minh — chàng trai Việt Nam 25 tuổi làm văn phòng, người thật, tóc đen cắt gọn, kính gọng tròn mảnh, áo polo xanh navy, quần kaki xám, ba lô đen.\n\nVisual style for the whole film: phim người thật, photorealistic như quay bằng máy cinema 35mm, ánh sáng tự nhiên ấm, màu tươi sáng, không khí vui vẻ thân thiện, khung dọc 9:16, không hoạt hình, không 3D, không tranh vẽ, không chữ hay phụ đề trên hình.",
+          "sceneLabel": "Scene 1: Đến nhà hàng"
+        }
+      },
+      {
+        "id": "generateVideo-fb2a58ec-4131-4875-8446-3da850847774",
+        "type": "generateVideo",
+        "x": 410,
+        "y": 1200,
+        "data": {
+          "model": "muse-video",
+          "size": "9:16",
+          "duration": 8,
+          "continuity": false,
+          "nextShot": "Xem thực đơn: Anna mở thực đơn, chỉ cho Minh một món.",
+          "status": "idle",
+          "sceneLabel": "Scene 1: Đến nhà hàng"
+        }
+      },
+      {
+        "id": "prompt-e24de739-c127-4977-959c-aae35766bc12",
+        "type": "prompt",
+        "x": 730,
+        "y": 660,
+        "data": {
+          "text": "Hai người ngồi đối diện nhau cầm thực đơn, Anna chỉ vào một món trong thực đơn của Minh\n\nCharacters in this shot (keep each one identical to their reference image): Anna — cô giáo tiếng Anh người Úc 28 tuổi, người thật, tóc vàng nâu buộc đuôi ngựa, mắt xanh, nụ cười tươi, áo sơ mi trắng tay xắn, quần tây màu be, đồng hồ đeo tay da nâu; Minh — chàng trai Việt Nam 25 tuổi làm văn phòng, người thật, tóc đen cắt gọn, kính gọng tròn mảnh, áo polo xanh navy, quần kaki xám, ba lô đen.\n\nVisual style for the whole film: phim người thật, photorealistic như quay bằng máy cinema 35mm, ánh sáng tự nhiên ấm, màu tươi sáng, không khí vui vẻ thân thiện, khung dọc 9:16, không hoạt hình, không 3D, không tranh vẽ, không chữ hay phụ đề trên hình.",
+          "sceneLabel": "Scene 2: Xem thực đơn"
+        }
+      },
+      {
+        "id": "generateImage-474785ef-e922-4b59-90a6-b5e4c6462e2a",
+        "type": "generateImage",
+        "x": 1060,
+        "y": 660,
+        "data": {
+          "model": "muse-image",
+          "size": "9:16",
+          "status": "idle",
+          "sceneLabel": "Scene 2: Xem thực đơn"
+        }
+      },
+      {
+        "id": "prompt-c4405c76-adae-4298-b074-530298c633e1",
+        "type": "prompt",
+        "x": 730,
+        "y": 1200,
+        "data": {
+          "text": "Anna mở thực đơn, chỉ cho Minh một món. Minh đọc theo và gật đầu hứng thú. Máy quay cận trung, góc chéo.\n\nAudio direction: Anna hỏi bằng tiếng Anh: \"What would you like to eat?\" Minh trả lời: \"I'd like the chicken salad, please.\" Anna nói: \"Good choice!\"\n\nCharacters in this shot (keep each one identical to their reference image): Anna — cô giáo tiếng Anh người Úc 28 tuổi, người thật, tóc vàng nâu buộc đuôi ngựa, mắt xanh, nụ cười tươi, áo sơ mi trắng tay xắn, quần tây màu be, đồng hồ đeo tay da nâu; Minh — chàng trai Việt Nam 25 tuổi làm văn phòng, người thật, tóc đen cắt gọn, kính gọng tròn mảnh, áo polo xanh navy, quần kaki xám, ba lô đen.\n\nVisual style for the whole film: phim người thật, photorealistic như quay bằng máy cinema 35mm, ánh sáng tự nhiên ấm, màu tươi sáng, không khí vui vẻ thân thiện, khung dọc 9:16, không hoạt hình, không 3D, không tranh vẽ, không chữ hay phụ đề trên hình.",
+          "sceneLabel": "Scene 2: Xem thực đơn"
+        }
+      },
+      {
+        "id": "generateVideo-f369da91-bdf9-4582-929c-d2af5c099590",
+        "type": "generateVideo",
+        "x": 1060,
+        "y": 1200,
+        "data": {
+          "model": "muse-video",
+          "size": "9:16",
+          "duration": 8,
+          "continuity": true,
+          "nextShot": "Gọi món: Minh giơ tay gọi phục vụ, rồi tự tin gọi món, chỉ vào thực đơn.",
+          "status": "idle",
+          "sceneLabel": "Scene 2: Xem thực đơn"
+        }
+      },
+      {
+        "id": "prompt-44e27f6c-df14-45fa-af19-2080b9d20ff1",
+        "type": "prompt",
+        "x": 1380,
+        "y": 660,
+        "data": {
+          "text": "Minh ngẩng lên nói chuyện lịch sự với người phục vụ đứng cạnh bàn, tay cầm thực đơn\n\nCharacters in this shot (keep each one identical to their reference image): Minh — chàng trai Việt Nam 25 tuổi làm văn phòng, người thật, tóc đen cắt gọn, kính gọng tròn mảnh, áo polo xanh navy, quần kaki xám, ba lô đen.\n\nVisual style for the whole film: phim người thật, photorealistic như quay bằng máy cinema 35mm, ánh sáng tự nhiên ấm, màu tươi sáng, không khí vui vẻ thân thiện, khung dọc 9:16, không hoạt hình, không 3D, không tranh vẽ, không chữ hay phụ đề trên hình.",
+          "sceneLabel": "Scene 3: Gọi món"
+        }
+      },
+      {
+        "id": "generateImage-c8dcf3c7-5877-44cb-b5b8-08a462e92428",
+        "type": "generateImage",
+        "x": 1710,
+        "y": 660,
+        "data": {
+          "model": "muse-image",
+          "size": "9:16",
+          "status": "idle",
+          "sceneLabel": "Scene 3: Gọi món"
+        }
+      },
+      {
+        "id": "prompt-5e50959a-1dbd-4566-898a-2c620546ae81",
+        "type": "prompt",
+        "x": 1380,
+        "y": 1200,
+        "data": {
+          "text": "Minh giơ tay gọi phục vụ, rồi tự tin gọi món, chỉ vào thực đơn. Phục vụ gật đầu ghi chép. Anna mỉm cười tự hào phía sau.\n\nAudio direction: Minh nói chậm, rõ bằng tiếng Anh: \"Excuse me. Can I have a chicken salad and an orange juice, please?\" Giọng phục vụ đáp: \"Sure, anything else?\" Minh: \"No, thank you.\"\n\nCharacters in this shot (keep each one identical to their reference image): Minh — chàng trai Việt Nam 25 tuổi làm văn phòng, người thật, tóc đen cắt gọn, kính gọng tròn mảnh, áo polo xanh navy, quần kaki xám, ba lô đen.\n\nVisual style for the whole film: phim người thật, photorealistic như quay bằng máy cinema 35mm, ánh sáng tự nhiên ấm, màu tươi sáng, không khí vui vẻ thân thiện, khung dọc 9:16, không hoạt hình, không 3D, không tranh vẽ, không chữ hay phụ đề trên hình.",
+          "sceneLabel": "Scene 3: Gọi món"
+        }
+      },
+      {
+        "id": "generateVideo-d75ff1c6-8a5b-4098-b770-57e7fc998212",
+        "type": "generateVideo",
+        "x": 1710,
+        "y": 1200,
+        "data": {
+          "model": "muse-video",
+          "size": "9:16",
+          "duration": 8,
+          "continuity": true,
+          "nextShot": "Món ăn được mang ra: Đồ ăn được đặt lên bàn.",
+          "status": "idle",
+          "sceneLabel": "Scene 3: Gọi món"
+        }
+      },
+      {
+        "id": "prompt-3ca93fd8-ce7d-464f-af8b-5ac89d09c616",
+        "type": "prompt",
+        "x": 2030,
+        "y": 660,
+        "data": {
+          "text": "Bàn ăn với đĩa salad gà và ly nước cam, Anna và Minh nâng ly chúc mừng\n\nCharacters in this shot (keep each one identical to their reference image): Anna — cô giáo tiếng Anh người Úc 28 tuổi, người thật, tóc vàng nâu buộc đuôi ngựa, mắt xanh, nụ cười tươi, áo sơ mi trắng tay xắn, quần tây màu be, đồng hồ đeo tay da nâu; Minh — chàng trai Việt Nam 25 tuổi làm văn phòng, người thật, tóc đen cắt gọn, kính gọng tròn mảnh, áo polo xanh navy, quần kaki xám, ba lô đen.\n\nVisual style for the whole film: phim người thật, photorealistic như quay bằng máy cinema 35mm, ánh sáng tự nhiên ấm, màu tươi sáng, không khí vui vẻ thân thiện, khung dọc 9:16, không hoạt hình, không 3D, không tranh vẽ, không chữ hay phụ đề trên hình.",
+          "sceneLabel": "Scene 4: Món ăn được mang ra"
+        }
+      },
+      {
+        "id": "generateImage-bc3818df-c28e-4ed5-b553-9d92112b641f",
+        "type": "generateImage",
+        "x": 2360,
+        "y": 660,
+        "data": {
+          "model": "muse-image",
+          "size": "9:16",
+          "status": "idle",
+          "sceneLabel": "Scene 4: Món ăn được mang ra"
+        }
+      },
+      {
+        "id": "prompt-0d6c6a76-550a-414b-a3cd-d4ab105aed26",
+        "type": "prompt",
+        "x": 2030,
+        "y": 1200,
+        "data": {
+          "text": "Đồ ăn được đặt lên bàn. Minh và Anna nâng ly chạm nhẹ, cười vui. Máy quay đẩy chậm vào đĩa thức ăn rồi lên hai người.\n\nAudio direction: Anna nói bằng tiếng Anh: \"Cheers! It looks delicious.\" Minh đáp: \"Cheers! Enjoy your meal.\"\n\nCharacters in this shot (keep each one identical to their reference image): Anna — cô giáo tiếng Anh người Úc 28 tuổi, người thật, tóc vàng nâu buộc đuôi ngựa, mắt xanh, nụ cười tươi, áo sơ mi trắng tay xắn, quần tây màu be, đồng hồ đeo tay da nâu; Minh — chàng trai Việt Nam 25 tuổi làm văn phòng, người thật, tóc đen cắt gọn, kính gọng tròn mảnh, áo polo xanh navy, quần kaki xám, ba lô đen.\n\nVisual style for the whole film: phim người thật, photorealistic như quay bằng máy cinema 35mm, ánh sáng tự nhiên ấm, màu tươi sáng, không khí vui vẻ thân thiện, khung dọc 9:16, không hoạt hình, không 3D, không tranh vẽ, không chữ hay phụ đề trên hình.",
+          "sceneLabel": "Scene 4: Món ăn được mang ra"
+        }
+      },
+      {
+        "id": "generateVideo-84cbe66c-9b47-4826-8009-c9251b32643c",
+        "type": "generateVideo",
+        "x": 2360,
+        "y": 1200,
+        "data": {
+          "model": "muse-video",
+          "size": "9:16",
+          "duration": 8,
+          "continuity": true,
+          "nextShot": "Thanh toán: Minh giơ tay xin hoá đơn, đưa thẻ thanh toán.",
+          "status": "idle",
+          "sceneLabel": "Scene 4: Món ăn được mang ra"
+        }
+      },
+      {
+        "id": "prompt-d5f6df80-0232-4cc8-9450-fdc88d01fadd",
+        "type": "prompt",
+        "x": 80,
+        "y": 1760,
+        "data": {
+          "text": "Minh đưa thẻ cho phục vụ, Anna giơ ngón cái khen Minh\n\nCharacters in this shot (keep each one identical to their reference image): Anna — cô giáo tiếng Anh người Úc 28 tuổi, người thật, tóc vàng nâu buộc đuôi ngựa, mắt xanh, nụ cười tươi, áo sơ mi trắng tay xắn, quần tây màu be, đồng hồ đeo tay da nâu; Minh — chàng trai Việt Nam 25 tuổi làm văn phòng, người thật, tóc đen cắt gọn, kính gọng tròn mảnh, áo polo xanh navy, quần kaki xám, ba lô đen.\n\nVisual style for the whole film: phim người thật, photorealistic như quay bằng máy cinema 35mm, ánh sáng tự nhiên ấm, màu tươi sáng, không khí vui vẻ thân thiện, khung dọc 9:16, không hoạt hình, không 3D, không tranh vẽ, không chữ hay phụ đề trên hình.",
+          "sceneLabel": "Scene 5: Thanh toán"
+        }
+      },
+      {
+        "id": "generateImage-1341ca95-3fac-4ab7-a185-d92f6ff85878",
+        "type": "generateImage",
+        "x": 410,
+        "y": 1760,
+        "data": {
+          "model": "muse-image",
+          "size": "9:16",
+          "status": "idle",
+          "sceneLabel": "Scene 5: Thanh toán"
+        }
+      },
+      {
+        "id": "prompt-22c27597-107a-4c02-bc94-f22eabe6321a",
+        "type": "prompt",
+        "x": 80,
+        "y": 2300,
+        "data": {
+          "text": "Minh giơ tay xin hoá đơn, đưa thẻ thanh toán. Anna giơ ngón cái khen. Cả hai đứng dậy, khoác áo. Máy quay lùi ra toàn cảnh nhà hàng.\n\nAudio direction: Minh nói bằng tiếng Anh: \"Could we have the bill, please?\" Anna nói: \"Great job today, Minh!\" Nhạc jazz nhẹ kết thúc.\n\nCharacters in this shot (keep each one identical to their reference image): Anna — cô giáo tiếng Anh người Úc 28 tuổi, người thật, tóc vàng nâu buộc đuôi ngựa, mắt xanh, nụ cười tươi, áo sơ mi trắng tay xắn, quần tây màu be, đồng hồ đeo tay da nâu; Minh — chàng trai Việt Nam 25 tuổi làm văn phòng, người thật, tóc đen cắt gọn, kính gọng tròn mảnh, áo polo xanh navy, quần kaki xám, ba lô đen.\n\nVisual style for the whole film: phim người thật, photorealistic như quay bằng máy cinema 35mm, ánh sáng tự nhiên ấm, màu tươi sáng, không khí vui vẻ thân thiện, khung dọc 9:16, không hoạt hình, không 3D, không tranh vẽ, không chữ hay phụ đề trên hình.",
+          "sceneLabel": "Scene 5: Thanh toán"
+        }
+      },
+      {
+        "id": "generateVideo-2154b2ad-3243-443e-a4f8-4f59ce3d019b",
+        "type": "generateVideo",
+        "x": 410,
+        "y": 2300,
+        "data": {
+          "model": "muse-video",
+          "size": "9:16",
+          "duration": 8,
+          "continuity": true,
+          "nextShot": "",
+          "status": "idle",
+          "sceneLabel": "Scene 5: Thanh toán"
+        }
+      },
+      {
+        "id": "timeline-9ed6de3f-f796-4ed3-b7c9-b6574bc2b9b4",
+        "type": "timeline",
+        "x": 0,
+        "y": 0,
+        "data": {
+          "dockOnly": true,
+          "clipOrder": [
+            "generateVideo-fb2a58ec-4131-4875-8446-3da850847774",
+            "generateVideo-f369da91-bdf9-4582-929c-d2af5c099590",
+            "generateVideo-d75ff1c6-8a5b-4098-b770-57e7fc998212",
+            "generateVideo-84cbe66c-9b47-4826-8009-c9251b32643c",
+            "generateVideo-2154b2ad-3243-443e-a4f8-4f59ce3d019b"
+          ],
+          "durations": {
+            "generateVideo-fb2a58ec-4131-4875-8446-3da850847774": 8,
+            "generateVideo-f369da91-bdf9-4582-929c-d2af5c099590": 8,
+            "generateVideo-d75ff1c6-8a5b-4098-b770-57e7fc998212": 8,
+            "generateVideo-84cbe66c-9b47-4826-8009-c9251b32643c": 8,
+            "generateVideo-2154b2ad-3243-443e-a4f8-4f59ce3d019b": 8
+          },
+          "transition": {
+            "type": "fade",
+            "duration": 0.5
+          }
+        }
+      }
+    ],
+    "edges": [
+      {
+        "id": "edge-55a091c5-62e1-4b37-98ff-bc85f71fc793",
+        "source": "prompt-4a3aa7dc-04a7-4a46-a0c7-0925b4ae689b",
+        "sourcePort": "text",
+        "target": "generateImage-a5c0dce4-8eab-4543-9d6f-bbae5d8a6bee",
+        "targetPort": "prompt"
+      },
+      {
+        "id": "edge-ed9d95bd-3219-4060-a0b8-0370d2b91187",
+        "source": "prompt-c2f7842a-df6c-48fd-a044-8388ba6ecfc9",
+        "sourcePort": "text",
+        "target": "generateImage-7f411d78-70ec-4e59-aff3-3b23d6e8c9e6",
+        "targetPort": "prompt"
+      },
+      {
+        "id": "edge-ce03f6d0-d470-43da-8b42-b66df3728575",
+        "source": "prompt-56a3ceef-d875-4cbf-a7f3-12fb5c5f5bd0",
+        "sourcePort": "text",
+        "target": "generateImage-4a1ec5ea-7e12-4f00-bb7c-9ad6bed08a52",
+        "targetPort": "prompt"
+      },
+      {
+        "id": "edge-db680cf5-9aa8-456f-a418-5faea1aba514",
+        "source": "generateImage-a5c0dce4-8eab-4543-9d6f-bbae5d8a6bee",
+        "sourcePort": "image",
+        "target": "generateImage-4a1ec5ea-7e12-4f00-bb7c-9ad6bed08a52",
+        "targetPort": "reference"
+      },
+      {
+        "id": "edge-4e26b704-855f-4f93-886f-63a998cbd952",
+        "source": "generateImage-7f411d78-70ec-4e59-aff3-3b23d6e8c9e6",
+        "sourcePort": "image",
+        "target": "generateImage-4a1ec5ea-7e12-4f00-bb7c-9ad6bed08a52",
+        "targetPort": "reference"
+      },
+      {
+        "id": "edge-263db69b-98e9-4635-bd93-5ba8c944e874",
+        "source": "prompt-d599166d-eb37-4441-a117-d8f73b085818",
+        "sourcePort": "text",
+        "target": "generateVideo-fb2a58ec-4131-4875-8446-3da850847774",
+        "targetPort": "prompt"
+      },
+      {
+        "id": "edge-694a1d71-ed73-4a5c-b27b-0968ee75bdfa",
+        "source": "generateImage-4a1ec5ea-7e12-4f00-bb7c-9ad6bed08a52",
+        "sourcePort": "image",
+        "target": "generateVideo-fb2a58ec-4131-4875-8446-3da850847774",
+        "targetPort": "reference"
+      },
+      {
+        "id": "edge-c763a3ef-d3b5-47f6-aa59-11e0614041de",
+        "source": "generateImage-a5c0dce4-8eab-4543-9d6f-bbae5d8a6bee",
+        "sourcePort": "image",
+        "target": "generateVideo-fb2a58ec-4131-4875-8446-3da850847774",
+        "targetPort": "reference"
+      },
+      {
+        "id": "edge-465fc0da-ccc4-4f3a-927d-a4bc7e71d4bc",
+        "source": "generateImage-7f411d78-70ec-4e59-aff3-3b23d6e8c9e6",
+        "sourcePort": "image",
+        "target": "generateVideo-fb2a58ec-4131-4875-8446-3da850847774",
+        "targetPort": "reference"
+      },
+      {
+        "id": "edge-07e41877-c8dc-49e9-a106-f3fc32b76f45",
+        "source": "prompt-e24de739-c127-4977-959c-aae35766bc12",
+        "sourcePort": "text",
+        "target": "generateImage-474785ef-e922-4b59-90a6-b5e4c6462e2a",
+        "targetPort": "prompt"
+      },
+      {
+        "id": "edge-dc71c2a6-26dc-4d32-aaba-43d0efd9cba9",
+        "source": "generateImage-a5c0dce4-8eab-4543-9d6f-bbae5d8a6bee",
+        "sourcePort": "image",
+        "target": "generateImage-474785ef-e922-4b59-90a6-b5e4c6462e2a",
+        "targetPort": "reference"
+      },
+      {
+        "id": "edge-b25088e8-76e9-4f2a-b06c-9c27868d2245",
+        "source": "generateImage-7f411d78-70ec-4e59-aff3-3b23d6e8c9e6",
+        "sourcePort": "image",
+        "target": "generateImage-474785ef-e922-4b59-90a6-b5e4c6462e2a",
+        "targetPort": "reference"
+      },
+      {
+        "id": "edge-2e8565fe-e80e-42ab-9c36-12156453533e",
+        "source": "prompt-c4405c76-adae-4298-b074-530298c633e1",
+        "sourcePort": "text",
+        "target": "generateVideo-f369da91-bdf9-4582-929c-d2af5c099590",
+        "targetPort": "prompt"
+      },
+      {
+        "id": "edge-990b11e1-191b-48eb-8738-c0c4cdafd3ee",
+        "source": "generateImage-474785ef-e922-4b59-90a6-b5e4c6462e2a",
+        "sourcePort": "image",
+        "target": "generateVideo-f369da91-bdf9-4582-929c-d2af5c099590",
+        "targetPort": "reference"
+      },
+      {
+        "id": "edge-b222d0c0-0bf4-422c-a894-f52fb48b875d",
+        "source": "generateImage-a5c0dce4-8eab-4543-9d6f-bbae5d8a6bee",
+        "sourcePort": "image",
+        "target": "generateVideo-f369da91-bdf9-4582-929c-d2af5c099590",
+        "targetPort": "reference"
+      },
+      {
+        "id": "edge-086b7684-5836-4d9e-9934-91fcb8522c7c",
+        "source": "generateImage-7f411d78-70ec-4e59-aff3-3b23d6e8c9e6",
+        "sourcePort": "image",
+        "target": "generateVideo-f369da91-bdf9-4582-929c-d2af5c099590",
+        "targetPort": "reference"
+      },
+      {
+        "id": "edge-68b11f38-532a-45eb-829c-4a30c1239a3c",
+        "source": "prompt-44e27f6c-df14-45fa-af19-2080b9d20ff1",
+        "sourcePort": "text",
+        "target": "generateImage-c8dcf3c7-5877-44cb-b5b8-08a462e92428",
+        "targetPort": "prompt"
+      },
+      {
+        "id": "edge-1a3bc354-6fb4-42ad-8505-944f4ca645b6",
+        "source": "generateImage-7f411d78-70ec-4e59-aff3-3b23d6e8c9e6",
+        "sourcePort": "image",
+        "target": "generateImage-c8dcf3c7-5877-44cb-b5b8-08a462e92428",
+        "targetPort": "reference"
+      },
+      {
+        "id": "edge-40b62d37-2b98-45db-b8b8-a4a05b9a8061",
+        "source": "prompt-5e50959a-1dbd-4566-898a-2c620546ae81",
+        "sourcePort": "text",
+        "target": "generateVideo-d75ff1c6-8a5b-4098-b770-57e7fc998212",
+        "targetPort": "prompt"
+      },
+      {
+        "id": "edge-d01212d3-e10f-405d-926b-45ae6d873773",
+        "source": "generateImage-c8dcf3c7-5877-44cb-b5b8-08a462e92428",
+        "sourcePort": "image",
+        "target": "generateVideo-d75ff1c6-8a5b-4098-b770-57e7fc998212",
+        "targetPort": "reference"
+      },
+      {
+        "id": "edge-71ef684c-d79a-45db-a9d5-82ed75fae396",
+        "source": "generateImage-7f411d78-70ec-4e59-aff3-3b23d6e8c9e6",
+        "sourcePort": "image",
+        "target": "generateVideo-d75ff1c6-8a5b-4098-b770-57e7fc998212",
+        "targetPort": "reference"
+      },
+      {
+        "id": "edge-7a9dd0e8-414d-4b81-a61f-2967536fd70f",
+        "source": "prompt-3ca93fd8-ce7d-464f-af8b-5ac89d09c616",
+        "sourcePort": "text",
+        "target": "generateImage-bc3818df-c28e-4ed5-b553-9d92112b641f",
+        "targetPort": "prompt"
+      },
+      {
+        "id": "edge-869fc01c-d636-4ad5-99c4-096c6bd98f59",
+        "source": "generateImage-a5c0dce4-8eab-4543-9d6f-bbae5d8a6bee",
+        "sourcePort": "image",
+        "target": "generateImage-bc3818df-c28e-4ed5-b553-9d92112b641f",
+        "targetPort": "reference"
+      },
+      {
+        "id": "edge-8cf11f71-2b50-4629-95c8-fd1848794f6a",
+        "source": "generateImage-7f411d78-70ec-4e59-aff3-3b23d6e8c9e6",
+        "sourcePort": "image",
+        "target": "generateImage-bc3818df-c28e-4ed5-b553-9d92112b641f",
+        "targetPort": "reference"
+      },
+      {
+        "id": "edge-d87c2b20-c5bd-4be1-af5d-14dfa768c6b2",
+        "source": "prompt-0d6c6a76-550a-414b-a3cd-d4ab105aed26",
+        "sourcePort": "text",
+        "target": "generateVideo-84cbe66c-9b47-4826-8009-c9251b32643c",
+        "targetPort": "prompt"
+      },
+      {
+        "id": "edge-940d930c-1384-4f59-9574-de00f5d965cf",
+        "source": "generateImage-bc3818df-c28e-4ed5-b553-9d92112b641f",
+        "sourcePort": "image",
+        "target": "generateVideo-84cbe66c-9b47-4826-8009-c9251b32643c",
+        "targetPort": "reference"
+      },
+      {
+        "id": "edge-1a169c07-b9f1-4b9b-8f62-b80266390954",
+        "source": "generateImage-a5c0dce4-8eab-4543-9d6f-bbae5d8a6bee",
+        "sourcePort": "image",
+        "target": "generateVideo-84cbe66c-9b47-4826-8009-c9251b32643c",
+        "targetPort": "reference"
+      },
+      {
+        "id": "edge-a83a2b15-8c35-44d9-8b76-7597e60ab182",
+        "source": "generateImage-7f411d78-70ec-4e59-aff3-3b23d6e8c9e6",
+        "sourcePort": "image",
+        "target": "generateVideo-84cbe66c-9b47-4826-8009-c9251b32643c",
+        "targetPort": "reference"
+      },
+      {
+        "id": "edge-3359ebcf-b8c2-4c0f-bb63-394c564fda75",
+        "source": "prompt-d5f6df80-0232-4cc8-9450-fdc88d01fadd",
+        "sourcePort": "text",
+        "target": "generateImage-1341ca95-3fac-4ab7-a185-d92f6ff85878",
+        "targetPort": "prompt"
+      },
+      {
+        "id": "edge-96f53431-4deb-407d-952a-6f3202af06c3",
+        "source": "generateImage-a5c0dce4-8eab-4543-9d6f-bbae5d8a6bee",
+        "sourcePort": "image",
+        "target": "generateImage-1341ca95-3fac-4ab7-a185-d92f6ff85878",
+        "targetPort": "reference"
+      },
+      {
+        "id": "edge-2c226b75-4c80-45f3-a0c7-bb4f2f66aa1b",
+        "source": "generateImage-7f411d78-70ec-4e59-aff3-3b23d6e8c9e6",
+        "sourcePort": "image",
+        "target": "generateImage-1341ca95-3fac-4ab7-a185-d92f6ff85878",
+        "targetPort": "reference"
+      },
+      {
+        "id": "edge-97f99db0-4e35-4fae-9bbd-7ac778b530d4",
+        "source": "prompt-22c27597-107a-4c02-bc94-f22eabe6321a",
+        "sourcePort": "text",
+        "target": "generateVideo-2154b2ad-3243-443e-a4f8-4f59ce3d019b",
+        "targetPort": "prompt"
+      },
+      {
+        "id": "edge-64cc7624-0774-452a-9793-67ed3aa34662",
+        "source": "generateImage-1341ca95-3fac-4ab7-a185-d92f6ff85878",
+        "sourcePort": "image",
+        "target": "generateVideo-2154b2ad-3243-443e-a4f8-4f59ce3d019b",
+        "targetPort": "reference"
+      },
+      {
+        "id": "edge-a032d70b-ad52-4ff4-8fe1-2c97a21a217b",
+        "source": "generateImage-a5c0dce4-8eab-4543-9d6f-bbae5d8a6bee",
+        "sourcePort": "image",
+        "target": "generateVideo-2154b2ad-3243-443e-a4f8-4f59ce3d019b",
+        "targetPort": "reference"
+      },
+      {
+        "id": "edge-5bc65003-7350-441b-9a03-6d2d10586b58",
+        "source": "generateImage-7f411d78-70ec-4e59-aff3-3b23d6e8c9e6",
+        "sourcePort": "image",
+        "target": "generateVideo-2154b2ad-3243-443e-a4f8-4f59ce3d019b",
+        "targetPort": "reference"
+      },
+      {
+        "id": "edge-95c140ab-631a-4d8b-a507-7b0dcb38b49d",
+        "source": "references-724862e5-b21f-4a94-8227-2acccb7940f8",
+        "sourcePort": "image",
+        "target": "generateImage-a5c0dce4-8eab-4543-9d6f-bbae5d8a6bee",
+        "targetPort": "reference"
+      },
+      {
+        "id": "edge-db0f2890-8740-4421-96ee-7f785200949e",
+        "source": "references-724862e5-b21f-4a94-8227-2acccb7940f8",
+        "sourcePort": "image",
+        "target": "generateImage-7f411d78-70ec-4e59-aff3-3b23d6e8c9e6",
+        "targetPort": "reference"
+      },
+      {
+        "id": "edge-eca68d13-089d-40aa-b492-0bff5150afd4",
+        "source": "references-724862e5-b21f-4a94-8227-2acccb7940f8",
+        "sourcePort": "image",
+        "target": "generateImage-4a1ec5ea-7e12-4f00-bb7c-9ad6bed08a52",
+        "targetPort": "reference"
+      },
+      {
+        "id": "edge-e0ad3397-5ae0-45d5-8448-a8d0454aa08e",
+        "source": "references-724862e5-b21f-4a94-8227-2acccb7940f8",
+        "sourcePort": "image",
+        "target": "generateVideo-fb2a58ec-4131-4875-8446-3da850847774",
+        "targetPort": "reference"
+      },
+      {
+        "id": "edge-3cbf1166-e01d-404e-ae2f-bbd37b6a0a67",
+        "source": "references-724862e5-b21f-4a94-8227-2acccb7940f8",
+        "sourcePort": "image",
+        "target": "generateImage-474785ef-e922-4b59-90a6-b5e4c6462e2a",
+        "targetPort": "reference"
+      },
+      {
+        "id": "edge-0a6b29d8-49b5-4d7f-9fc0-4b7b9336f0aa",
+        "source": "references-724862e5-b21f-4a94-8227-2acccb7940f8",
+        "sourcePort": "image",
+        "target": "generateVideo-f369da91-bdf9-4582-929c-d2af5c099590",
+        "targetPort": "reference"
+      },
+      {
+        "id": "edge-1980847e-1852-4f85-ac41-8a0de99ec83d",
+        "source": "references-724862e5-b21f-4a94-8227-2acccb7940f8",
+        "sourcePort": "image",
+        "target": "generateImage-c8dcf3c7-5877-44cb-b5b8-08a462e92428",
+        "targetPort": "reference"
+      },
+      {
+        "id": "edge-1ed51bee-f57f-471c-b713-996dea2e88e7",
+        "source": "references-724862e5-b21f-4a94-8227-2acccb7940f8",
+        "sourcePort": "image",
+        "target": "generateVideo-d75ff1c6-8a5b-4098-b770-57e7fc998212",
+        "targetPort": "reference"
+      },
+      {
+        "id": "edge-6652968a-7545-43f0-9568-b5d2fd7abd94",
+        "source": "references-724862e5-b21f-4a94-8227-2acccb7940f8",
+        "sourcePort": "image",
+        "target": "generateImage-bc3818df-c28e-4ed5-b553-9d92112b641f",
+        "targetPort": "reference"
+      },
+      {
+        "id": "edge-1be4534d-705d-4dc4-8002-1701cf705609",
+        "source": "references-724862e5-b21f-4a94-8227-2acccb7940f8",
+        "sourcePort": "image",
+        "target": "generateVideo-84cbe66c-9b47-4826-8009-c9251b32643c",
+        "targetPort": "reference"
+      },
+      {
+        "id": "edge-a8027a6f-6f49-4a32-bf7b-4ae524d225b1",
+        "source": "references-724862e5-b21f-4a94-8227-2acccb7940f8",
+        "sourcePort": "image",
+        "target": "generateImage-1341ca95-3fac-4ab7-a185-d92f6ff85878",
+        "targetPort": "reference"
+      },
+      {
+        "id": "edge-a8c11c82-5b41-4aed-9f39-b8424c7aa731",
+        "source": "references-724862e5-b21f-4a94-8227-2acccb7940f8",
+        "sourcePort": "image",
+        "target": "generateVideo-2154b2ad-3243-443e-a4f8-4f59ce3d019b",
+        "targetPort": "reference"
+      }
+    ],
+    "groups": [],
+    "notes": [
+      {
+        "id": "note-3274f6bc-c152-40ad-9b88-c24a19b1cbf2",
+        "x": -280,
+        "y": 300,
+        "width": 300,
+        "height": 190,
+        "text": "1. Run each \"Character\" image node first and pick the best version (it is kept 🔒 for Run workflow). Right-click it → Save character image, and put the file in the series characters/ folder so later episodes reuse the same face.\n2. Run workflow to generate every scene in timeline order.\n3. Check the Timeline, add ♪ Music if you like, then export MP4."
+      }
+    ],
+    "settings": {
+      "autoRetry": 0,
+      "continueOnError": true
+    }
+  }
+}
