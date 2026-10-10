@@ -1414,112 +1414,6 @@ body:has(#timelineDock.no-timeline) #viewport {
     width: min(300px, calc(100vw - 16px));
   }
 }
-.toolbar-actions #buyCoffeeBtn {
-  border-color: #8a6535;
-  background: #342817;
-  color: #ffdda3;
-  font-weight: 700;
-}
-.toolbar-actions #buyCoffeeBtn:hover {
-  background: #49361f;
-  border-color: #bd8b47;
-}
-.donation-modal {
-  width: min(390px, 92vw);
-  max-height: 92vh;
-  overflow: auto;
-  text-align: center;
-}
-.donation-header {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 12px;
-  text-align: left;
-}
-.donation-header h2 {
-  margin: 0 0 4px;
-}
-.donation-header p {
-  margin: 0 0 12px;
-}
-.donation-header button {
-  width: 32px;
-  height: 32px;
-  padding: 0;
-  font-size: 20px;
-}
-.donation-qr {
-  display: block;
-  width: min(100%, 320px);
-  max-height: 55vh;
-  object-fit: contain;
-  margin: 8px auto 12px;
-  border-radius: 10px;
-  background: #fff;
-}
-.donation-qr.hidden,
-.donation-qr-fallback.hidden {
-  display: none;
-}
-.donation-qr-fallback {
-  padding: 24px 16px;
-  border: 1px dashed #454857;
-  border-radius: 9px;
-  color: #aeb1be;
-  font-size: 12px;
-}
-.donation-details {
-  display: grid;
-  gap: 4px;
-  padding: 12px;
-  border: 1px solid #343744;
-  border-radius: 9px;
-  background: #12131a;
-}
-.donation-details span {
-  color: #a0a3af;
-  font-size: 12px;
-}
-.donation-details strong {
-  font-size: 17px;
-  letter-spacing: 0.04em;
-}
-.donation-open-link {
-  display: inline-block;
-  margin-top: 12px;
-  color: #c2b5ff;
-  font-size: 12px;
-}
-.donation-bmac-link {
-  display: block;
-  margin-top: 14px;
-  padding: 11px 14px;
-  border: 1px solid #e3c500;
-  border-radius: 9px;
-  background: #ffdd00;
-  color: #171717;
-  font-size: 13px;
-  font-weight: 800;
-  text-decoration: none;
-  transition:
-    background 0.15s,
-    transform 0.15s;
-}
-.donation-bmac-link:hover {
-  background: #ffe642;
-  transform: translateY(-1px);
-}
-@media (max-width: 760px) {
-  .toolbar-actions #buyCoffeeBtn {
-    font-size: 0;
-    padding-inline: 8px;
-  }
-  .toolbar-actions #buyCoffeeBtn:after {
-    content: '☕';
-    font-size: 14px;
-  }
-}
 #timelinePreviewPanel video.is-active {
   z-index: 3;
 }
@@ -2738,10 +2632,6 @@ body:not([data-view='production']) #production {
 }
 body:not([data-view='canvas']) .toolbar-actions {
   margin-left: auto;
-}
-.toolbar-actions #buyCoffeeBtn {
-  font-size: 14px;
-  padding: 5px 9px;
 }
 .add-node {
   flex: 0 0 auto;

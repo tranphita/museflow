@@ -126,15 +126,6 @@ $('#settingsBtn').onclick = async () => {
     : 'sk_tvoice_…';
   $('#settingsModal').classList.remove('hidden');
 };
-$('#buyCoffeeBtn').onclick = () => $('#donationModal').classList.remove('hidden');
-$('#closeDonationBtn').onclick = () => $('#donationModal').classList.add('hidden');
-$('#donationModal').onclick = event => {
-  if (event.target.id === 'donationModal') $('#donationModal').classList.add('hidden');
-};
-$('#donationQrImage').onerror = () => {
-  $('#donationQrImage').classList.add('hidden');
-  $('#donationQrFallback').classList.remove('hidden');
-};
 $('#testMuseBtn').onclick = () => testMuseSession();
 $('#closeSettingsBtn').onclick = () => $('#settingsModal').classList.add('hidden');
 $('#saveSettingsBtn').onclick = async () => {
@@ -276,7 +267,6 @@ document.addEventListener(
       closeCanvasMenu();
       endSelectionMarquee();
       cancelGroupMarquee();
-      $('#donationModal').classList.add('hidden');
     }
     if ((e.key === 'Delete' || e.key === 'Backspace') && !isTextEntry(e.target)) {
       e.preventDefault();
