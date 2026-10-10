@@ -5,6 +5,7 @@ Mỗi thư mục con là một bộ phim. Nhân vật được giữ nguyên qua
 | Bộ | Thư mục | Nội dung |
 | --- | --- | --- |
 | Vợ dạy chồng tiếng Anh (Hảo & Phi Ta) | [hoc-tieng-anh/](hoc-tieng-anh/) | Hảo giỏi tiếng Anh, Phi Ta giao tiếp cơ bản. Mỗi tập theo format "chồng nói sai → vợ sửa → luyện → twist hài → nhắc lại": lỗi sai ở nhà, gọi đồ uống, đi siêu thị, check-in khách sạn, ngày kỷ niệm |
+| Mẹ & Mia học tiếng Anh | [me-va-be/](me-va-be/) | Hoạt hình 3D kiểu Pixar: mẹ (Mommy) dạy con gái 10 tuổi Mia một mẫu câu tiếng Anh mỗi tập, thoại tiếng Anh, phụ đề song ngữ gắn sẵn. Format "Mia nói sai → mẹ dạy → luyện 2 lần → twist → ôn → Your turn": bữa sáng, đi học, siêu thị, công viên, giờ đi ngủ |
 | Hảo Fit — nhật ký tập gym | [gym-idol/](gym-idol/) | Vlog thể hình hằng ngày của nữ fitness creator Hảo: leg day, thân trên, ngày nghỉ và meal prep |
 
 ## Cấu trúc một bộ
@@ -87,6 +88,23 @@ Lời thoại:
 
 Mỗi dòng thành một node Voiceover với giọng của người nói; khi xuất MP4 các câu được xếp nối tiếp trong clip (cách nhau 0,35 giây) và clip tự kéo dài cho đủ thoại. Dán API key tvoiceai vào **Cài đặt → Lồng tiếng** một lần; key chỉ lưu trong trình duyệt, không nằm trong workflow. Cả hai bộ đã dùng sẵn cách này; bộ học tiếng Anh dùng giọng riêng cho Hảo và Phi Ta.
 
+## Phụ đề song ngữ
+
+Thêm dòng `PHỤ ĐỀ: song ngữ` vào `_series.txt`, rồi viết mỗi câu thoại dạng `Tên: tiếng Anh | tiếng Việt` (dấu `|` có khoảng trắng hai bên). Bọc mẫu câu cần học trong `*...*` ở cả hai vế để tô vàng:
+
+```
+Lời thoại:
+- Mommy: Try this: *Can I have some milk, please?* | Con thử nói: *Con uống sữa được không ạ?*
+- Mia: *Can I have some* pancakes, *please*? | *Con ăn* bánh kếp *được không ạ*?
+```
+
+- TTS chỉ đọc vế tiếng Anh (đã bỏ dấu `*`); vế tiếng Việt chỉ dùng cho phụ đề.
+- Khi xuất **MP4**, mỗi câu hiện đúng lúc được đọc: tiếng Anh chữ lớn màu trắng, tiếng Việt nhỏ hơn bên dưới, cụm `*...*` màu vàng, đặt cao hơn đáy khung khoảng 22% để không bị nút TikTok/Shorts che. Font Be Vietnam Pro đi kèm extension.
+- Ô **Phụ đề** trên thanh Timeline bật/tắt phụ đề cho workflow đang mở. Xuất WebM không có phụ đề.
+- Studio cảnh báo câu thiếu phần dịch, dấu `*` chưa đóng, số cụm tô vàng hai vế khác nhau, và câu tiếng Anh dài quá 70 ký tự.
+
+Hình do Muse tạo vẫn không được có chữ (giữ luật `Chung: không chữ, phụ đề…`); phụ đề chỉ do bước xuất thêm vào.
+
 ## Thêm tập mới
 
 Tạo file `epNN-ten-tap.txt` trong thư mục bộ phim, chỉ viết các cảnh:
@@ -104,5 +122,5 @@ Rồi chạy lại `npm run series -- series/<bo-phim>`. Muốn đổi trang ph�
 ## Lưu ý
 
 - Mỗi cảnh dài 6–8 giây; Muse tạo video 5, 6, 8 hoặc 10 giây và timeline cắt theo thời lượng trong kịch bản.
-- Lời thoại nằm ở dòng `Audio:`. Muse có thể không đọc đúng từng chữ; nếu cần chính xác, hãy lồng tiếng hoặc thêm phụ đề sau khi xuất.
+- Dòng `Audio:` chỉ là chỉ dẫn âm thanh cho Muse; Muse có thể tự đọc thoại không đúng chữ. Muốn thoại chính xác thì dùng `Lời thoại:` (TTS) và ghi `Audio: … không lời thoại` như bộ `me-va-be`.
 - Bộ gym được viết theo phong cách vlog thể hình lành mạnh. Nội dung quá gợi cảm dễ bị Muse từ chối; khi đó Museta tự thử lại một lần với phương án an toàn.
