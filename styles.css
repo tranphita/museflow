@@ -2490,7 +2490,7 @@ body {
   border-radius: 7px;
   padding: 5px 6px;
 }
-.timeline-transition input {
+.timeline-transition input[type='number'] {
   width: 56px;
 }
 

@@ -1,7 +1,9 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { parseSubtitleMode, parseVoiceLines, stripHighlights } from '../../src/core/scene-script.js';
-import { buildAss, buildSubtitleEvents, SUBTITLE_FONT } from '../../src/core/subtitle-plan.js';
+import { buildAss, buildSubtitleEvents, SUBTITLE_FONT, voiceSubtitle } from '../../src/core/subtitle-plan.js';
+import { buildEncodeArgs, canJoinWithoutReencode } from '../../src/core/ffmpeg-plan.js';
+import { workflowFromScript } from '../../src/core/film-graph.js';
 
 test('a bilingual line keeps the marked subtitle and gives TTS only clean English', () => {
   const [line] = parseVoiceLines('- Mommy: Say *Can I have milk?* | Con nói *Con xin sữa ạ?*', ['Mommy']);
@@ -131,4 +133,66 @@ test('braces, backslashes and line breaks in dialogue stay literal', () => {
     height: 1280,
   });
   assert.ok(ass.includes(',,a\\{b\\}\\⁠c next\n'));
+});
+
+const encodeClip = (overrides = {}) => ({
+  hasAudio: true,
+  width: 720,
+  height: 1280,
+  videoCodec: 'h264',
+  videoProfile: 'High',
+  pixelFormat: 'yuv420p',
+  audioCodec: 'aac',
+  audioRate: 48000,
+  audioChannels: 2,
+  sourceDuration: 6,
+  duration: 6,
+  ...overrides,
+});
+
+test('subtitles are burned onto the final video and force a re-encode', () => {
+  const clips = [encodeClip(), encodeClip()];
+  assert.equal(canJoinWithoutReencode(clips), true);
+  assert.equal(canJoinWithoutReencode(clips, { hasSubtitles: true }), false);
+  const plain = buildEncodeArgs({ clipInfo: clips, inputPaths: ['/0', '/1'], silentInput: '/s.wav' });
+  assert.deepEqual(
+    buildEncodeArgs({ clipInfo: clips, inputPaths: ['/0', '/1'], silentInput: '/s.wav', subtitles: null }),
+    plain,
+  );
+  const args = buildEncodeArgs({
+    clipInfo: clips,
+    inputPaths: ['/0', '/1'],
+    silentInput: '/s.wav',
+    subtitles: { path: '/subs.ass', fontsDir: '/fonts' },
+  });
+  const filter = args[args.indexOf('-filter_complex') + 1];
+  assert.match(filter, /;\[outv\]subtitles=filename=\/subs\.ass:fontsdir=\/fonts\[subv\]$/);
+  assert.equal(args[args.indexOf('-map') + 1], '[subv]');
+});
+
+test('voiceover nodes carry their subtitle and the timeline turns subtitles on', () => {
+  const script = `PHỤ ĐỀ: song ngữ
+GIỌNG ĐỌC: MOM
+
+NHÂN VẬT:
+- Mommy: a mom
+- Mia: a girl
+
+CẢNH 1 (0:00–0:07): Sáng
+Nhân vật: Mommy, Mia
+Prompt video: Breakfast
+Lời thoại:
+- Mommy: Say *Can I have milk?* | Con nói *Con xin sữa ạ?*
+- Mia: Yes!`;
+  const workflow = workflowFromScript(script);
+  const timeline = workflow.nodes.find(node => node.type === 'timeline');
+  assert.equal(timeline.data.subtitles, 'bilingual');
+  const [first, second] = workflow.nodes.filter(node => node.type === 'voiceover');
+  assert.equal(first.data.text, 'Say Can I have milk?');
+  assert.deepEqual(first.data.subtitle, { en: 'Say *Can I have milk?*', vi: 'Con nói *Con xin sữa ạ?*' });
+  assert.equal(second.data.subtitle, undefined);
+  assert.deepEqual(voiceSubtitle(second.data), { en: 'Yes!', vi: '' });
+  assert.deepEqual(voiceSubtitle(first.data), first.data.subtitle);
+  const plain = workflowFromScript(script.replace('PHỤ ĐỀ: song ngữ\n', ''));
+  assert.equal(plain.nodes.find(node => node.type === 'timeline').data.subtitles, undefined);
 });

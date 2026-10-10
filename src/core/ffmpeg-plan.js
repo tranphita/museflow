@@ -43,8 +43,12 @@ export function timelineLength(durations, transition) {
   return total - normalizeTransition(transition, durations).duration * Math.max(0, durations.length - 1);
 }
 
-export function canJoinWithoutReencode(clipInfo, { hasMusic = false, transition = null } = {}) {
-  if (hasMusic || !clipInfo.length || clipInfo.some(item => item.voices?.length)) return false;
+export function canJoinWithoutReencode(
+  clipInfo,
+  { hasMusic = false, transition = null, hasSubtitles = false } = {},
+) {
+  if (hasMusic || hasSubtitles || !clipInfo.length || clipInfo.some(item => item.voices?.length))
+    return false;
   if (
     normalizeTransition(
       transition,
@@ -99,7 +103,14 @@ export function outputFrameSize(clipInfo, maxEdge = 1280) {
   };
 }
 
-export function buildEncodeArgs({ clipInfo, inputPaths, silentInput, music = null, transition = null }) {
+export function buildEncodeArgs({
+  clipInfo,
+  inputPaths,
+  silentInput,
+  music = null,
+  transition = null,
+  subtitles = null,
+}) {
   const { width, height } = outputFrameSize(clipInfo);
   const durations = clipInfo.map(item => item.duration);
   const blend = normalizeTransition(transition, durations);
@@ -186,11 +197,17 @@ export function buildEncodeArgs({ clipInfo, inputPaths, silentInput, music = nul
     audioOut = '[mixa]';
   }
 
+  let videoOut = '[outv]';
+  if (subtitles) {
+    filters.push(`[outv]subtitles=filename=${subtitles.path}:fontsdir=${subtitles.fontsDir}[subv]`);
+    videoOut = '[subv]';
+  }
+
   args.push(
     '-filter_complex',
     filters.join(';'),
     '-map',
-    '[outv]',
+    videoOut,
     '-map',
     audioOut,
     '-c:v',

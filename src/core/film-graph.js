@@ -7,6 +7,7 @@ import {
   parseAvoid,
   parseVoices,
   parseVoiceLines,
+  parseSubtitleMode,
   voiceFor,
   charactersForScene,
   characterSheetPrompt,
@@ -148,6 +149,7 @@ export function buildSceneGraph(script, { baseY = 40, characterImages = {} } = {
           status: 'idle',
           sceneLabel: `${label}${line.speaker ? ` · ${line.speaker}` : ''} · ${order + 1}`,
           ...(line.speaker ? { speaker: line.speaker } : {}),
+          ...(line.subtitle ? { subtitle: line.subtitle } : {}),
         };
         nodes.push(voice);
         edges.push(edge(voice.id, 'audio', videoNode.id, 'voice'));
@@ -181,6 +183,7 @@ export function workflowFromScript(script, { characterImages = {} } = {}) {
       clipOrder: graph.videos.map(video => video.node.id),
       durations: Object.fromEntries(graph.videos.map(video => [video.node.id, video.seconds])),
       ...(graph.videos.length > 1 ? { transition: { ...DEFAULT_FILM_TRANSITION } } : {}),
+      ...(parseSubtitleMode(script) === 'bilingual' ? { subtitles: 'bilingual' } : {}),
     },
   };
   const fanOut = graph.nodes

@@ -9,31 +9,65 @@ import {
   buildEncodeArgs,
   clipLengthForVoices,
   scheduleVoices,
+  outputFrameSize,
 } from '../core/ffmpeg-plan.js';
+import { SUBTITLE_FONT, buildAss, buildSubtitleEvents, voiceSubtitle } from '../core/subtitle-plan.js';
 import { $, setRunStatus } from './dom.js';
 import { ensureDockTimeline, closeTimelinePreview, visibleTimelineClipOrder } from './timeline.js';
 
 async function loadClipVoiceovers(ffmpeg, clips, clipInfo, signal) {
   let voiced = 0;
   for (let index = 0; index < clips.length; index++) {
-    const assets = getIncoming(clips[index].id, 'voice')
-      .map(edge => sourceFor(edge)?.data?.asset)
-      .filter(asset => asset?.url);
-    if (!assets.length) continue;
-    const durations = assets.map(asset => Number(asset.duration) || 0);
+    const voiceNodes = getIncoming(clips[index].id, 'voice')
+      .map(edge => sourceFor(edge))
+      .filter(voice => voice?.data?.asset?.url);
+    if (!voiceNodes.length) continue;
+    const durations = voiceNodes.map(voice => Number(voice.data.asset.duration) || 0);
     const { offsets } = scheduleVoices(durations);
     clipInfo[index].voices = [];
-    for (const [order, asset] of assets.entries()) {
+    for (const [order, voice] of voiceNodes.entries()) {
+      const asset = voice.data.asset;
       const response = await fetch(asset.url, { signal });
       if (!response.ok) throw new Error(`Không đọc được lồng tiếng ${order + 1} của clip ${index + 1}.`);
       const path = `/voice_${String(index).padStart(3, '0')}_${order}.bin`;
       await ffmpeg.writeFile(path, new Uint8Array(await response.arrayBuffer()), { signal });
-      clipInfo[index].voices.push({ path, offset: offsets[order] });
+      clipInfo[index].voices.push({
+        path,
+        offset: offsets[order],
+        duration: durations[order],
+        ...voiceSubtitle(voice.data),
+      });
     }
     clipInfo[index].duration = clipLengthForVoices(clipInfo[index].duration, durations);
-    voiced += assets.length;
+    voiced += voiceNodes.length;
   }
   return voiced;
+}
+
+const SUBTITLE_PATH = '/subs.ass';
+const FONTS_DIR = '/fonts';
+
+async function loadSubtitles(ffmpeg, node, clipInfo, signal) {
+  if (node.data.subtitles !== 'bilingual') return null;
+  const events = buildSubtitleEvents({
+    clips: clipInfo.map(item => ({ duration: item.duration, voices: item.voices || [] })),
+    transition: node.data.transition,
+  });
+  if (!events.length) return null;
+  try {
+    const font = await fetch(chrome.runtime.getURL(`vendor/fonts/${SUBTITLE_FONT.file}`), { signal });
+    if (!font.ok) throw new Error(`không tải được font (HTTP ${font.status})`);
+    await ffmpeg.createDir(FONTS_DIR, { signal });
+    await ffmpeg.writeFile(`${FONTS_DIR}/${SUBTITLE_FONT.file}`, new Uint8Array(await font.arrayBuffer()), {
+      signal,
+    });
+    const ass = buildAss({ events, ...outputFrameSize(clipInfo) });
+    await ffmpeg.writeFile(SUBTITLE_PATH, new TextEncoder().encode(ass), { signal });
+  } catch (error) {
+    if (error?.name === 'AbortError') throw error;
+    throw new Error(`Không dựng được phụ đề: ${error?.message || String(error)}`);
+  }
+  return { path: SUBTITLE_PATH, fontsDir: FONTS_DIR, count: events.length };
 }
 
 async function loadTimelineMusic(ffmpeg, node, signal) {
@@ -165,7 +199,15 @@ export async function exportTimelineMp4WithFFmpeg(
     const voiced = await loadClipVoiceovers(ffmpeg, clips, clipInfo, signal);
     if (voiced) setRunStatus(`Đang trộn ${voiced} đoạn lồng tiếng vào timeline…`, 'warn');
     const music = await loadTimelineMusic(ffmpeg, node, signal);
-    if (canJoinWithoutReencode(clipInfo, { hasMusic: Boolean(music), transition: node.data.transition })) {
+    const subtitles = await loadSubtitles(ffmpeg, node, clipInfo, signal);
+    if (subtitles) setRunStatus(`Đang gắn ${subtitles.count} câu phụ đề song ngữ vào video…`, 'warn');
+    if (
+      canJoinWithoutReencode(clipInfo, {
+        hasMusic: Boolean(music),
+        hasSubtitles: Boolean(subtitles),
+        transition: node.data.transition,
+      })
+    ) {
       const concatFile = '/timeline-inputs.txt';
       await ffmpeg.writeFile(concatFile, new TextEncoder().encode(buildConcatList(sourceUrls)), { signal });
       button.textContent = 'Đang ghép clip MP4…';
@@ -185,6 +227,7 @@ export async function exportTimelineMp4WithFFmpeg(
         silentInput,
         music,
         transition: node.data.transition,
+        subtitles,
       });
       button.textContent = 'Đang mã hoá MP4…';
       setRunStatus(
