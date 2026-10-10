@@ -1,29 +1,29 @@
 CẢNH 1 (0:00–0:08): Đến nhà hàng
-Nhân vật: Hảo, Minh
-Prompt ảnh: Hảo và Minh bước vào một nhà hàng ấm cúng buổi tối, đèn vàng, bàn gỗ, Minh cầm cửa mời Hảo vào
-Prompt video: Minh mở cửa mời Hảo vào trước. Hai người nhìn quanh nhà hàng rồi đi về phía một bàn trống. Máy quay theo sau lưng họ.
-Audio: Minh nói bằng tiếng Anh: "After you, Hảo." Hảo cười: "Thank you, Minh. This place looks nice!" Tiếng nhạc jazz nhẹ trong nhà hàng.
+Nhân vật: Hảo, Phi Ta
+Prompt ảnh: Hảo và Phi Ta bước vào một nhà hàng ấm cúng buổi tối, đèn vàng, bàn gỗ, Phi Ta cầm cửa mời Hảo vào
+Prompt video: Phi Ta mở cửa mời Hảo vào trước. Hai người nhìn quanh nhà hàng rồi đi về phía một bàn trống. Máy quay theo sau lưng họ.
+Audio: Phi Ta nói bằng tiếng Anh: "After you, Hảo." Hảo cười: "Thank you, Phi Ta. This place looks nice!" Tiếng nhạc jazz nhẹ trong nhà hàng.
 
 CẢNH 2 (0:08–0:16): Xem thực đơn
-Nhân vật: Hảo, Minh
-Prompt ảnh: Hai người ngồi đối diện nhau cầm thực đơn, Hảo chỉ vào một món trong thực đơn của Minh
-Prompt video: Hảo mở thực đơn, chỉ cho Minh một món. Minh đọc theo và gật đầu hứng thú. Máy quay cận trung, góc chéo.
-Audio: Hảo hỏi bằng tiếng Anh: "What would you like to eat?" Minh trả lời: "I'd like the chicken salad, please." Hảo nói: "Good choice!"
+Nhân vật: Hảo, Phi Ta
+Prompt ảnh: Hai người ngồi đối diện nhau cầm thực đơn, Hảo chỉ vào một món trong thực đơn của Phi Ta
+Prompt video: Hảo mở thực đơn, chỉ cho Phi Ta một món. Phi Ta đọc theo và gật đầu hứng thú. Máy quay cận trung, góc chéo.
+Audio: Hảo hỏi bằng tiếng Anh: "What would you like to eat?" Phi Ta trả lời: "I'd like the chicken salad, please." Hảo nói: "Good choice!"
 
 CẢNH 3 (0:16–0:24): Gọi món
-Nhân vật: Minh
-Prompt ảnh: Minh ngẩng lên nói chuyện lịch sự với người phục vụ đứng cạnh bàn, tay cầm thực đơn
-Prompt video: Minh giơ tay gọi phục vụ, rồi tự tin gọi món, chỉ vào thực đơn. Phục vụ gật đầu ghi chép. Hảo mỉm cười tự hào phía sau.
-Audio: Minh nói chậm, rõ bằng tiếng Anh: "Excuse me. Can I have a chicken salad and an orange juice, please?" Giọng phục vụ đáp: "Sure, anything else?" Minh: "No, thank you."
+Nhân vật: Phi Ta, Hảo
+Prompt ảnh: Phi Ta ngẩng lên nói chuyện lịch sự với người phục vụ đứng cạnh bàn, tay cầm thực đơn
+Prompt video: Phi Ta giơ tay gọi phục vụ, rồi tự tin gọi món, chỉ vào thực đơn. Phục vụ gật đầu ghi chép. Hảo mỉm cười tự hào phía sau.
+Audio: Phi Ta nói chậm, rõ bằng tiếng Anh: "Excuse me. Can I have a chicken salad and an orange juice, please?" Giọng phục vụ đáp: "Sure, anything else?" Phi Ta: "No, thank you."
 
 CẢNH 4 (0:24–0:32): Món ăn được mang ra
-Nhân vật: Hảo, Minh
-Prompt ảnh: Bàn ăn với đĩa salad gà và ly nước cam, Hảo và Minh nâng ly chúc mừng
-Prompt video: Đồ ăn được đặt lên bàn. Minh và Hảo nâng ly chạm nhẹ, cười vui. Máy quay đẩy chậm vào đĩa thức ăn rồi lên hai người.
-Audio: Hảo nói bằng tiếng Anh: "Cheers! It looks delicious." Minh đáp: "Cheers! Enjoy your meal."
+Nhân vật: Hảo, Phi Ta
+Prompt ảnh: Bàn ăn với đĩa salad gà và ly nước cam, Hảo và Phi Ta nâng ly chúc mừng
+Prompt video: Đồ ăn được đặt lên bàn. Phi Ta và Hảo nâng ly chạm nhẹ, cười vui. Máy quay đẩy chậm vào đĩa thức ăn rồi lên hai người.
+Audio: Hảo nói bằng tiếng Anh: "Cheers! It looks delicious." Phi Ta đáp: "Cheers! Enjoy your meal."
 
 CẢNH 5 (0:32–0:40): Thanh toán
-Nhân vật: Hảo, Minh
-Prompt ảnh: Minh đưa thẻ cho phục vụ, Hảo giơ ngón cái khen Minh
-Prompt video: Minh giơ tay xin hoá đơn, đưa thẻ thanh toán. Hảo giơ ngón cái khen. Cả hai đứng dậy, khoác áo. Máy quay lùi ra toàn cảnh nhà hàng.
-Audio: Minh nói bằng tiếng Anh: "Could we have the bill, please?" Hảo nói: "Great job today, Minh!" Nhạc jazz nhẹ kết thúc.
+Nhân vật: Hảo, Phi Ta
+Prompt ảnh: Phi Ta đưa thẻ cho phục vụ, Hảo giơ ngón cái khen Phi Ta
+Prompt video: Phi Ta giơ tay xin hoá đơn, đưa thẻ thanh toán. Hảo giơ ngón cái khen. Cả hai đứng dậy, khoác áo. Máy quay lùi ra toàn cảnh nhà hàng.
+Audio: Phi Ta nói bằng tiếng Anh: "Could we have the bill, please?" Hảo nói: "Great job today, Phi Ta!" Nhạc jazz nhẹ kết thúc.

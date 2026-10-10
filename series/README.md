@@ -4,7 +4,7 @@ Mỗi thư mục con là một bộ phim. Nhân vật được giữ nguyên qua
 
 | Bộ | Thư mục | Nội dung |
 | --- | --- | --- |
-| Học tiếng Anh cùng cô Hảo & Minh | [hoc-tieng-anh/](hoc-tieng-anh/) | Mỗi tập là một tình huống giao tiếp (chào hỏi, gọi món, hỏi đường), hội thoại tiếng Anh nói chậm, rõ |
+| Vợ chồng Hảo & Phi Ta học tiếng Anh | [hoc-tieng-anh/](hoc-tieng-anh/) | Mỗi tập là một tình huống giao tiếp (chào hỏi, gọi món, hỏi đường), hội thoại tiếng Anh nói chậm, rõ |
 | Hảo Fit — nhật ký tập gym | [gym-idol/](gym-idol/) | Vlog thể hình hằng ngày của nữ fitness creator Hảo: leg day, thân trên, ngày nghỉ và meal prep |
 
 ## Cấu trúc một bộ
@@ -25,7 +25,7 @@ Mỗi thư mục con là một bộ phim. Nhân vật được giữ nguyên qua
    npm run series -- series/hoc-tieng-anh series/gym-idol
    ```
 
-2. **Tập 1: chốt gương mặt nhân vật.** Import `workflows/ep01-...workflow.json`, bấm **Run Image** trên từng node "Character: …" cho tới khi ưng, chọn bản đẹp nhất trong dải **Versions** (node tự khoá 🔒). Chuột phải node → **Save character image** và lưu vào `characters/` với đúng tên nhân vật, ví dụ `characters/Hảo.png`, `characters/Minh.png`.
+2. **Tập 1: chốt gương mặt nhân vật.** Import `workflows/ep01-...workflow.json`, bấm **Run Image** trên từng node "Character: …" cho tới khi ưng, chọn bản đẹp nhất trong dải **Versions** (node tự khoá 🔒). Chuột phải node → **Save character image** và lưu vào `characters/` với đúng tên nhân vật, ví dụ `characters/Hảo.png`, `characters/Phi Ta.png`.
 
 3. **Build lại workflow.** Chạy lại lệnh ở bước 1. Từ giờ mọi tập dùng ảnh trong `characters/` (node **Image Input**) thay vì tạo nhân vật mới, nên gương mặt giống nhau ở mọi tập.
 
@@ -59,7 +59,7 @@ Tạo file `epNN-ten-tap.txt` trong thư mục bộ phim, chỉ viết các cả
 
 ```
 CẢNH 1 (0:00–0:08): Tên cảnh
-Nhân vật: Hảo, Minh
+Nhân vật: Hảo, Phi Ta
 Prompt ảnh: ...
 Prompt video: ...
 Audio: ...

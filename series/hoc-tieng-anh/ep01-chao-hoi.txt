@@ -1,29 +1,29 @@
 CẢNH 1 (0:00–0:08): Buổi sáng ở quán cà phê
-Nhân vật: Hảo, Minh
-Prompt ảnh: Minh bước vào một quán cà phê nhỏ sáng sủa ở Sài Gòn, Hảo đang ngồi bàn gần cửa sổ vẫy tay chào anh
-Prompt video: Minh bước vào quán, nhìn thấy Hảo và mỉm cười. Hảo đứng dậy vẫy tay chào. Máy quay theo Minh tiến lại bàn.
-Audio: Hảo nói rõ ràng, chậm rãi bằng tiếng Anh: "Good morning, Minh! How are you?" Minh đáp: "Good morning, Hảo! I'm fine, thank you. And you?" Tiếng quán cà phê nhẹ phía sau.
+Nhân vật: Hảo, Phi Ta
+Prompt ảnh: Phi Ta bước vào một quán cà phê nhỏ sáng sủa ở Sài Gòn, Hảo — vợ anh — đang ngồi bàn gần cửa sổ vẫy tay chào
+Prompt video: Phi Ta bước vào quán, nhìn thấy Hảo và mỉm cười. Hảo đứng dậy vẫy tay chào. Máy quay theo Phi Ta tiến lại bàn.
+Audio: Hảo nói rõ ràng, chậm rãi bằng tiếng Anh: "Good morning, Phi Ta! How are you?" Phi Ta đáp: "Good morning, Hảo! I'm fine, thank you. And you?" Tiếng quán cà phê nhẹ phía sau.
 
-CẢNH 2 (0:08–0:16): Giới thiệu bản thân
-Nhân vật: Hảo, Minh
-Prompt ảnh: Hảo và Minh ngồi đối diện nhau bên bàn gỗ, hai ly cà phê, Hảo đưa tay ra bắt tay
-Prompt video: Hảo bắt tay Minh và chỉ vào mình khi giới thiệu. Minh gật đầu, chỉ vào mình rồi trả lời. Máy quay cận trung, góc ngang.
-Audio: Hảo nói chậm bằng tiếng Anh: "My name is Hảo. I'm from Hanoi, Vietnam." Minh đáp: "Nice to meet you. My name is Minh. I'm from Vietnam."
+CẢNH 2 (0:08–0:16): Tập giới thiệu bản thân
+Nhân vật: Hảo, Phi Ta
+Prompt ảnh: Hảo và Phi Ta ngồi đối diện nhau bên bàn gỗ, hai ly cà phê, Hảo đưa tay ra bắt tay
+Prompt video: Hảo cười, đóng vai người lạ và bắt tay Phi Ta. Phi Ta nhập vai, chỉ vào mình rồi tự giới thiệu. Máy quay cận trung, góc ngang.
+Audio: Hảo nói chậm bằng tiếng Anh: "Let's practice. Hi, I'm Hảo. What's your name?" Phi Ta đáp: "Nice to meet you. My name is Phi Ta. I'm from Vietnam."
 
 CẢNH 3 (0:16–0:24): Hỏi nghề nghiệp
-Nhân vật: Hảo, Minh
-Prompt ảnh: Cận cảnh Minh đang nói, tay cầm điện thoại có lịch làm việc, Hảo lắng nghe chăm chú
-Prompt video: Hảo hỏi với vẻ tò mò. Minh cười, kể về công việc và làm động tác gõ bàn phím. Hảo gật đầu khen ngợi.
-Audio: Hảo hỏi bằng tiếng Anh: "What do you do, Minh?" Minh trả lời: "I work in an office. I'm an accountant." Hảo nói: "That's great!"
+Nhân vật: Hảo, Phi Ta
+Prompt ảnh: Cận cảnh Phi Ta đang nói, tay cầm điện thoại có lịch làm việc, Hảo lắng nghe chăm chú
+Prompt video: Hảo hỏi với vẻ tò mò. Phi Ta cười, kể về công việc và làm động tác gõ bàn phím. Hảo gật đầu khen ngợi.
+Audio: Hảo hỏi bằng tiếng Anh: "What do you do, Phi Ta?" Phi Ta trả lời: "I work in an office. I'm an accountant." Hảo nói: "That's great!"
 
 CẢNH 4 (0:24–0:32): Luyện phát âm
-Nhân vật: Hảo, Minh
-Prompt ảnh: Hảo đưa tay lên gần miệng làm mẫu khẩu hình, Minh bắt chước theo, cả hai cười
-Prompt video: Hảo chậm rãi làm mẫu khẩu hình, Minh lặp lại theo từng từ. Hảo giơ ngón cái khen. Máy quay chuyển nhẹ giữa hai người.
-Audio: Hảo nói thật chậm bằng tiếng Anh: "Repeat after me: Nice to meet you." Minh lặp lại: "Nice to meet you." Hảo nói: "Perfect!"
+Nhân vật: Hảo, Phi Ta
+Prompt ảnh: Hảo đưa tay lên gần miệng làm mẫu khẩu hình, Phi Ta bắt chước theo, cả hai cười
+Prompt video: Hảo chậm rãi làm mẫu khẩu hình, Phi Ta lặp lại theo từng từ. Hảo giơ ngón cái khen. Máy quay chuyển nhẹ giữa hai người.
+Audio: Hảo nói thật chậm bằng tiếng Anh: "Repeat after me: Nice to meet you." Phi Ta lặp lại: "Nice to meet you." Hảo nói: "Perfect!"
 
 CẢNH 5 (0:32–0:40): Chào tạm biệt
-Nhân vật: Hảo, Minh
-Prompt ảnh: Hảo và Minh đứng trước cửa quán cà phê vẫy tay chào nhau, nắng sáng
-Prompt video: Hai người đứng dậy, bước ra cửa và vẫy tay chào. Minh quay lại nhìn ống kính mỉm cười. Máy quay lùi chậm ra xa.
-Audio: Hảo nói bằng tiếng Anh: "See you tomorrow, Minh!" Minh đáp: "See you! Have a nice day!" Nhạc nền vui tươi kết thúc.
+Nhân vật: Hảo, Phi Ta
+Prompt ảnh: Hảo và Phi Ta khoác tay nhau bước ra khỏi quán cà phê, nắng sáng
+Prompt video: Hai vợ chồng đứng dậy, khoác tay nhau bước ra cửa. Phi Ta quay lại nhìn ống kính mỉm cười. Máy quay lùi chậm ra xa.
+Audio: Hảo nói bằng tiếng Anh: "Great lesson today, honey!" Phi Ta đáp: "Thank you, teacher! See you next lesson!" Nhạc nền vui tươi kết thúc.
