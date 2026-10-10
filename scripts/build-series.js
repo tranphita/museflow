@@ -1,7 +1,8 @@
-import { mkdirSync, readdirSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { basename, join } from 'node:path';
-import { buildWorkflowFile, readEpisodeScript } from './workflow-file.js';
-import { checkEpisode } from '../src/core/script-check.js';
+import { buildWorkflowFile, readEpisodeScript, readSeriesMusic } from './workflow-file.js';
+import { checkEpisode, checkSeries } from '../src/core/script-check.js';
+import { SERIES_BIBLE } from '../src/core/series.js';
 
 const folders = process.argv.slice(2);
 if (!folders.length) {
@@ -18,6 +19,10 @@ for (const folder of folders) {
     process.exitCode = 1;
     continue;
   }
+  const biblePath = join(folder, SERIES_BIBLE);
+  const bible = existsSync(biblePath) ? readFileSync(biblePath, 'utf8') : '';
+  for (const issue of checkSeries(bible, { musicFound: Boolean(readSeriesMusic(folder, bible)) }))
+    if (issue.level !== 'info') console.log(`${folder}: ! ${issue.message}`);
   const outDir = join(folder, 'workflows');
   mkdirSync(outDir, { recursive: true });
   for (const episode of episodes) {

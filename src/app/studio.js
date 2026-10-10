@@ -1,7 +1,8 @@
 import { workflowFromScript } from '../core/film-graph.js';
-import { parseCharacters, parseVoices, voiceFor } from '../core/scene-script.js';
+import { parseCharacters, parseMusic, parseVoices, voiceFor } from '../core/scene-script.js';
 import {
   SERIES_BIBLE,
+  audioTypeOf,
   describeEpisode,
   episodeScript,
   groupCharacterFiles,
@@ -67,6 +68,11 @@ function readText(file) {
   return file.text();
 }
 
+function audioFile(file) {
+  const type = audioTypeOf(file.name);
+  return type && file.type !== type ? new Blob([file], { type }) : file;
+}
+
 async function buildSeries(root, files) {
   const byName = name => files.find(file => file.relative === `${root}/${name}`);
   const bibleFile = byName(SERIES_BIBLE);
@@ -76,6 +82,13 @@ async function buildSeries(root, files) {
   const characters = {};
   for (const [name, list] of Object.entries(groupCharacterFiles(characterFiles)))
     characters[name] = await Promise.all(list.map(file => blobAsDataUrl(file)));
+  const musicName = parseMusic(bible)?.file.normalize('NFC').toLowerCase();
+  const musicFile = musicName
+    ? files.find(file => file.dir === root && file.name.normalize('NFC').toLowerCase() === musicName)
+    : null;
+  const music = musicFile
+    ? { name: musicFile.name, url: await blobAsDataUrl(audioFile(musicFile.file)) }
+    : null;
   const episodes = [];
   for (const file of episodeFiles.sort((a, b) =>
     a.name.localeCompare(b.name, undefined, { numeric: true }),
@@ -96,6 +109,7 @@ async function buildSeries(root, files) {
     name: parseSeriesName(bible) || folder,
     bible,
     characters,
+    music,
     episodes,
     importedAt: Date.now(),
   };
@@ -266,6 +280,7 @@ export async function playOutput(key, title) {
 async function openInCanvas(series, episode) {
   const workflow = workflowFromScript(episodeScript(series.bible, episode.text), {
     characterImages: series.characters,
+    music: series.music,
   });
   const file = new File(
     [JSON.stringify({ format: 'museta-workflow', version: 1, workflow })],
@@ -355,7 +370,10 @@ function issueList(issues) {
 }
 
 function seriesNotes(series) {
-  const notes = checkSeries(series.bible, { photoNames: Object.keys(series.characters) });
+  const notes = checkSeries(series.bible, {
+    photoNames: Object.keys(series.characters),
+    musicFound: Boolean(series.music),
+  });
   if (!notes.length) return document.createDocumentFragment();
   const box = el('div', 'series-notes');
   box.append(el('p', '', 'Trước khi chạy bộ này'), issueList(notes));

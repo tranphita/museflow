@@ -6,3 +6,8 @@ node_modules/
 series/*/characters/*
 !series/*/characters/.gitkeep
 series/*/workflows/
+series/*/*.mp3
+series/*/*.m4a
+series/*/*.aac
+series/*/*.wav
+series/*/*.ogg

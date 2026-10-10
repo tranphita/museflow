@@ -8,6 +8,14 @@ export const IMAGE_TYPES = {
   '.webp': 'image/webp',
 };
 
+export const AUDIO_TYPES = {
+  '.mp3': 'audio/mpeg',
+  '.m4a': 'audio/mp4',
+  '.aac': 'audio/aac',
+  '.wav': 'audio/wav',
+  '.ogg': 'audio/ogg',
+};
+
 const extensionOf = name => /\.[^.]+$/.exec(name)?.[0].toLowerCase() || '';
 const stem = name => name.replace(/\.[^.]+$/, '');
 
@@ -65,6 +73,10 @@ export function groupCharacterFiles(files) {
     (images[characterNameFromFile(file.name)] ||= []).push(file);
   }
   return images;
+}
+
+export function audioTypeOf(name) {
+  return AUDIO_TYPES[extensionOf(name)] || '';
 }
 
 export function imageTypeOf(name) {

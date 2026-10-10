@@ -8,6 +8,9 @@ import {
   parseVoices,
   parseVoiceLines,
   parseSubtitleMode,
+  parseClipAudio,
+  parseMusic,
+  DEFAULT_SERIES_MUSIC_VOLUME,
   voiceFor,
   charactersForScene,
   characterSheetPrompt,
@@ -168,11 +171,12 @@ export function buildSceneGraph(script, { baseY = 40, characterImages = {} } = {
   return { nodes, edges, scenes, cast, videos };
 }
 
-export function workflowFromScript(script, { characterImages = {} } = {}) {
+export function workflowFromScript(script, { characterImages = {}, music = null } = {}) {
   const graph = buildSceneGraph(script, { characterImages });
   if (!graph) throw new Error('Không tìm thấy cảnh nào. Dùng tiêu đề dạng “CẢNH 1 (0:00–0:07): Tên cảnh”.');
   const references = makeNode('references', -280, 40);
   references.data = {};
+  const seriesMusic = parseMusic(script);
   const timeline = {
     id: uid('timeline'),
     type: 'timeline',
@@ -184,6 +188,17 @@ export function workflowFromScript(script, { characterImages = {} } = {}) {
       durations: Object.fromEntries(graph.videos.map(video => [video.node.id, video.seconds])),
       ...(graph.videos.length > 1 ? { transition: { ...DEFAULT_FILM_TRANSITION } } : {}),
       ...(parseSubtitleMode(script) === 'bilingual' ? { subtitles: 'bilingual' } : {}),
+      ...(parseClipAudio(script) === 'mute' ? { clipAudio: 'mute' } : {}),
+      ...(music?.url
+        ? {
+            music: {
+              id: uid('music'),
+              url: music.url,
+              name: music.name || seriesMusic?.file || 'Nhạc nền',
+              volume: seriesMusic?.volume ?? DEFAULT_SERIES_MUSIC_VOLUME,
+            },
+          }
+        : {}),
     },
   };
   const fanOut = graph.nodes

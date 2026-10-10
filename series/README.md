@@ -105,6 +105,20 @@ Lời thoại:
 
 Hình do Muse tạo vẫn không được có chữ (giữ luật `Chung: không chữ, phụ đề…`); phụ đề chỉ do bước xuất thêm vào.
 
+## Chỉ giữ lồng tiếng và nhạc nền
+
+Muse thường tự tạo âm thanh trong clip (tiếng "woa…", tiếng nói lẫn, nhạc). Để video cuối chỉ có giọng TTS và nhạc nền, thêm vào `_series.txt`:
+
+```
+ÂM THANH CLIP: tắt
+NHẠC NỀN: nhac-nen.mp3
+ÂM LƯỢNG NHẠC: 20%
+```
+
+- `ÂM THANH CLIP: tắt` bỏ toàn bộ âm thanh gốc của mọi clip khi xuất MP4 (ô **Tắt tiếng clip** trên Timeline làm việc tương tự cho workflow đang mở).
+- `NHẠC NỀN:` là tên file nhạc đặt ngay trong thư mục bộ phim (mp3, m4a, aac, wav, ogg). Studio, worker Sản xuất và `npm run series` tự gắn nhạc này vào mọi tập, nhạc lặp lại và tắt dần ở cuối. `ÂM LƯỢNG NHẠC` nhận `20%` hoặc `0.2`, mặc định 25%.
+- File nhạc không được commit (`.gitignore` đã chặn). Chỉ dùng nhạc bạn có quyền sử dụng.
+
 ## Thêm tập mới
 
 Tạo file `epNN-ten-tap.txt` trong thư mục bộ phim, chỉ viết các cảnh:

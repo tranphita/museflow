@@ -216,6 +216,18 @@ export function setTimelineSubtitles(enabled) {
   scheduleAutoSave();
 }
 
+export function syncTimelineClipAudio(node = ensureDockTimeline()) {
+  $('#timelineMuteClips').checked = node.data.clipAudio === 'mute';
+}
+
+export function setTimelineClipAudio(muted) {
+  const node = ensureDockTimeline();
+  createUndoSnapshot(muted ? 'Tắt tiếng clip' : 'Bật tiếng clip', { preserveRuntime: false });
+  node.data.clipAudio = muted ? 'mute' : 'keep';
+  syncTimelineClipAudio(node);
+  scheduleAutoSave();
+}
+
 export function syncTimelineMusic(node = ensureDockTimeline()) {
   const music = node.data.music;
   $('#timelineMusicControls').classList.toggle('hidden', !music?.url);
@@ -295,6 +307,7 @@ export function syncTimelineDock() {
   syncTimelineMusic(node);
   syncTimelineTransition(node);
   syncTimelineSubtitles(node);
+  syncTimelineClipAudio(node);
   const allVideos = state.nodes.filter(item => item.type === 'generateVideo'),
     candidates = allVideos.filter(item => !(node.data.clipOrder || []).includes(item.id));
   addButton.disabled = !candidates.length;

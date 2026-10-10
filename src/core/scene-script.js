@@ -109,6 +109,26 @@ export function parseVoiceLines(voiceText, speakerNames = []) {
   return merged.filter(line => line.text);
 }
 
+export function parseClipAudio(text) {
+  const value =
+    /^\s*(?:ÂM\s+THANH\s+CLIP|CLIP\s+AUDIO)\s*:\s*(.+?)\s*$/im.exec(scriptPreamble(text))?.[1] || '';
+  return /^(?:tắt|câm|off|mute)/i.test(value) ? 'mute' : 'keep';
+}
+
+export const DEFAULT_SERIES_MUSIC_VOLUME = 0.25;
+
+export function parseMusic(text) {
+  const preamble = scriptPreamble(text);
+  const file = /^\s*(?:NHẠC\s+NỀN|BACKGROUND\s+MUSIC)\s*:\s*(.+?)\s*$/im.exec(preamble)?.[1];
+  if (!file) return null;
+  const raw = /^\s*(?:ÂM\s+LƯỢNG\s+NHẠC|MUSIC\s+VOLUME)\s*:\s*([\d.,]+)\s*(%?)\s*$/im.exec(preamble);
+  const number = raw ? Number(raw[1].replace(',', '.')) : NaN;
+  const volume = Number.isFinite(number)
+    ? Math.max(0, Math.min(1, raw[2] ? number / 100 : number))
+    : DEFAULT_SERIES_MUSIC_VOLUME;
+  return { file, volume };
+}
+
 export function parseSubtitleMode(text) {
   const value = /^\s*(?:PHỤ\s+ĐỀ|SUBTITLES?)\s*:\s*(.+?)\s*$/im.exec(scriptPreamble(text))?.[1] || '';
   return /song\s*ngữ|bilingual/i.test(value) ? 'bilingual' : 'off';

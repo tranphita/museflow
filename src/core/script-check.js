@@ -1,6 +1,7 @@
 import {
   countHighlights,
   parseCharacters,
+  parseMusic,
   parseSceneScript,
   parseSubtitleMode,
   parseVoiceLines,
@@ -162,8 +163,15 @@ export function checkEpisode(script) {
   return issues;
 }
 
-export function checkSeries(bible, { photoNames = [] } = {}) {
+export function checkSeries(bible, { photoNames = [], musicFound = false } = {}) {
   const issues = [];
+  const music = parseMusic(bible);
+  if (music && !musicFound)
+    issues.push({
+      level: 'warn',
+      scene: null,
+      message: `Không tìm thấy file nhạc nền “${music.file}” trong thư mục bộ phim, nên các tập sẽ xuất không có nhạc.`,
+    });
   const cast = parseCharacters(bible).map(character => character.name);
   const rules = parseRules(bible);
   const photos = new Set(photoNames.map(norm));

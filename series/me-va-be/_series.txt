@@ -5,6 +5,9 @@ PHONG CÁCH: hoạt hình 3D kiểu phim Pixar, nhân vật tỉ lệ hoạt hì
 TRÁNH: phong cách người thật, ảnh chụp, anime 2D, tranh vẽ phẳng, biến dạng mặt, đổi kiểu tóc, đổi màu trang phục, thêm người lạ ở tiền cảnh, chữ hoặc logo trên hình, ngón tay dị dạng, mắt lệch
 
 PHỤ ĐỀ: song ngữ
+ÂM THANH CLIP: tắt
+NHẠC NỀN: nhac-nen.mp3
+ÂM LƯỢNG NHẠC: 20%
 
 GIỌNG ĐỌC: sEqCT3Hajd9XHgxcM3e2cL
 GIỌNG ĐỌC Mommy: sEqCT3Hajd9XHgxcM3e2cL

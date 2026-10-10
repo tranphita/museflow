@@ -45,9 +45,15 @@ export function timelineLength(durations, transition) {
 
 export function canJoinWithoutReencode(
   clipInfo,
-  { hasMusic = false, transition = null, hasSubtitles = false } = {},
+  { hasMusic = false, transition = null, hasSubtitles = false, muteClipAudio = false } = {},
 ) {
-  if (hasMusic || hasSubtitles || !clipInfo.length || clipInfo.some(item => item.voices?.length))
+  if (
+    hasMusic ||
+    hasSubtitles ||
+    muteClipAudio ||
+    !clipInfo.length ||
+    clipInfo.some(item => item.voices?.length)
+  )
     return false;
   if (
     normalizeTransition(
@@ -110,8 +116,10 @@ export function buildEncodeArgs({
   music = null,
   transition = null,
   subtitles = null,
+  muteClipAudio = false,
 }) {
   const { width, height } = outputFrameSize(clipInfo);
+  const usesClipAudio = item => item.hasAudio && !muteClipAudio;
   const durations = clipInfo.map(item => item.duration);
   const blend = normalizeTransition(transition, durations);
   const args = [];
@@ -119,7 +127,7 @@ export function buildEncodeArgs({
   let nextInput = inputPaths.length;
   const silentIndexes = new Map();
   clipInfo.forEach((item, index) => {
-    if (item.hasAudio) return;
+    if (usesClipAudio(item)) return;
     silentIndexes.set(index, nextInput++);
     args.push('-stream_loop', '-1', '-i', silentInput);
   });
@@ -144,7 +152,7 @@ export function buildEncodeArgs({
     filters.push(
       `[${index}:v:0]setpts=PTS-STARTPTS,scale=${width}:${height}:force_original_aspect_ratio=decrease,pad=${width}:${height}:(ow-iw)/2:(oh-ih)/2:black,fps=24,setsar=1,format=yuv420p,tpad=stop_mode=clone:stop_duration=${duration},trim=duration=${duration},setpts=PTS-STARTPTS${blend.type === 'cut' ? '' : ',settb=AVTB'}[v${index}]`,
     );
-    const audioSource = item.hasAudio ? `${index}:a:0` : `${silentIndexes.get(index)}:a:0`;
+    const audioSource = usesClipAudio(item) ? `${index}:a:0` : `${silentIndexes.get(index)}:a:0`;
     filters.push(
       `[${audioSource}]aresample=48000,aformat=sample_fmts=fltp:channel_layouts=stereo,asetpts=PTS-STARTPTS,apad=pad_dur=${duration},atrim=duration=${duration}${voiceInputs.has(index) ? `,volume=${CLIP_AUDIO_UNDER_VOICE}[bed${index}]` : `[a${index}]`}`,
     );

@@ -95,7 +95,10 @@ async function openEpisode(job, control) {
   if (job.checkpoint) workflow = lockFinishedSteps(structuredClone(job.checkpoint));
   else {
     const series = await getSeries(job.seriesId);
-    workflow = workflowFromScript(job.script, { characterImages: series?.characters || {} });
+    workflow = workflowFromScript(job.script, {
+      characterImages: series?.characters || {},
+      music: series?.music || null,
+    });
   }
   if (!(await loadWorkflowObject(workflow, { label: job.title })))
     throw kindError('Không mở được tập này.', 'script');
