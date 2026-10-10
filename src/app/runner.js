@@ -281,6 +281,11 @@ export async function execute(targetId = null, { again = false } = {}) {
       if (signal.aborted) throw stoppedError();
       const n = nodeById(id);
       if (!n) continue;
+      if (!targetId && isGenerator(n) && n.data.locked && n.data.asset?.url) {
+        generationStep++;
+        publishToPreviews(n);
+        continue;
+      }
       if (continueOnError && hasFailedUpstream(id, failed)) {
         failed.add(id);
         if (isGenerator(n)) {

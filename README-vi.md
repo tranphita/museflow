@@ -89,7 +89,7 @@ Museta sẽ:
 
 Muốn có sẵn file để **Import workflow** thay vì dán kịch bản: chạy `npm run script-to-workflow -- kich-ban.txt` để tạo `kich-ban.workflow.json` (ví dụ: [docs/sample-film.workflow.json](docs/sample-film.workflow.json)).
 
-Mẹo: chạy riêng các node nhân vật trước, chọn phiên bản ảnh ưng ý (dải **Versions** dưới node), rồi mới **Run workflow** cho cả phim.
+Mẹo: chạy riêng các node nhân vật trước, chọn phiên bản ảnh ưng ý (dải **Versions** dưới node) hoặc tick **🔒 Keep this result**, rồi mới **Run workflow** cho cả phim. Node đã khoá sẽ được giữ nguyên khi chạy cả workflow; bấm **Run Image** trên chính node đó vẫn tạo lại được.
 
 ## Mở Museta và Muse.ai cạnh nhau
 

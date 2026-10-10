@@ -396,9 +396,13 @@ export function createHistoryStrip(node) {
       if (entry.id === node.data.asset?.id) return;
       createUndoSnapshot('Switch output version', { preserveRuntime: false });
       restoreGeneration(node.data, entry.id);
+      node.data.locked = true;
       render();
       saveState();
-      setRunStatus(`Using version ${history.length - index} of this node's output.`, 'ok');
+      setRunStatus(
+        `Using version ${history.length - index} of this node's output. It is kept when you run the workflow.`,
+        'ok',
+      );
     };
     const remove = document.createElement('button');
     remove.type = 'button';
@@ -418,9 +422,29 @@ export function createHistoryStrip(node) {
   return strip;
 }
 
+function createKeepToggle(node) {
+  const label = document.createElement('label');
+  label.className = 'keep-result-toggle';
+  label.title =
+    'Run workflow skips this node and keeps its current output. Run Image / Run Video still regenerates it.';
+  label.onpointerdown = event => event.stopPropagation();
+  const checkbox = document.createElement('input');
+  checkbox.type = 'checkbox';
+  checkbox.checked = Boolean(node.data.locked);
+  checkbox.disabled = !node.data.asset?.url && !node.data.locked;
+  checkbox.onchange = () => {
+    createUndoSnapshot(checkbox.checked ? 'Keep node result' : 'Unlock node result');
+    node.data.locked = checkbox.checked;
+    saveState();
+  };
+  label.append(checkbox, document.createTextNode(' 🔒 Keep this result when running the workflow'));
+  return label;
+}
+
 export function createNodeRunActions(node) {
   const actions = document.createElement('div');
   actions.className = 'node-generation-actions';
+  if (node.data.asset?.url || node.data.locked) actions.appendChild(createKeepToggle(node));
   const button = document.createElement('button');
   button.type = 'button';
   button.className = 'node-run-button primary';

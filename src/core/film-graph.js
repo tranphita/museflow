@@ -117,7 +117,7 @@ export function workflowFromScript(script) {
     .map(node => edge(references.id, 'image', node.id, 'reference'));
   const steps = [
     graph.cast.length &&
-      `1. Run each "Character" image node first and pick the best version in its Versions strip.`,
+      `1. Run each "Character" image node first. Pick the best version in its Versions strip (or tick 🔒 Keep) so Run workflow keeps it.`,
     `${graph.cast.length ? 2 : 1}. Run workflow to generate every scene in timeline order.`,
     `${graph.cast.length ? 3 : 2}. Check the Timeline, add ♪ Music if you like, then export MP4.`,
   ].filter(Boolean);

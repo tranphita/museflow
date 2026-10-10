@@ -2493,3 +2493,17 @@ body {
 .timeline-transition input {
   width: 56px;
 }
+
+.keep-result-toggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  grid-column: 1 / -1;
+  font-size: 11px;
+  color: #a8aab3;
+  cursor: pointer;
+}
+.node .keep-result-toggle input {
+  width: auto;
+  margin: 0;
+}

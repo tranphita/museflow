@@ -32,7 +32,7 @@ The screenshots and demo video show the original MuseFlow interface; Museta's la
 - **Prompt tools:** prompts, negative prompts, Text Append, and Text Merge (several text sources joined in connection order with a custom separator).
 - **Image workflows:** image inputs, up to 8 reference images through a References node, image generation, resizing, and previews.
 - **Video workflows:** video clips with optional end-frame continuity from the previous timeline clip, and **↻ Again** to regenerate with stronger prompt adherence.
-- **Output versions:** every Generate Image and Generate Video node keeps its last 8 results. Click a thumbnail under the node to switch back to an earlier version.
+- **Output versions:** every Generate Image and Generate Video node keeps its last 8 results. Click a thumbnail under the node to switch back to an earlier version; the chosen version is kept (🔒) when you run the whole workflow.
 - **Reliable runs:** optionally retry a failed generation automatically, and keep running the rest of the workflow when one node fails (nodes that depend on it are skipped). Both options are in **Settings**.
 - **Timeline:** reorder clips, set durations, scrub and preview the sequence, add **background music** with a volume control, pick a **transition** between clips, and export WebM or MP4 (H.264). MP4 is assembled locally with the bundled FFmpeg engine.
 - **Script → Nodes:** turn a scene script into connected image/video nodes and an ordered timeline.
@@ -91,7 +91,7 @@ Museta then creates a character reference sheet for each character and connects 
 
 To get a file for **Import workflow** instead of pasting the script, run `npm run script-to-workflow -- my-script.txt` to write `my-script.workflow.json` (example: [docs/sample-film.workflow.json](docs/sample-film.workflow.json)).
 
-Tip: run the character nodes first, pick the best version from the **Versions** strip, then run the whole workflow.
+Tip: run the character nodes first, pick the best version from the **Versions** strip (or tick **🔒 Keep this result**), then run the whole workflow. Kept nodes are skipped by Run workflow; their own Run button still regenerates them.
 
 ## View Museta and Muse.ai side by side
 
