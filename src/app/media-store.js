@@ -1,5 +1,6 @@
 import { state } from '../core/state.js';
 import { mediaRefs } from '../core/history.js';
+import { staleMediaKeys } from '../core/checkpoint.js';
 
 // The database keeps its pre-rename name so media saved by MuseFlow stays readable.
 const MEDIA_DB_NAME = 'museflow-media';
@@ -52,12 +53,27 @@ export async function pruneMedia(keepKeys) {
     request.onsuccess = () => resolve(request.result || []);
     request.onerror = () => reject(request.error);
   });
-  const stale = keys.filter(key => !keepKeys.has(key));
+  const stale = staleMediaKeys(keys, keepKeys);
   if (!stale.length) return 0;
   const tx = db.transaction(MEDIA_STORE, 'readwrite');
   for (const key of stale) tx.objectStore(MEDIA_STORE).delete(key);
   await transactionDone(tx, 'Could not clean up unused media.');
   return stale.length;
+}
+
+export async function deleteMediaWithPrefix(prefix) {
+  const db = await mediaDb();
+  const keys = await new Promise((resolve, reject) => {
+    const request = db.transaction(MEDIA_STORE, 'readonly').objectStore(MEDIA_STORE).getAllKeys();
+    request.onsuccess = () => resolve(request.result || []);
+    request.onerror = () => reject(request.error);
+  });
+  const matching = keys.filter(key => String(key).startsWith(prefix));
+  if (!matching.length) return 0;
+  const tx = db.transaction(MEDIA_STORE, 'readwrite');
+  for (const key of matching) tx.objectStore(MEDIA_STORE).delete(key);
+  await transactionDone(tx, 'Could not delete episode media.');
+  return matching.length;
 }
 
 export function storedMediaKey(url) {
@@ -84,11 +100,12 @@ export async function hydrateMediaUrl(url, cache) {
   return cache.get(key);
 }
 
-export async function dehydrateNodeMedia(nodes) {
+export async function dehydrateNodeMedia(nodes, { keyPrefix = '' } = {}) {
   const keep = new Set();
   for (const node of nodes)
     for (const ref of mediaRefs(node.data)) {
-      const key = ref.field === 'input' ? `input:${node.id}` : `${ref.field}:${ref.id || node.id}`;
+      const key =
+        keyPrefix + (ref.field === 'input' ? `input:${node.id}` : `${ref.field}:${ref.id || node.id}`);
       ref.holder[ref.key] = await dehydrateMediaUrl(ref.holder[ref.key], key);
       const stored = storedMediaKey(ref.holder[ref.key]);
       if (stored !== null) keep.add(stored);
