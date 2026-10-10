@@ -107,7 +107,7 @@ Quy tắc:
 ### View Production (tab thứ ba của `.view-switch`: Studio · Production · Canvas)
 
 - **Thanh điều khiển**: Start / Pause / Stop now; số worker; trạng thái từng worker (đang chạy job nào, chấm xanh/đỏ theo heartbeat); dòng tóm tắt "12 xong · 3 chờ xem · 1 lỗi · ~40 phút còn lại" (ETA = số job còn lại × thời gian trung bình / số worker đang chạy). Khi hàng đợi tạm dừng tự động, banner nêu lý do và nút Resume.
-- **Danh sách theo nhóm** (không phải kanban): Đang chạy (thanh tiến độ cảnh, worker, thời gian) → Chờ xem (play, **Duyệt**, **Làm lại**, **Mở trong canvas**, tải MP4) → Đang chờ (kéo đổi thứ tự, xoá) → Lỗi (loại lỗi, thông điệp, **Retry**, **Mở trong canvas**) → Xong (gần nhất trước, **Tải các tập đã duyệt**, **Dọn danh sách**).
+- **Danh sách theo nhóm** (không phải kanban): Đang chạy (thanh tiến độ cảnh, worker, thời gian) → Chờ xem (play, **Duyệt**, **Làm lại**, **Mở trong canvas**, tải MP4) → Đang chờ (nút ↑/↓ đổi thứ tự, xoá) → Lỗi (loại lỗi, thông điệp, **Retry**, **Mở trong canvas**) → Xong (gần nhất trước, **Tải các tập đã duyệt**, **Dọn danh sách**).
 - **Mở trong canvas** nạp checkpoint vào canvas chính để sửa tay (media được copy sang key thường khi canvas lưu).
 
 ### Tab worker
