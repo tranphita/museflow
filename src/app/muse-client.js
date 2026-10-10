@@ -95,9 +95,9 @@ function renderDiagnostics(checks) {
   list.classList.toggle('hidden', !checks?.length);
   for (const check of checks || []) {
     const item = document.createElement('li');
-    item.className = check.ok ? 'ok' : 'error';
-    item.textContent = `${check.ok ? '✓' : '✗'} ${check.label}`;
-    if (!check.ok) item.title = `Update bridge/muse-ui.js → ${check.hint}`;
+    item.className = check.ok === null ? 'warn' : check.ok ? 'ok' : 'error';
+    item.textContent = `${check.ok === null ? '•' : check.ok ? '✓' : '✗'} ${check.label}`;
+    if (check.ok === false) item.title = `Update bridge/muse-ui.js → ${check.hint}`;
     list.appendChild(item);
   }
 }
@@ -115,7 +115,9 @@ export async function testMuseSession(preferredTabId) {
       () => null,
     );
     renderDiagnostics(diagnostics?.checks);
-    const failedHooks = (diagnostics?.checks || []).filter(check => !check.ok && check.id !== 'login');
+    const failedHooks = (diagnostics?.checks || []).filter(
+      check => check.ok === false && check.id !== 'login',
+    );
     const ready = Boolean(result.composer && result.signedIn);
     status.className = ready && !failedHooks.length ? 'ok' : 'warn';
     status.textContent = failedHooks.length

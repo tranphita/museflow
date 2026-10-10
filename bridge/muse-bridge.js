@@ -170,7 +170,14 @@
     return [
       check('composer', 'Chat message box', composer, 'selectors.composer / text.composerPlaceholder'),
       check('hydrated', 'Muse page finished loading', isHydrated(), 'selectors.hydrationState'),
-      check('send', 'Send button', findSendButton() || composer?.closest('form'), 'text.sendButton'),
+      findSendButton() || composer?.closest('form') || composer?.value.trim()
+        ? check('send', 'Send button', findSendButton() || composer?.closest('form'), 'text.sendButton')
+        : {
+            id: 'send',
+            label: 'Send button (appears once a prompt is typed)',
+            ok: null,
+            hint: 'text.sendButton',
+          },
       check(
         'upload',
         'Image upload control (needed for references)',
