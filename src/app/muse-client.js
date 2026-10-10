@@ -108,6 +108,39 @@ function renderDiagnostics(checks) {
   }
 }
 
+const shortReason = message => {
+  const text = String(message || '').trim();
+  return text.length > 70 ? `${text.slice(0, 70)}…` : text;
+};
+
+export async function checkBestMuseTab(preferredTabId) {
+  const tabs = await queryMuseTabs();
+  if (!tabs.length) throw new Error('Mở Muse.ai và đăng nhập rồi thử lại.');
+  const preferred = preferredTabId ?? preferredMuseTabId;
+  const ordered = [...tabs].sort(
+    (a, b) => (b.id === preferred) - (a.id === preferred) || b.active - a.active,
+  );
+  let fallback = null,
+    lastError = null;
+  for (const tab of ordered) {
+    try {
+      const result = await museTabMessage({ type: MESSAGE.checkSession }, tab.id, undefined, {
+        onlyThisTab: true,
+      });
+      if (result?.ok && result.composer) {
+        preferredMuseTabId = tab.id;
+        return result;
+      }
+      fallback ||= result?.ok ? result : null;
+      lastError ||= result?.error ? new Error(result.error) : null;
+    } catch (error) {
+      lastError ||= error;
+    }
+  }
+  if (fallback) return fallback;
+  throw lastError || new Error('Kiểm tra phiên Muse thất bại.');
+}
+
 export async function testMuseSession(preferredTabId) {
   const button = $('#testMuseBtn'),
     status = $('#connectionStatus');
@@ -115,7 +148,7 @@ export async function testMuseSession(preferredTabId) {
   status.className = 'warn';
   status.textContent = 'Đang kiểm tra phiên Muse…';
   try {
-    const result = await museTabMessage({ type: MESSAGE.checkSession }, preferredTabId);
+    const result = await checkBestMuseTab(preferredTabId);
     if (!result?.ok) throw new Error(result?.error || 'Kiểm tra phiên Muse thất bại.');
     const diagnostics = await museTabMessage({ type: MESSAGE.diagnose }, preferredMuseTabId).catch(
       () => null,
@@ -135,6 +168,7 @@ export async function testMuseSession(preferredTabId) {
           : result.composer
             ? 'Khung chat Muse đã sẵn sàng. Chưa xác nhận được trạng thái phiên; vẫn có thể thử tạo.'
             : 'Đã thấy tab Muse nhưng ô nhập tin nhắn chưa sẵn sàng. Mở một cuộc chat Muse rồi thử lại.';
+    museStatus.title = '';
     museStatus.textContent = ready ? '● Phiên Muse sẵn sàng' : '● Phiên Muse cần kiểm tra';
     museStatus.className = ready ? 'ok' : result.loginRequired ? 'warn' : 'ok';
     if (!ready && !result.loginRequired)
@@ -148,7 +182,8 @@ export async function testMuseSession(preferredTabId) {
     status.className = 'error';
     status.textContent = error.message;
     renderDiagnostics([]);
-    museStatus.textContent = '● Kiểm tra phiên Muse thất bại';
+    museStatus.textContent = `● Kiểm tra phiên Muse thất bại: ${shortReason(error.message)}`;
+    museStatus.title = error.message;
     museStatus.className = 'error';
     return false;
   } finally {

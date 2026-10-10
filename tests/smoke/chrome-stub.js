@@ -31,7 +31,7 @@
       },
       async sendMessage(tabId, message) {
         window.__museTabMessages.push({ tabId, message });
-        return window.__museReply ? window.__museReply(message) : { ok: true };
+        return window.__museReply ? window.__museReply(message, tabId) : { ok: true };
       },
       async get(id) {
         return { id, status: 'complete', url: 'https://muse.ai/chat', windowId: 1 };
