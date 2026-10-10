@@ -13,8 +13,8 @@ Mỗi thư mục con là một bộ phim. Nhân vật được giữ nguyên qua
 <bo-phim>/
   _series.txt      phong cách + dàn nhân vật, tự ghép vào mọi tập
   ep01-....txt     kịch bản từng tập (chỉ cần các CẢNH)
-  characters/      ảnh nhân vật đã chốt: <Tên nhân vật>.png
-  workflows/       file .workflow.json để Import workflow (được tạo bằng lệnh bên dưới)
+  characters/      ảnh nhân vật: <Tên>.png, <Tên>-2.png… (không commit)
+  workflows/       file .workflow.json để Import workflow, tạo bằng lệnh bên dưới (không commit)
 ```
 
 ## Quy trình
@@ -30,6 +30,24 @@ Mỗi thư mục con là một bộ phim. Nhân vật được giữ nguyên qua
 3. **Build lại workflow.** Chạy lại lệnh ở bước 1. Từ giờ mọi tập dùng ảnh trong `characters/` (node **Image Input**) thay vì tạo nhân vật mới, nên gương mặt giống nhau ở mọi tập.
 
 4. **Làm từng tập.** Import workflow của tập, bấm **▶ Run workflow**, kiểm tra timeline, thêm **♪ Music** nếu muốn, rồi **⇩ Export** MP4.
+
+## Dùng chính bạn (và người thân) làm nhân vật
+
+1. Trong `_series.txt`, đặt tên nhân vật theo tên thật và mô tả ngoại hình, trang phục muốn giữ cố định, ví dụ:
+
+   ```
+   NHÂN VẬT:
+   - Tuấn: người đàn ông Việt Nam 32 tuổi, người thật, tóc ngắn, áo thun trắng, quần jean
+   - Lan: người phụ nữ Việt Nam 30 tuổi, người thật, tóc dài ngang vai, váy hoa xanh
+   ```
+
+2. Chép ảnh vào `characters/`, tên file trùng tên nhân vật. Có thể dùng tối đa 3 ảnh mỗi người: `Tuấn.jpg`, `Tuấn-2.jpg`, `Tuấn-3.jpg`.
+   - Ảnh 1: chính diện, rõ mặt, đủ sáng, không đeo kính râm, không filter.
+   - Ảnh 2: nửa người hoặc toàn thân, mặc đúng trang phục ghi trong `_series.txt`.
+   - Ảnh 3 (tuỳ chọn): góc nghiêng 3/4.
+3. Chạy `npm run series -- series/<bo-phim>` rồi import workflow như bình thường. Các cảnh sẽ nhận ảnh thật làm tham chiếu thay vì tạo nhân vật bằng AI.
+
+Ảnh trong `characters/` và các file trong `workflows/` (vốn nhúng ảnh bên trong) **không được commit** — `.gitignore` đã chặn để ảnh cá nhân không bị đẩy lên GitHub. Chỉ dùng ảnh của người đã đồng ý. Muse quyết định mức độ giống; nếu Muse từ chối tạo theo ảnh người thật, hãy thử ảnh khác hoặc giảm số ảnh.
 
 ## Thêm tập mới
 

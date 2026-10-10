@@ -1,3 +1,8 @@
 dist/
 .playwright-mcp/
 node_modules/
+
+# Personal photos and workflows that embed them stay on this machine
+series/*/characters/*
+!series/*/characters/.gitkeep
+series/*/workflows/

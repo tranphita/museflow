@@ -9,6 +9,7 @@ import {
   nextShotHint,
 } from './scene-script.js';
 
+export const MAX_PHOTOS_PER_CHARACTER = 3;
 export const DEFAULT_FILM_TRANSITION = Object.freeze({ type: 'fade', duration: 0.5 });
 
 const edge = (source, sourcePort, target, targetPort) => ({
@@ -34,17 +35,26 @@ export function buildSceneGraph(script, { baseY = 40, characterImages = {} } = {
   const nodes = [],
     edges = [],
     videos = [];
-  const savedImage = name =>
-    Object.entries(characterImages).find(([key]) => key.toLowerCase() === name.toLowerCase())?.[1];
+  const savedImages = name => {
+    const match = Object.entries(characterImages).find(([key]) => key.toLowerCase() === name.toLowerCase());
+    return [match?.[1] || []].flat().slice(0, MAX_PHOTOS_PER_CHARACTER);
+  };
   const cast = characters.map((character, index) => {
     const x = 80 + index * 650,
       label = `Character: ${character.name}`,
-      imageUrl = savedImage(character.name);
-    if (imageUrl) {
-      const input = makeNode('imageInput', x + 330, baseY);
-      input.data = { localDataUrl: imageUrl, sceneLabel: label, characterName: character.name };
-      nodes.push(input);
-      return { ...character, node: input };
+      photos = savedImages(character.name);
+    if (photos.length) {
+      const inputs = photos.map((url, photo) => {
+        const input = makeNode('imageInput', x + 330, baseY + photo * 380);
+        input.data = {
+          localDataUrl: url,
+          sceneLabel: photos.length > 1 ? `${label} (${photo + 1}/${photos.length})` : label,
+          characterName: character.name,
+        };
+        return input;
+      });
+      nodes.push(...inputs);
+      return { ...character, nodes: inputs };
     }
     const prompt = makeNode('prompt', x, baseY);
     prompt.data = { text: characterSheetPrompt(character, filmStyle), sceneLabel: label };
@@ -58,9 +68,10 @@ export function buildSceneGraph(script, { baseY = 40, characterImages = {} } = {
     };
     nodes.push(prompt, image);
     edges.push(edge(prompt.id, 'text', image.id, 'prompt'));
-    return { ...character, node: image };
+    return { ...character, nodes: [image] };
   });
-  const scenesY = cast.length ? baseY + 620 : baseY;
+  const tallestCast = Math.max(1, ...cast.map(character => character.nodes.length));
+  const scenesY = cast.length ? baseY + 620 + (tallestCast - 1) * 380 : baseY;
   const styleNote = filmStyle ? `Visual style for the whole film: ${filmStyle}.` : '';
   scenes.forEach((scene, index) => {
     const x = 80 + (index % 4) * 650,
@@ -69,7 +80,8 @@ export function buildSceneGraph(script, { baseY = 40, characterImages = {} } = {
       sceneCast = charactersForScene(scene, cast),
       promptText = text => [text, castNote(sceneCast), styleNote].filter(Boolean).join('\n\n');
     const connectCast = target => {
-      for (const character of sceneCast) edges.push(edge(character.node.id, 'image', target.id, 'reference'));
+      for (const character of sceneCast)
+        for (const source of character.nodes) edges.push(edge(source.id, 'image', target.id, 'reference'));
     };
     let imageNode = null;
     if (scene.imagePrompt) {
@@ -124,7 +136,7 @@ export function workflowFromScript(script, { characterImages = {} } = {}) {
   const fanOut = graph.nodes
     .filter(isGenerator)
     .map(node => edge(references.id, 'image', node.id, 'reference'));
-  const newCharacters = graph.cast.filter(character => character.node.type === 'generateImage');
+  const newCharacters = graph.cast.filter(character => character.nodes[0].type === 'generateImage');
   const steps = [
     newCharacters.length &&
       `Run each "Character" image node first and pick the best version (it is kept 🔒 for Run workflow). Right-click it → Save character image, and put the file in the series characters/ folder so later episodes reuse the same face.`,

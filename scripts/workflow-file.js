@@ -10,17 +10,23 @@ const IMAGE_TYPES = {
   '.webp': 'image/webp',
 };
 
+export function characterNameFromFile(file) {
+  return basename(file, extname(file))
+    .replace(/(?:[\s_-]+\d+|\s*\(\d+\))$/, '')
+    .trim();
+}
+
 export function readCharacterImages(folder) {
   const dir = join(folder, 'characters');
   if (!existsSync(dir)) return {};
-  return Object.fromEntries(
-    readdirSync(dir)
-      .filter(file => IMAGE_TYPES[extname(file).toLowerCase()])
-      .map(file => [
-        basename(file, extname(file)),
-        `data:${IMAGE_TYPES[extname(file).toLowerCase()]};base64,${readFileSync(join(dir, file)).toString('base64')}`,
-      ]),
-  );
+  const images = {};
+  for (const file of readdirSync(dir).sort((a, b) => a.localeCompare(b, undefined, { numeric: true }))) {
+    const type = IMAGE_TYPES[extname(file).toLowerCase()];
+    if (!type) continue;
+    const name = characterNameFromFile(file);
+    (images[name] ||= []).push(`data:${type};base64,${readFileSync(join(dir, file)).toString('base64')}`);
+  }
+  return images;
 }
 
 export function readEpisodeScript(path) {
@@ -49,7 +55,9 @@ export function buildWorkflowFile(path) {
 
 function summarize(workflow) {
   const cast = workflow.nodes.filter(node => node.data.characterName);
-  const saved = cast.filter(node => node.type === 'imageInput').map(node => node.data.characterName);
+  const saved = [
+    ...new Set(cast.filter(node => node.type === 'imageInput').map(node => node.data.characterName)),
+  ];
   const generated = cast.filter(node => node.type === 'generateImage').map(node => node.data.characterName);
   const scenes = workflow.nodes.filter(node => node.type === 'generateVideo').length;
   return [

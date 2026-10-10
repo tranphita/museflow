@@ -9,7 +9,12 @@ import {
   nextShotHint,
 } from '../../src/core/scene-script.js';
 import { buildMusePrompt, characterLockInstruction } from '../../src/core/prompts.js';
-import { normalizeTransition, timelineLength, buildEncodeArgs, canJoinWithoutReencode } from '../../src/core/ffmpeg-plan.js';
+import {
+  normalizeTransition,
+  timelineLength,
+  buildEncodeArgs,
+  canJoinWithoutReencode,
+} from '../../src/core/ffmpeg-plan.js';
 
 const script = `PHONG CÁCH: hoạt hình 3D ấm áp, ánh sáng hoàng hôn
 
@@ -52,9 +57,18 @@ test('scene Nhân vật field does not leak into prompts', () => {
 test('scene cast comes from the field, then from mentions, then everyone', () => {
   const cast = parseCharacters(script);
   const [first, second, third] = parseSceneScript(script);
-  assert.deepEqual(charactersForScene(first, cast).map(c => c.name), ['Linh', 'Mèo Mun']);
-  assert.deepEqual(charactersForScene(second, cast).map(c => c.name), ['Mèo Mun']);
-  assert.deepEqual(charactersForScene(third, cast).map(c => c.name), ['Linh', 'Mèo Mun']);
+  assert.deepEqual(
+    charactersForScene(first, cast).map(c => c.name),
+    ['Linh', 'Mèo Mun'],
+  );
+  assert.deepEqual(
+    charactersForScene(second, cast).map(c => c.name),
+    ['Mèo Mun'],
+  );
+  assert.deepEqual(
+    charactersForScene(third, cast).map(c => c.name),
+    ['Linh', 'Mèo Mun'],
+  );
   assert.match(castNote(cast.slice(0, 1)), /^Characters in this shot .*Linh — cô gái/);
 });
 
@@ -97,7 +111,10 @@ const clip = duration => ({
 });
 
 test('transition length is clamped to half the shortest clip', () => {
-  assert.deepEqual(normalizeTransition({ type: 'fade', duration: 5 }, [6, 3]), { type: 'fade', duration: 1.5 });
+  assert.deepEqual(normalizeTransition({ type: 'fade', duration: 5 }, [6, 3]), {
+    type: 'fade',
+    duration: 1.5,
+  });
   assert.deepEqual(normalizeTransition({ type: 'bogus' }, [6, 6]), { type: 'cut', duration: 0 });
   assert.deepEqual(normalizeTransition({ type: 'fade', duration: 1 }, [6]), { type: 'cut', duration: 0 });
   assert.equal(timelineLength([6, 6, 6], { type: 'fade', duration: 0.5 }), 17);

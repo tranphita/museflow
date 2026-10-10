@@ -66,7 +66,10 @@ test('background music is looped, trimmed to the timeline, faded and mixed', () 
   const inputs = args.flatMap((value, index) => (value === '-i' ? [args[index + 1]] : []));
   assert.deepEqual(inputs, ['/0', '/1', '/silence.wav', '/music.bin']);
   const filter = args[args.indexOf('-filter_complex') + 1];
-  assert.match(filter, /\[3:a:0\][^;]*atrim=duration=10\.000,volume=0\.50,afade=t=out:st=8\.500:d=1\.5\[music\]/);
+  assert.match(
+    filter,
+    /\[3:a:0\][^;]*atrim=duration=10\.000,volume=0\.50,afade=t=out:st=8\.500:d=1\.5\[music\]/,
+  );
   assert.match(filter, /\[clipa\]\[music\]amix=inputs=2/);
   const maps = args.flatMap((value, index) => (value === '-map' ? [args[index + 1]] : []));
   assert.deepEqual(maps, ['[outv]', '[mixa]']);

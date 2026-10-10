@@ -49,7 +49,9 @@ test('a script without scenes is rejected', () => {
 });
 
 test('saved character images replace generated character references', () => {
-  const workflow = structuredClone(workflowFromScript(script, { characterImages: { linh: 'data:image/png;base64,AA' } }));
+  const workflow = structuredClone(
+    workflowFromScript(script, { characterImages: { linh: 'data:image/png;base64,AA' } }),
+  );
   const linh = workflow.nodes.find(node => node.data.characterName === 'Linh');
   const mun = workflow.nodes.find(node => node.data.characterName === 'Mun');
   assert.equal(linh.type, 'imageInput');
@@ -63,4 +65,22 @@ test('saved character images replace generated character references', () => {
     resolveReferences(firstScene.id).map(ref => ref.character),
     ['Linh'],
   );
+});
+
+test('several photos of one person all become references for their scenes', () => {
+  const photos = [
+    'data:image/png;base64,A1',
+    'data:image/png;base64,A2',
+    'data:image/png;base64,A3',
+    'data:x4',
+  ];
+  const workflow = workflowFromScript(script, { characterImages: { Linh: photos } });
+  const inputs = workflow.nodes.filter(node => node.data.characterName === 'Linh');
+  assert.equal(inputs.length, 3);
+  assert.ok(inputs.every(node => node.type === 'imageInput'));
+  const firstScene = workflow.nodes.find(node => node.type === 'generateImage' && !node.data.characterName);
+  const linkedPhotos = workflow.edges.filter(
+    edge => edge.target === firstScene.id && inputs.some(input => input.id === edge.source),
+  );
+  assert.equal(linkedPhotos.length, 3);
 });

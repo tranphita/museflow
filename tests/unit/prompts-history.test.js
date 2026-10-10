@@ -1,7 +1,13 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { buildMusePrompt, buildRefusalRetryPrompt, isRatioMismatch } from '../../src/core/prompts.js';
-import { recordGeneration, restoreGeneration, removeGeneration, mediaRefs, MAX_HISTORY } from '../../src/core/history.js';
+import {
+  recordGeneration,
+  restoreGeneration,
+  removeGeneration,
+  mediaRefs,
+  MAX_HISTORY,
+} from '../../src/core/history.js';
 
 test('image prompt keeps the original section order', () => {
   const prompt = buildMusePrompt({
