@@ -208,16 +208,32 @@ export async function detectMuse() {
 }
 
 const wait = ms => new Promise(resolve => setTimeout(resolve, ms));
+const REVEAL_AFTER_MS = 4000;
+
+// Muse only hydrates a side chat while its page is visible; a worker window hidden behind
+// another window keeps the composer unusable forever, so bring it to the front.
+async function revealMuseWindow(tab) {
+  try {
+    await chrome.windows.update(tab.windowId, { state: 'normal', focused: true });
+    await chrome.tabs.update(tab.id, { active: true });
+  } catch {}
+}
 
 export async function prepareMuseTab(tabId, url, { timeoutMs = 90_000 } = {}) {
   const closed = 'Tab Muse của worker này đã bị đóng. Mở Muse.ai và đăng nhập rồi thử lại.';
   if (!(await chrome.tabs.update(tabId, { url }).catch(() => null))) throw new Error(closed);
-  const deadline = Date.now() + timeoutMs;
-  let last = null;
+  const startedAt = Date.now(),
+    deadline = startedAt + timeoutMs;
+  let last = null,
+    revealed = false;
   while (Date.now() < deadline) {
     await wait(1000);
     const tab = await chrome.tabs.get(tabId).catch(() => null);
     if (!tab) throw new Error(closed);
+    if (!revealed && Date.now() - startedAt >= REVEAL_AFTER_MS) {
+      revealed = true;
+      await revealMuseWindow(tab);
+    }
     if (tab.status !== 'complete') continue;
     last = await museTabMessage({ type: MESSAGE.checkSession }, tabId, undefined, {
       onlyThisTab: true,

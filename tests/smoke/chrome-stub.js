@@ -52,6 +52,10 @@
         window.__createdWindows = (window.__createdWindows || 0) + 1;
         return { id: window.__createdWindows, tabs: [{ id: 800 + window.__createdWindows }] };
       },
+      async update(id, props) {
+        window.__windowUpdates = [...(window.__windowUpdates || []), { id, ...props }];
+        return { id };
+      },
       async remove() {},
     },
     power: {
