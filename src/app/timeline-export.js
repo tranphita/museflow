@@ -48,7 +48,14 @@ async function loadTimelineMusic(ffmpeg, node, signal) {
   return { path, volume: music.volume };
 }
 
-export async function exportTimelineMp4WithFFmpeg(node, clips, button, formatSelect, fileName = '') {
+export async function exportTimelineMp4WithFFmpeg(
+  node,
+  clips,
+  button,
+  formatSelect,
+  fileName = '',
+  download = true,
+) {
   let exported = false;
   const stopButton = $('#timelineExportStopBtn'),
     abortController = new AbortController(),
@@ -205,7 +212,7 @@ export async function exportTimelineMp4WithFFmpeg(node, clips, button, formatSel
     const link = document.createElement('a');
     link.href = state.timelineExportUrl;
     link.download = `${fileName || `Museta-Timeline-${new Date().toISOString().replace(/[:.]/g, '-')}`}.mp4`;
-    link.click();
+    if (download) link.click();
     exported = true;
     setRunStatus('Timeline exported as MP4 (H.264) with local FFmpeg.', 'ok');
   } catch (error) {
@@ -226,7 +233,7 @@ export async function exportTimelineMp4WithFFmpeg(node, clips, button, formatSel
   return exported;
 }
 
-export async function exportTimelineVideo({ format = '', fileName = '' } = {}) {
+export async function exportTimelineVideo({ format = '', fileName = '', download = true } = {}) {
   if (state.timelineExporting) return false;
   let exported = false;
   const node = ensureDockTimeline(),
@@ -248,7 +255,7 @@ export async function exportTimelineVideo({ format = '', fileName = '' } = {}) {
       );
       return false;
     }
-    return exportTimelineMp4WithFFmpeg(node, clips, button, formatSelect, fileName);
+    return exportTimelineMp4WithFFmpeg(node, clips, button, formatSelect, fileName, download);
   }
   if (!window.MediaRecorder || !HTMLCanvasElement.prototype.captureStream) {
     setRunStatus('This browser cannot export a stitched video from the Timeline.', 'error');
@@ -502,7 +509,7 @@ export async function exportTimelineVideo({ format = '', fileName = '' } = {}) {
     const link = document.createElement('a');
     link.href = state.timelineExportUrl;
     link.download = `${fileName || `Museta-Timeline-${new Date().toISOString().replace(/[:.]/g, '-')}`}.${extension}`;
-    link.click();
+    if (download) link.click();
     exported = true;
     const transitionNote =
       (node.data.transition?.type || 'cut') !== 'cut' ? ' Transitions are applied in MP4 export only.' : '';

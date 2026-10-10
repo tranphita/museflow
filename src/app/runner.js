@@ -223,7 +223,7 @@ async function generateNode(node, { again, signal, progressLabel, tabId }) {
   node.data.endFrame = null;
   publishToPreviews(node);
   render();
-  setRunStatus(`${progressLabel} · generating ${mediaType}: ${node.id}`, 'warn');
+  setRunStatus(`${progressLabel} · generating ${mediaType}: ${stepLabel(node)}`, 'warn');
   try {
     const musePrompt = buildMusePrompt({
       mediaType,

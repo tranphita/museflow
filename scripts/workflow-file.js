@@ -1,21 +1,10 @@
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { basename, dirname, extname, join } from 'node:path';
 import { workflowFromScript } from '../src/core/film-graph.js';
+import { SERIES_BIBLE, IMAGE_TYPES, characterNameFromFile } from '../src/core/series.js';
 
-export const SERIES_BIBLE = '_series.txt';
-const IMAGE_TYPES = {
-  '.png': 'image/png',
-  '.jpg': 'image/jpeg',
-  '.jpeg': 'image/jpeg',
-  '.webp': 'image/webp',
-};
+export { characterNameFromFile };
 
-export function characterNameFromFile(file) {
-  return basename(file, extname(file))
-    .normalize('NFC')
-    .replace(/(?:[\s_-]+\d+|\s*\(\d+\))$/, '')
-    .trim();
-}
 
 export function readCharacterImages(folder) {
   const dir = join(folder, 'characters');

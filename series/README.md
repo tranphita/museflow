@@ -17,7 +17,13 @@ Mỗi thư mục con là một bộ phim. Nhân vật được giữ nguyên qua
   workflows/       file .workflow.json để Import workflow, tạo bằng lệnh bên dưới (không commit)
 ```
 
-## Quy trình
+## Dùng trong Studio (không cần lệnh npm)
+
+Mở Museta → tab **Studio** → **Import folder** → chọn thư mục bộ phim (ví dụ `series\hoc-tieng-anh`). Museta đọc `_series.txt`, các tập `epXX.txt` và ảnh trong `characters/`, rồi hiện danh sách tập. Mỗi tập có nút **Run**; **Run all episodes** chạy cả bộ. MP4 được lưu trong Studio — bấm **Play** để xem, **Download MP4** để tải. Sửa kịch bản xong thì bấm **Update from folder** và chọn lại thư mục; tập nào đổi nội dung sẽ hiện "Script changed".
+
+Thêm dòng `TÊN BỘ:` vào `_series.txt` và `TIÊU ĐỀ:` ở đầu mỗi tập để Studio hiển thị tên có dấu.
+
+## Quy trình bằng dòng lệnh
 
 1. **Tạo workflow cho cả bộ**
 

@@ -25,7 +25,10 @@ async page => {
     if (m.type() === 'error') errors.push(m.text());
   });
   await page.goto(`${base}/app.html`);
-  await page.evaluate(() => sessionStorage.clear());
+  await page.evaluate(() => {
+    sessionStorage.clear();
+    localStorage.setItem('museta-view', 'canvas');
+  });
   await page.reload();
   await page.waitForTimeout(800);
   const results = {};
@@ -79,6 +82,7 @@ async page => {
   results.failRunStatus = await runAndWait();
   results.failedNodeStatus = await page.locator('.node .status.error').first().textContent();
 
+  await page.click('#addNodeBtn');
   await page.click('button[data-add="generateVideo"]');
   results.afterAddVideo = await page.locator('.node').count();
   await page.keyboard.press('Control+z');

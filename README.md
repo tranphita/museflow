@@ -74,6 +74,10 @@ Replace the files with the new version, select **Reload** on the extensions page
 
 For a scene script, use **Script → Nodes**. Scene headings look like `CẢNH 1 (0:00–0:07): Scene title`, followed by `Prompt ảnh`, `Prompt video`, and an optional `Audio` field.
 
+## Studio
+
+The **Studio** tab lists your series and their episodes. Use **Import folder** to pick a series folder (`_series.txt`, `epXX.txt` episodes and a `characters/` folder); Museta builds each episode's workflow in the browser. Every episode row shows its scenes, length and dialogue lines, its status and last run, and has **Run**, **Open in canvas** and, after a run, **Play** and **Download MP4**. **Run all episodes** runs the remaining episodes in order while a scene-by-scene strip shows progress. Choose the folder again with **Update from folder** after editing scripts.
+
 ## Short films with consistent characters
 
 Add a cast to your scene script and use **Script → Nodes** (see the [sample script](docs/sample-film-script.txt)):

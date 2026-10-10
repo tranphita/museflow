@@ -64,15 +64,22 @@ export function extractVideoEndFrame(url) {
       resolve(value);
     };
     const timer = setTimeout(() => done(null), 12000);
+    let probingLength = false;
+    const seekToEnd = () =>
+      (video.currentTime = Math.max(0, video.duration - Math.min(0.04, video.duration / 100)));
     video.onloadedmetadata = () => {
-      if (!Number.isFinite(video.duration)) {
-        clearTimeout(timer);
-        done(null);
-        return;
-      }
-      video.currentTime = Math.max(0, video.duration - Math.min(0.04, video.duration / 100));
+      if (Number.isFinite(video.duration)) return seekToEnd();
+      // Recorded WebM files carry no duration until the browser seeks past the end.
+      probingLength = true;
+      video.currentTime = 1e101;
     };
     video.onseeked = () => {
+      if (probingLength) {
+        probingLength = false;
+        if (Number.isFinite(video.duration)) return seekToEnd();
+        clearTimeout(timer);
+        return done(null);
+      }
       try {
         const width = video.videoWidth,
           height = video.videoHeight;

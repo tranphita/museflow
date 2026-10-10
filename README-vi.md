@@ -66,6 +66,10 @@ Thay file bằng phiên bản mới, bấm **Reload** ở trang extension rồi 
 
 Với kịch bản, chọn **Script → Nodes**. Tiêu đề cảnh có dạng `CẢNH 1 (0:00–0:07): Tên cảnh`, kèm các trường `Prompt ảnh`, `Prompt video` và `Audio` (tuỳ chọn).
 
+## Studio
+
+Tab **Studio** liệt kê các bộ phim và từng tập. Bấm **Import folder** và chọn thư mục bộ phim (gồm `_series.txt`, các tập `epXX.txt` và thư mục `characters/`); Museta tự dựng workflow ngay trong trình duyệt. Mỗi tập hiện số cảnh, thời lượng, số câu thoại, trạng thái và lần chạy gần nhất, kèm nút **Run**, **Open in canvas**, và sau khi chạy là **Play**, **Download MP4**. **Run all episodes** chạy lần lượt các tập còn lại, có dải tiến độ theo từng cảnh. Sửa kịch bản xong thì bấm **Update from folder**.
+
 ## Làm phim ngắn giữ nguyên nhân vật
 
 Dùng **Script → Nodes** với kịch bản có phần nhân vật (xem [kịch bản mẫu](docs/sample-film-script.txt)):

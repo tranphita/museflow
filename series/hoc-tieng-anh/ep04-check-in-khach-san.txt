@@ -1,3 +1,5 @@
+TIÊU ĐỀ: Check-in khách sạn
+
 CẢNH 1 (0:00–0:08): Hook — "I have room!"
 Nhân vật: Hảo, Phi Ta
 Prompt ảnh: Sảnh khách sạn sang trọng, hai vợ chồng kéo vali tới quầy lễ tân, Phi Ta tự tin chống tay lên quầy, Hảo đứng sau đeo kính râm trên đầu

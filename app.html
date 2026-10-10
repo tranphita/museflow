@@ -10,32 +10,46 @@
 <body>
   <header class="toolbar">
     <div class="brand"><img class="brand-logo" src="icons/museta.svg" alt="" /><strong class="brand-name">Museta</strong><span id="brandVersion" class="brand-version"></span></div>
-    <div class="toolbar-tools" aria-label="Add workflow nodes">
-      <button id="scriptImportBtn" type="button">＋ Script → Nodes</button>
-      <button data-add="prompt">+ Prompt</button>
-      <button data-add="text">+ Text note</button>
-      <button data-add="negativePrompt">+ Negative</button>
-      <button data-add="textAppend">+ Text Append</button>
-      <button data-add="textConcat">+ Text Merge</button>
-      <button data-add="imageInput">+ Image Input</button>
-      <button data-add="references">+ References</button>
-      <button data-add="generateImage">+ Generate Image</button>
-      <button data-add="generateVideo">+ Generate Video</button>
-      <button data-add="timeline">+ Timeline</button>
-      <button data-add="voiceover">+ Voiceover</button>
-      <button data-add="imageResize">+ Image Resize</button>
-      <button data-add="preview">+ Preview</button>
+    <nav class="view-switch" role="tablist" aria-label="Choose a view">
+      <button type="button" role="tab" data-view="studio" aria-selected="true">Studio</button>
+      <button type="button" role="tab" data-view="canvas" aria-selected="false">Canvas</button>
+    </nav>
+    <div class="toolbar-tools canvas-only" aria-label="Build the workflow">
+      <button id="scriptImportBtn" type="button">Script to nodes</button>
+      <div class="add-node">
+        <button id="addNodeBtn" type="button" aria-haspopup="menu" aria-expanded="false">＋ Add node</button>
+        <div id="addNodeMenu" class="add-node-menu hidden" role="menu">
+          <p class="menu-caption">Text</p>
+          <button data-add="prompt" role="menuitem">Prompt</button>
+          <button data-add="negativePrompt" role="menuitem">Negative prompt</button>
+          <button data-add="textAppend" role="menuitem">Text append</button>
+          <button data-add="textConcat" role="menuitem">Text merge</button>
+          <button data-add="text" role="menuitem">Text note</button>
+          <p class="menu-caption">Images</p>
+          <button data-add="imageInput" role="menuitem">Image input</button>
+          <button data-add="references" role="menuitem">References</button>
+          <button data-add="generateImage" role="menuitem">Generate image</button>
+          <button data-add="imageResize" role="menuitem">Image resize</button>
+          <button data-add="preview" role="menuitem">Preview</button>
+          <p class="menu-caption">Video and sound</p>
+          <button data-add="generateVideo" role="menuitem">Generate video</button>
+          <button data-add="voiceover" role="menuitem">Voiceover</button>
+          <button data-add="timeline" role="menuitem">Timeline</button>
+        </div>
+      </div>
     </div>
     <div class="toolbar-actions">
-      <button id="saveBtn">Save</button>
-      <button id="workflowExportBtn" type="button" title="Save workflow as a reusable JSON file">Save workflow</button>
-      <button id="workflowImportBtn" type="button" title="Import a saved Museta workflow">Import workflow</button>
-      <input id="workflowFileInput" type="file" accept=".json,application/json" hidden />
-      <button id="batchBtn" type="button" title="Run several workflow files one after another and export each as MP4">Batch</button>
-      <button id="settingsBtn">Settings</button>
-      <button id="resetBtn" class="danger">Reset</button>
-      <button id="runBtn" class="primary" title="Run every node in the workflow in dependency order">▶ Run workflow</button>
-      <button id="buyCoffeeBtn" class="buy-coffee-btn" type="button" title="Support bynne2602, the original MuseFlow author, via VietQR">☕ Buy me a coffee</button>
+      <div class="toolbar-group canvas-only">
+        <button id="saveBtn" type="button">Save</button>
+        <button id="workflowExportBtn" type="button" title="Download this workflow as a JSON file">Export file</button>
+        <button id="workflowImportBtn" type="button" title="Open a saved Museta workflow file">Open file</button>
+        <input id="workflowFileInput" type="file" accept=".json,application/json" hidden />
+        <button id="batchBtn" type="button" title="Run several workflow files one after another and export each as MP4">Batch</button>
+        <button id="resetBtn" type="button" class="danger">Reset</button>
+      </div>
+      <button id="settingsBtn" type="button">Settings</button>
+      <button id="runBtn" type="button" class="primary canvas-only" title="Run every node in the workflow in dependency order">▶ Run workflow</button>
+      <button id="buyCoffeeBtn" class="buy-coffee-btn" type="button" title="Support bynne2602, the original MuseFlow author, via VietQR" aria-label="Buy the original author a coffee">☕</button>
     </div>
   </header>
 
@@ -43,6 +57,25 @@
     <span id="museStatus">● Checking muse.ai...</span>
     <span id="backendStatus">Generation: Muse.ai browser session</span>
     <span id="runStatus"></span>
+  </div>
+
+  <main id="studio" class="studio" aria-label="Series studio">
+    <aside class="studio-sidebar">
+      <div class="studio-sidebar-head">
+        <h2>Series</h2>
+        <button id="studioImportBtn" type="button" class="ghost">Import folder</button>
+      </div>
+      <input id="studioFolderInput" type="file" webkitdirectory multiple hidden />
+      <ul id="studioSeriesList" class="series-list"></ul>
+    </aside>
+    <section id="studioMain" class="studio-main" aria-live="polite"></section>
+  </main>
+
+  <div id="studioPlayerModal" class="modal-backdrop hidden">
+    <section class="modal studio-player" role="dialog" aria-modal="true" aria-labelledby="studioPlayerTitle">
+      <header class="studio-player-head"><h2 id="studioPlayerTitle">Episode</h2><button id="studioPlayerClose" type="button" aria-label="Close player">×</button></header>
+      <video id="studioPlayer" controls playsinline></video>
+    </section>
   </div>
 
   <main id="viewport">

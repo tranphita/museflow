@@ -17,6 +17,7 @@ const browserGlobals = Object.fromEntries(
     'FileReader',
     'Image',
     'Audio',
+    'localStorage',
     'DOMException',
     'DOMPoint',
     'DataTransfer',

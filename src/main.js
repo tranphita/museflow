@@ -1,3 +1,4 @@
+import { initStudio } from './app/studio.js';
 import { initBatch } from './app/batch.js';
 import { initRunPanel } from './app/run-panel.js';
 import { getTtsApiKey, setTtsApiKey } from './app/tts-client.js';
@@ -245,6 +246,7 @@ const isTextEditor = target =>
 document.addEventListener(
   'keydown',
   e => {
+    if (document.body.dataset.view === 'studio') return;
     if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z' && !e.shiftKey) {
       if (isTextEditor(e.target)) {
         deferToNativeUndo(e.target);
@@ -351,6 +353,7 @@ chrome.tabs.onCreated.addListener(tab => {
 $('#brandVersion').textContent = APP_VERSION;
 initRunPanel();
 initBatch();
+initStudio();
 loadState();
 detectMuse();
 applyCanvasTransform();
