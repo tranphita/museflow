@@ -2676,82 +2676,6 @@ body {
   line-height: 1.35;
 }
 
-.batch-modal {
-  width: min(620px, 94vw);
-}
-.batch-toolbar {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-#batchSummary {
-  margin-left: auto;
-  font-size: 12px;
-  color: #a8aab3;
-}
-.batch-empty {
-  margin-top: 14px;
-  font-size: 12px;
-  color: #7d8190;
-}
-.batch-empty.hidden {
-  display: none;
-}
-.batch-list {
-  list-style: none;
-  margin: 12px 0 0;
-  padding: 0;
-  max-height: 40vh;
-  overflow-y: auto;
-  display: grid;
-  gap: 6px;
-}
-.batch-item {
-  display: grid;
-  grid-template-columns: 20px minmax(0, 1fr) auto auto;
-  gap: 8px;
-  align-items: center;
-  padding: 8px 10px;
-  background: #1a1c25;
-  border: 1px solid #2c2f3b;
-  border-radius: 8px;
-  font-size: 12px;
-}
-.batch-name {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.batch-time {
-  color: #7d8190;
-  font-variant-numeric: tabular-nums;
-}
-.modal .batch-item button {
-  padding: 2px 8px;
-}
-.batch-message {
-  grid-column: 2 / -1;
-  color: #a8aab3;
-  line-height: 1.35;
-}
-.batch-running {
-  border-color: #6c47ff;
-}
-.batch-done span:first-child {
-  color: #65d894;
-}
-.batch-failed {
-  border-color: #5a2a33;
-}
-.batch-failed span:first-child,
-.batch-failed .batch-message {
-  color: #ff9a9a;
-}
-.batch-stopped span:first-child {
-  color: #f4c25d;
-}
-
 /* Studio and view switching */
 :root {
   --studio-bg: #0b0c10;
@@ -3120,7 +3044,8 @@ body[data-view='studio'] .toolbar-actions {
   border-radius: 50%;
   background: #4a4f60;
 }
-.status-done .status-dot {
+.status-done .status-dot,
+.status-review .status-dot {
   background: var(--studio-ok);
 }
 .status-failed .status-dot {
@@ -3131,7 +3056,8 @@ body[data-view='studio'] .toolbar-actions {
 .status-queued .status-dot {
   background: var(--studio-warn);
 }
-.status-running .status-dot {
+.status-running .status-dot,
+.status-exporting .status-dot {
   background: #8b74ff;
   box-shadow: 0 0 0 4px #8b74ff33;
 }
@@ -3339,4 +3265,8 @@ body[data-mode='worker'] .toolbar-tools,
 body[data-mode='worker'] .toolbar-group,
 body[data-mode='worker'] #runBtn {
   display: none !important;
+}
+.studio-queue-all {
+  margin: 12px 16px 16px;
+  width: calc(100% - 32px);
 }

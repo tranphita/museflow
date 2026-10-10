@@ -1,4 +1,3 @@
-import { state } from '../core/state.js';
 import { workflowFromScript } from '../core/film-graph.js';
 import { parseCharacters, parseVoices, voiceFor } from '../core/scene-script.js';
 import {
@@ -10,18 +9,21 @@ import {
   parseSeriesName,
 } from '../core/series.js';
 import { checkEpisode, checkSeries } from '../core/script-check.js';
-import { $, setRunStatus } from './dom.js';
+import { $, el, setRunStatus } from './dom.js';
 import { blobAsDataUrl } from './media.js';
 import { importWorkflowFile } from './persistence.js';
-import { executeWorkflow, stopGeneration } from './runner.js';
-import { exportTimelineVideo } from './timeline-export.js';
+import { OPEN_STATUSES, createJob, interleave } from '../core/jobs.js';
+import { jobMediaPrefix } from '../core/checkpoint.js';
+import { deleteMediaWithPrefix } from './media-store.js';
 import {
   listSeries,
   saveSeries,
   deleteSeries,
-  saveOutput,
   getOutput,
   deleteOutput,
+  listJobs,
+  putJobs,
+  deleteJob,
 } from './library-store.js';
 
 const VIEW_KEY = 'museta-view';
@@ -34,17 +36,20 @@ const STATUS_TEXT = {
   stopped: 'Stopped',
   changed: 'Script changed',
 };
-const studio = { series: [], selectedId: null, running: null, stopRequested: false, queue: false };
+const studio = { series: [], selectedId: null, jobs: [], jobSignature: '' };
+
+const JOB_TEXT = {
+  queued: 'Queued',
+  running: 'Running',
+  exporting: 'Exporting MP4',
+  review: 'Ready to review',
+  done: 'Done',
+  failed: 'Needs attention',
+};
 
 const formatDuration = seconds =>
   `${Math.floor(seconds / 60)}:${String(Math.round(seconds % 60)).padStart(2, '0')}`;
 const formatElapsed = ms => formatDuration(Math.max(0, ms / 1000));
-const el = (tag, className, text) => {
-  const node = document.createElement(tag);
-  if (className) node.className = className;
-  if (text !== undefined) node.textContent = text;
-  return node;
-};
 const selected = () => studio.series.find(series => series.id === studio.selectedId) || null;
 
 export function setView(view) {
@@ -55,6 +60,7 @@ export function setView(view) {
     localStorage.setItem(VIEW_KEY, view);
   } catch {}
   if (view === 'studio') renderStudio();
+  document.dispatchEvent(new CustomEvent('museta:view', { detail: view }));
 }
 
 function readText(file) {
@@ -143,130 +149,117 @@ async function importFolder(fileList) {
 
 async function loadLibrary() {
   studio.series = (await listSeries()).sort((a, b) => a.name.localeCompare(b.name));
+  studio.jobs = await listJobs();
   if (!selected()) studio.selectedId = studio.series[0]?.id || null;
   renderStudio();
 }
 
-async function persist(series) {
-  await saveSeries(series);
-  renderStudio();
-}
-
-function runOutcome(previousRun) {
-  const run = state.run;
-  if (!run || run === previousRun)
-    return { status: 'failed', error: $('#runStatus').textContent || 'The episode did not start.' };
-  if (run.outcome === 'stopped') return { status: 'stopped', error: '' };
-  if (run.outcome === 'error')
-    return { status: 'failed', error: run.message || 'The episode stopped on an error.' };
-  const failed = run.steps.find(step => step.status === 'error');
-  return failed
-    ? { status: 'failed', error: failed.error || 'A step failed.' }
-    : { status: 'done', error: '' };
-}
-
-async function runEpisode(series, episode) {
-  const startedAt = Date.now();
-  studio.running = { seriesId: series.id, episodeId: episode.id, startedAt };
-  episode.status = 'running';
-  episode.error = '';
-  await persist(series);
-  const workflow = workflowFromScript(episodeScript(series.bible, episode.text), {
-    characterImages: series.characters,
-  });
-  const file = new File(
-    [JSON.stringify({ format: 'museta-workflow', version: 1, workflow })],
-    `${episode.id}.json`,
-    {
-      type: 'application/json',
-    },
+function latestJob(series, episode) {
+  return (
+    studio.jobs
+      .filter(job => job.seriesId === series.id && job.episodeId === episode.id)
+      .sort((a, b) => b.queuedAt - a.queuedAt)[0] || null
   );
-  try {
-    if (!(await importWorkflowFile(file, { confirm: false })))
-      throw new Error('Could not open this episode.');
-    const previousRun = state.run;
-    await executeWorkflow();
-    const outcome = runOutcome(previousRun);
-    episode.status = outcome.status;
-    episode.error = outcome.error;
-    if (outcome.status !== 'stopped' && !studio.stopRequested) {
-      const exported = await exportTimelineVideo({ format: 'mp4', download: false });
-      if (exported && state.timelineExportUrl) {
-        const key = `${series.id}/${episode.id}`;
-        await saveOutput(key, await (await fetch(state.timelineExportUrl)).blob());
-        episode.outputKey = key;
-      } else if (outcome.status === 'done') {
-        episode.status = 'failed';
-        episode.error = 'The episode ran but the MP4 could not be exported.';
-      }
-    }
-  } catch (error) {
-    episode.status = 'failed';
-    episode.error = error?.message || String(error);
-  } finally {
-    episode.lastRunAt = Date.now();
-    episode.runMs = Date.now() - startedAt;
-    studio.running = null;
-    await persist(series);
-  }
 }
 
-async function runEpisodes(series, episodes) {
-  if (state.isRunning || studio.running) {
-    setRunStatus('Wait for the current run to finish first.', 'warn');
+function episodeState(series, episode) {
+  const job = latestJob(series, episode);
+  if (!job)
+    return {
+      job: null,
+      status: episode.status,
+      text: STATUS_TEXT[episode.status] || episode.status,
+      open: false,
+      outputKey: episode.outputKey || '',
+      error: ['failed', 'stopped'].includes(episode.status) ? episode.error : '',
+    };
+  const progress = job.progress?.total ? `, step ${job.progress.done}/${job.progress.total}` : '';
+  return {
+    job,
+    status: job.status,
+    text: job.status === 'running' ? `Running${progress}, worker ${job.workerId}` : JOB_TEXT[job.status],
+    open: OPEN_STATUSES.has(job.status),
+    outputKey: job.outputKey || episode.outputKey || '',
+    error: job.error && ['failed', 'queued'].includes(job.status) ? job.error : '',
+  };
+}
+
+async function refreshJobs() {
+  studio.jobs = await listJobs();
+  const signature = JSON.stringify(
+    studio.jobs.map(job => [job.id, job.status, job.progress, job.workerId, job.error]),
+  );
+  if (signature === studio.jobSignature) return;
+  studio.jobSignature = signature;
+  if (document.body.dataset.view === 'studio') renderStudio();
+}
+
+async function enqueue(pairs) {
+  const fresh = pairs.filter(({ series, episode }) => !episodeState(series, episode).open);
+  if (!fresh.length) return setRunStatus('Those episodes are already in the production queue.', 'warn');
+  const blocked = fresh.filter(({ series, episode }) =>
+    checkEpisode(episodeScript(series.bible, episode.text)).some(issue => issue.level === 'error'),
+  );
+  if (
+    blocked.length &&
+    !window.confirm(
+      `${blocked.length} of these episodes ${blocked.length === 1 ? 'has' : 'have'} script problems that will likely make Muse get it wrong. Queue anyway?`,
+    )
+  )
     return;
-  }
-  studio.stopRequested = false;
-  studio.queue = episodes.length > 1;
-  for (const episode of episodes) episode.status = episode === episodes[0] ? episode.status : 'queued';
-  await persist(series);
-  const ticker = setInterval(renderRunningRow, 1000);
-  try {
-    for (const episode of episodes) {
-      if (studio.stopRequested) break;
-      await runEpisode(series, episode);
-      if (episode.status === 'stopped') break;
-    }
-  } finally {
-    clearInterval(ticker);
-    for (const episode of series.episodes) if (episode.status === 'queued') episode.status = 'new';
-    studio.queue = false;
-    await persist(series);
-    const done = episodes.filter(episode => episode.status === 'done').length;
-    setRunStatus(
-      `${done} of ${episodes.length} episode${episodes.length === 1 ? '' : 's'} finished.`,
-      done === episodes.length ? 'ok' : 'warn',
-    );
-  }
+  const groups = [...new Set(fresh.map(pair => pair.series))].map(series =>
+    fresh.filter(pair => pair.series === series),
+  );
+  const start = Math.max(0, ...studio.jobs.map(job => job.order || 0)) + 1;
+  const now = Date.now();
+  const jobs = interleave(groups).map(({ series, episode }, index) =>
+    createJob(
+      {
+        seriesId: series.id,
+        episodeId: episode.id,
+        title: `${series.name}, episode ${episode.number}: ${episode.title}`,
+        fileName: `${series.name} - Tap ${String(episode.number).padStart(2, '0')} - ${episode.title}.mp4`,
+        script: episodeScript(series.bible, episode.text),
+        order: start + index,
+      },
+      now,
+    ),
+  );
+  await putJobs(jobs);
+  studio.jobSignature = '';
+  await refreshJobs();
+  setRunStatus(
+    `Queued ${jobs.length} episode${jobs.length === 1 ? '' : 's'}. Open Production and press Start to run them.`,
+    'ok',
+  );
 }
 
-function stopStudio() {
-  studio.stopRequested = true;
-  if (state.isRunning) stopGeneration(state.activeGenerationId);
-  state.generationAbortController?.abort();
-}
+const unfinished = series =>
+  series.episodes
+    .filter(episode => {
+      const current = episodeState(series, episode);
+      return !current.open && current.status !== 'done';
+    })
+    .map(episode => ({ series, episode }));
 
-async function downloadOutput(series, episode) {
-  const blob = await getOutput(episode.outputKey);
-  if (!blob) {
-    setRunStatus('This MP4 is no longer in the library. Run the episode again.', 'warn');
-    return;
-  }
+export async function downloadOutput(key, fileName) {
+  const blob = await getOutput(key);
+  if (!blob) return setRunStatus('This MP4 is no longer in the library. Queue the episode again.', 'warn');
   const url = URL.createObjectURL(blob);
   const link = document.createElement('a');
   link.href = url;
-  link.download = `${series.name} - Tap ${String(episode.number).padStart(2, '0')} - ${episode.title}.mp4`;
+  link.download = fileName;
   link.click();
   setTimeout(() => URL.revokeObjectURL(url), 5000);
 }
 
-async function playOutput(episode) {
-  const blob = await getOutput(episode.outputKey);
-  if (!blob) return;
+export async function playOutput(key, title) {
+  const blob = await getOutput(key);
+  if (!blob) return setRunStatus('This MP4 is no longer in the library. Queue the episode again.', 'warn');
   const player = $('#studioPlayer');
   if (player.src) URL.revokeObjectURL(player.src);
   player.src = URL.createObjectURL(blob);
-  $('#studioPlayerTitle').textContent = `Episode ${episode.number}: ${episode.title}`;
+  $('#studioPlayerTitle').textContent = title;
   $('#studioPlayerModal').classList.remove('hidden');
   player.play().catch(() => {});
 }
@@ -283,61 +276,28 @@ async function openInCanvas(series, episode) {
 }
 
 async function removeSeries(series) {
+  const jobs = studio.jobs.filter(job => job.seriesId === series.id);
+  if (jobs.some(job => ['running', 'exporting'].includes(job.status)))
+    return setRunStatus(
+      'Wait until this series has no episode running, or press Stop now in Production.',
+      'warn',
+    );
   if (
     !window.confirm(
-      `Remove “${series.name}” and its exported MP4s from the Studio? Files on your computer are not touched.`,
+      `Remove “${series.name}”, its queued episodes and its exported MP4s from the Studio? Files on your computer are not touched.`,
     )
   )
     return;
+  for (const job of jobs) {
+    await deleteJob(job.id);
+    await deleteMediaWithPrefix(jobMediaPrefix(job.id)).catch(() => {});
+    if (job.outputKey) await deleteOutput(job.outputKey).catch(() => {});
+  }
   for (const episode of series.episodes)
     if (episode.outputKey) await deleteOutput(episode.outputKey).catch(() => {});
   await deleteSeries(series.id);
   studio.selectedId = null;
   await loadLibrary();
-}
-
-function sceneGroups() {
-  const groups = new Map();
-  for (const step of state.run?.steps || []) {
-    const scene = /Scene (\d+)/.exec(step.label)?.[1];
-    const key = scene ? `Scene ${scene}` : 'Cast';
-    if (!groups.has(key))
-      groups.set(key, { label: scene ? scene : 'Cast', total: 0, done: 0, failed: false, active: false });
-    const group = groups.get(key);
-    group.total++;
-    if (['done', 'kept', 'skipped', 'error', 'stopped'].includes(step.status)) group.done++;
-    if (step.status === 'error') group.failed = true;
-    if (step.status === 'running') group.active = true;
-  }
-  return [...groups.values()].sort((a, b) =>
-    a.label === 'Cast' ? -1 : b.label === 'Cast' ? 1 : Number(a.label) - Number(b.label),
-  );
-}
-
-function filmStrip() {
-  const strip = el('div', 'film-strip');
-  strip.setAttribute('aria-hidden', 'true');
-  for (const group of sceneGroups()) {
-    const frame = el(
-      'div',
-      `film-frame${group.active ? ' is-active' : ''}${group.failed ? ' is-failed' : ''}`,
-    );
-    const fill = el('span', 'film-frame-fill');
-    fill.style.width = `${group.total ? (group.done / group.total) * 100 : 0}%`;
-    frame.append(fill, el('span', 'film-frame-label', group.label));
-    strip.appendChild(frame);
-  }
-  return strip;
-}
-
-function renderRunningRow() {
-  const row = document.querySelector('.episode-row.is-running');
-  if (!row || !studio.running) return;
-  row.querySelector('.film-strip')?.replaceWith(filmStrip());
-  const current = state.run?.steps.find(step => step.status === 'running');
-  const detail = row.querySelector('.episode-live');
-  if (detail)
-    detail.textContent = `${formatElapsed(Date.now() - studio.running.startedAt)} elapsed${current ? `, now on ${current.label}` : ''}`;
 }
 
 function castStrip(series) {
@@ -406,8 +366,8 @@ function seriesNotes(series) {
 }
 
 function episodeRow(series, episode) {
-  const isRunning = studio.running?.episodeId === episode.id && studio.running?.seriesId === series.id;
-  const row = el('li', `episode-row status-${episode.status}${isRunning ? ' is-running' : ''}`);
+  const current = episodeState(series, episode);
+  const row = el('li', `episode-row status-${current.status}`);
   const number = el('span', 'episode-number', String(episode.number).padStart(2, '0'));
   const main = el('div', 'episode-main');
   main.append(el('h3', 'episode-title', episode.title));
@@ -418,58 +378,46 @@ function episodeRow(series, episode) {
     el('span', '', `${episode.lines} lines`),
   );
   const issues = checkEpisode(episodeScript(series.bible, episode.text));
-  const blocking = issues.filter(issue => issue.level === 'error');
   if (issues.length) facts.appendChild(issueToggle(row, issues));
   else facts.appendChild(el('span', 'check-ok', 'Script checks passed'));
   main.appendChild(facts);
   if (issues.length) main.appendChild(issueList(issues));
-  if (isRunning) {
-    main.append(filmStrip(), el('p', 'episode-live', 'Starting…'));
-  } else if (episode.error && ['failed', 'stopped'].includes(episode.status))
-    main.appendChild(el('p', 'episode-error', episode.error));
+  if (current.error) main.appendChild(el('p', 'episode-error', current.error));
   const status = el('div', 'episode-status');
-  status.append(el('span', 'status-dot'), el('span', '', STATUS_TEXT[episode.status] || episode.status));
-  if (episode.lastRunAt && !isRunning)
+  status.append(el('span', 'status-dot'), el('span', '', current.text));
+  const finishedAt = current.job?.endedAt || episode.lastRunAt;
+  const tookMs = current.job?.runMs || episode.runMs || 0;
+  if (finishedAt && !current.open)
     status.append(
       el(
         'small',
         '',
-        `${new Date(episode.lastRunAt).toLocaleString([], { dateStyle: 'short', timeStyle: 'short' })}, took ${formatElapsed(episode.runMs || 0)}`,
+        `${new Date(finishedAt).toLocaleString([], { dateStyle: 'short', timeStyle: 'short' })}, took ${formatElapsed(tookMs)}`,
       ),
     );
   const actions = el('div', 'episode-actions');
-  if (episode.outputKey && !isRunning) {
+  const title = `Episode ${episode.number}: ${episode.title}`;
+  const fileName = `${series.name} - Tap ${String(episode.number).padStart(2, '0')} - ${episode.title}.mp4`;
+  if (current.outputKey && !['running', 'exporting'].includes(current.status)) {
     const play = el('button', 'ghost', 'Play');
     play.type = 'button';
-    play.onclick = () => playOutput(episode);
+    play.onclick = () => playOutput(current.outputKey, title);
     const download = el('button', 'ghost', 'Download MP4');
     download.type = 'button';
-    download.onclick = () => downloadOutput(series, episode);
+    download.onclick = () => downloadOutput(current.outputKey, fileName);
     actions.append(play, download);
   }
   const open = el('button', 'ghost', 'Open in canvas');
   open.type = 'button';
-  open.disabled = Boolean(studio.running);
   open.onclick = () => openInCanvas(series, episode);
-  const run = el(
-    'button',
-    isRunning ? 'danger' : 'run-one',
-    isRunning ? 'Stop' : episode.outputKey ? 'Run again' : 'Run',
-  );
-  run.type = 'button';
-  run.disabled = Boolean(studio.running) && !isRunning;
-  run.onclick = () => {
-    if (isRunning) return stopStudio();
-    if (
-      blocking.length &&
-      !window.confirm(
-        `Episode ${episode.number} has ${blocking.length} script problem${blocking.length === 1 ? '' : 's'} that will likely make Muse get it wrong. Run anyway?`,
-      )
-    )
-      return;
-    runEpisodes(series, [episode]);
-  };
-  actions.append(open, run);
+  const queue = el('button', 'run-one', current.outputKey ? 'Queue again' : 'Queue');
+  queue.type = 'button';
+  queue.disabled = current.open;
+  queue.title = current.open
+    ? 'This episode is already in the production queue'
+    : 'Add this episode to the production queue';
+  queue.onclick = () => enqueue([{ series, episode }]);
+  actions.append(open, queue);
   row.append(number, main, status, actions);
   return row;
 }
@@ -481,7 +429,7 @@ function renderSeriesList() {
       const item = el('li');
       const button = el('button', `series-link${series.id === studio.selectedId ? ' is-selected' : ''}`);
       button.type = 'button';
-      const done = series.episodes.filter(episode => episode.status === 'done').length;
+      const done = series.episodes.filter(episode => episodeState(series, episode).status === 'done').length;
       button.append(
         el('span', 'series-link-name', series.name),
         el('span', 'series-link-count', `${done}/${series.episodes.length}`),
@@ -527,31 +475,24 @@ export function renderStudio() {
     el('p', '', `${series.episodes.length} episodes from the “${series.folder}” folder`),
   );
   const actions = el('div', 'studio-actions');
-  const pending = series.episodes.filter(episode => episode.status !== 'done');
-  if (studio.running && studio.running.seriesId === series.id) {
-    const stop = el('button', 'danger', studio.queue ? 'Stop queue' : 'Stop');
-    stop.type = 'button';
-    stop.onclick = stopStudio;
-    actions.appendChild(stop);
-  } else {
-    const runAll = el(
-      'button',
-      'run-all',
-      pending.length === series.episodes.length ? 'Run all episodes' : `Run ${pending.length} remaining`,
-    );
-    runAll.type = 'button';
-    runAll.disabled = !pending.length || Boolean(studio.running);
-    runAll.onclick = () => runEpisodes(series, pending);
-    actions.appendChild(runAll);
-  }
+  const remaining = unfinished(series);
+  const queueAll = el(
+    'button',
+    'run-all',
+    remaining.length === series.episodes.length
+      ? 'Queue all episodes'
+      : `Queue ${remaining.length} remaining`,
+  );
+  queueAll.type = 'button';
+  queueAll.disabled = !remaining.length;
+  queueAll.onclick = () => enqueue(remaining);
+  actions.appendChild(queueAll);
   const refresh = el('button', 'ghost', 'Update from folder');
   refresh.type = 'button';
   refresh.title = 'Choose the same folder again to load edited scripts and photos';
-  refresh.disabled = Boolean(studio.running);
   refresh.onclick = () => $('#studioFolderInput').click();
   const remove = el('button', 'ghost', 'Remove');
   remove.type = 'button';
-  remove.disabled = Boolean(studio.running);
   remove.onclick = () => removeSeries(series);
   actions.append(refresh, remove);
   header.append(titles, actions);
@@ -559,7 +500,6 @@ export function renderStudio() {
   list.setAttribute('aria-label', 'Episodes');
   list.append(...series.episodes.map(episode => episodeRow(series, episode)));
   main.replaceChildren(header, castStrip(series), seriesNotes(series), list);
-  renderRunningRow();
 }
 
 function initAddNodeMenu() {
@@ -613,4 +553,6 @@ export async function initStudio() {
   await loadLibrary().catch(error =>
     setRunStatus(`Could not open the Studio library: ${error?.message || error}`, 'error'),
   );
+  $('#studioQueueAllBtn').onclick = () => enqueue(studio.series.flatMap(unfinished));
+  setInterval(() => refreshJobs().catch(() => {}), 3000);
 }

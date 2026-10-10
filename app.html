@@ -44,7 +44,6 @@
         <button id="workflowExportBtn" type="button" title="Download this workflow as a JSON file">Export file</button>
         <button id="workflowImportBtn" type="button" title="Open a saved Museta workflow file">Open file</button>
         <input id="workflowFileInput" type="file" accept=".json,application/json" hidden />
-        <button id="batchBtn" type="button" title="Run several workflow files one after another and export each as MP4">Batch</button>
         <button id="resetBtn" type="button" class="danger">Reset</button>
       </div>
       <button id="settingsBtn" type="button">Settings</button>
@@ -68,6 +67,7 @@
       </div>
       <input id="studioFolderInput" type="file" webkitdirectory multiple hidden />
       <ul id="studioSeriesList" class="series-list"></ul>
+      <button id="studioQueueAllBtn" type="button" class="ghost studio-queue-all" title="Queue every unfinished episode, alternating between series">Queue every series</button>
     </aside>
     <section id="studioMain" class="studio-main" aria-live="polite"></section>
   </main>
@@ -136,30 +136,6 @@
     <div class="menu-divider"></div>
     <button data-context-action="delete-selected" role="menuitem">Delete selected node</button>
     <button data-context-action="disconnect-all" role="menuitem">Remove all connections</button>
-  </div>
-
-  <div id="batchModal" class="modal-backdrop hidden">
-    <section class="modal batch-modal" role="dialog" aria-modal="true" aria-labelledby="batchTitle">
-      <h2 id="batchTitle">Run several workflows</h2>
-      <p>Add workflow files (for example every episode in a series). Museta imports each one, runs it, exports the MP4, then moves to the next. Keep the Muse tab open.</p>
-      <div class="batch-toolbar">
-        <button id="batchAddBtn" type="button">＋ Add workflow files</button>
-        <input id="batchFileInput" type="file" accept=".json,application/json" multiple hidden />
-        <button id="batchClearBtn" type="button">Clear finished</button>
-        <span id="batchSummary"></span>
-      </div>
-      <div class="settings-options">
-        <label><input id="batchExport" type="checkbox" checked /> Export MP4 after each workflow</label>
-        <label><input id="batchStopOnFail" type="checkbox" /> Stop the queue when a workflow has failed steps</label>
-      </div>
-      <div id="batchEmpty" class="batch-empty">No workflows queued yet.</div>
-      <ol id="batchList" class="batch-list"></ol>
-      <div class="modal-actions">
-        <button id="batchCloseBtn" type="button">Close</button>
-        <button id="batchStopBtn" type="button" class="hidden">■ Stop queue</button>
-        <button id="batchStartBtn" type="button" class="primary">▶ Start queue</button>
-      </div>
-    </section>
   </div>
 
   <div id="settingsModal" class="modal-backdrop hidden">
