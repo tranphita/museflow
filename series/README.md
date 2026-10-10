@@ -19,7 +19,7 @@ Mỗi thư mục con là một bộ phim. Nhân vật được giữ nguyên qua
 
 ## Dùng trong Studio (không cần lệnh npm)
 
-Mở Museta → tab **Studio** → **Import folder** → chọn thư mục bộ phim (ví dụ `series\hoc-tieng-anh`). Museta đọc `_series.txt`, các tập `epXX.txt` và ảnh trong `characters/`, rồi hiện danh sách tập. Mỗi tập có nút **Run**; **Run all episodes** chạy cả bộ. MP4 được lưu trong Studio — bấm **Play** để xem, **Download MP4** để tải. Sửa kịch bản xong thì bấm **Update from folder** và chọn lại thư mục; tập nào đổi nội dung sẽ hiện "Script changed".
+Mở Museta → tab **Studio** → **Import folder** → chọn thư mục bộ phim (ví dụ `series\hoc-tieng-anh`). Museta đọc `_series.txt`, các tập `epXX.txt` và ảnh trong `characters/`, rồi hiện danh sách tập. Bấm **Queue** ở từng tập, **Queue all episodes** cho cả bộ, hoặc **Queue every series** để xếp mọi bộ xen kẽ nhau. Sau đó mở tab **Production** và bấm **Start**: mỗi worker mở một cửa sổ Muse riêng và sản xuất qua đêm; tập đang dở sẽ chạy tiếp từ bước đã xong nếu bị lỗi hoặc tắt máy. Sáng ra bấm **Play** rồi **Approve**, **Redo** hoặc **Open in canvas** để sửa từng cảnh. MP4 được lưu trong Studio, bấm **Download MP4** để tải. Sửa kịch bản xong thì bấm **Update from folder** và chọn lại thư mục; tập nào đổi nội dung sẽ hiện "Script changed".
 
 Thêm dòng `TÊN BỘ:` vào `_series.txt` và `TIÊU ĐỀ:` ở đầu mỗi tập để Studio hiển thị tên có dấu.
 
@@ -35,7 +35,7 @@ Thêm dòng `TÊN BỘ:` vào `_series.txt` và `TIÊU ĐỀ:` ở đầu mỗi 
 
 3. **Build lại workflow.** Chạy lại lệnh ở bước 1. Từ giờ mọi tập dùng ảnh trong `characters/` (node **Image Input**) thay vì tạo nhân vật mới, nên gương mặt giống nhau ở mọi tập.
 
-4. **Chạy cả bộ một lần:** bấm **Batch** → **Add workflow files** → chọn tất cả file trong `workflows/` → **Start queue**. Museta chạy từng tập và lưu `epXX-....mp4` vào thư mục Downloads. Muốn nhanh hơn: mở 2–3 tab chat Muse mới và chọn số tab tương ứng trong **Settings**.
+4. **Chạy cả bộ một lần:** dùng Studio và tab **Production** như ở mục trên; file trong `workflows/` vẫn import được vào canvas để chạy tay.
 5. **Làm từng tập.** Import workflow của tập, bấm **▶ Run workflow**, kiểm tra timeline, thêm **♪ Music** nếu muốn, rồi **⇩ Export** MP4.
 
 ## Luật giữ nhất quán (LUẬT)

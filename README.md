@@ -34,7 +34,7 @@ The screenshots and demo video show the original MuseFlow interface; Museta's la
 - **Video workflows:** video clips with optional end-frame continuity from the previous timeline clip, and **↻ Again** to regenerate with stronger prompt adherence.
 - **Output versions:** every Generate Image and Generate Video node keeps its last 8 results. Click a thumbnail under the node to switch back to an earlier version; the chosen version is kept (🔒) when you run the whole workflow.
 - **Faster runs:** voiceovers generate alongside Muse, and **Settings → Muse tabs used at the same time** (1–3) spreads image and video requests over several Muse chat tabs. Videos chained with end-frame continuity still run in order.
-- **Batch queue:** **Batch** takes several workflow files (for example every episode of a series), then imports, runs and exports each one as `<file name>.mp4` in turn.
+- **Production queue:** queue episodes from any number of series and let worker tabs produce them overnight, each with its own Muse window. Unfinished episodes continue from their last finished step after a crash or restart.
 - **Run progress:** a panel lists every step with its state, timing and failure reason; the running node pulses and the canvas follows it.
 - **Reliable runs:** optionally retry a failed generation automatically, and keep running the rest of the workflow when one node fails (nodes that depend on it are skipped). Both options are in **Settings**.
 - **Timeline:** reorder clips, set durations, scrub and preview the sequence, add **background music** with a volume control, pick a **transition** between clips, and export WebM or MP4 (H.264). MP4 is assembled locally with the bundled FFmpeg engine.
@@ -76,7 +76,15 @@ For a scene script, use **Script → Nodes**. Scene headings look like `CẢNH 1
 
 ## Studio
 
-The **Studio** tab lists your series and their episodes. Use **Import folder** to pick a series folder (`_series.txt`, `epXX.txt` episodes and a `characters/` folder); Museta builds each episode's workflow in the browser. Every episode row shows its scenes, length and dialogue lines, its status and last run, and has **Run**, **Open in canvas** and, after a run, **Play** and **Download MP4**. **Run all episodes** runs the remaining episodes in order while a scene-by-scene strip shows progress. Choose the folder again with **Update from folder** after editing scripts.
+The **Studio** tab lists your series and their episodes. Use **Import folder** to pick a series folder (`_series.txt`, `epXX.txt` episodes and a `characters/` folder); Museta builds each episode's workflow in the browser. Every episode row shows its scenes, length and dialogue lines, its status and last run, and has **Queue**, **Open in canvas** and, once an MP4 exists, **Play** and **Download MP4**. **Queue all episodes** adds the unfinished episodes of a series, and **Queue every series** in the sidebar adds them from every series, alternating between series. Choose the folder again with **Update from folder** after editing scripts.
+
+## Production queue
+
+1. Queue episodes in the Studio.
+2. Open **Production**, check **Queue settings** (Workers, Attempts per episode, Pause between Muse requests, New chat URL), then press **Start**. Each worker opens one Muse window and one worker tab. Sign in to Muse in each window the first time and keep them open.
+3. Leave Chrome running. The computer stays awake while the queue has work, and each episode starts in a fresh Muse chat. MP4 exports run one at a time.
+4. Review in the morning: **Play**, then **Approve** (the episode is marked Done in the Studio), **Redo** (produce it again from the start) or **Open in canvas** to fix single scenes. **Download all** saves the approved MP4s.
+5. The queue pauses by itself when Muse runs out of credits, a worker window is signed out or closed, the tvoiceai key is missing or rejected, or three episodes in a row cannot reach Muse. Fix the cause and press **Resume**: unfinished episodes continue from their last finished step. Other failures retry after 1, 5 and 15 minutes; an episode that keeps failing, or that Muse refuses, moves to **Needs attention** with the reason.
 
 ## Consistency rules
 

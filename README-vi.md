@@ -26,7 +26,7 @@ Museta phát triển tiếp từ [MuseFlow / 26Flow](https://github.com/bynne260
 - **Video:** tạo clip, tuỳ chọn dùng frame cuối của clip trước để nối liền cảnh, nút **↻ Again** để tạo lại bám prompt chặt hơn.
 - **Phiên bản kết quả:** mỗi node Generate Image/Video giữ 8 kết quả gần nhất. Bấm vào ảnh nhỏ dưới node để quay lại phiên bản cũ.
 - **Chạy nhanh hơn:** giọng đọc TTS chạy song song với Muse; **Settings → Muse tabs used at the same time** (1–3) chia việc tạo ảnh/video cho nhiều tab chat Muse. Video nối frame (continuity) vẫn chạy lần lượt.
-- **Hàng đợi (Batch):** chọn nhiều file workflow (ví dụ cả bộ phim), Museta tự nạp, chạy và xuất từng tập thành `<tên file>.mp4`.
+- **Hàng đợi sản xuất:** xếp tập của nhiều bộ phim vào hàng đợi, các tab worker tự sản xuất qua đêm, mỗi worker một cửa sổ Muse riêng. Tập đang dở chạy tiếp từ bước đã xong gần nhất sau khi lỗi hoặc tắt máy.
 - **Bảng tiến trình:** liệt kê từng bước, thời gian và lý do lỗi; node đang chạy nhấp nháy và canvas tự theo dõi.
 - **Chạy ổn định hơn:** tuỳ chọn tự thử lại khi tạo lỗi, và tiếp tục chạy phần còn lại của workflow khi một node lỗi (các node phụ thuộc vào node lỗi sẽ bị bỏ qua). Cả hai nằm trong **Settings**.
 - **Timeline:** sắp xếp clip, đặt thời lượng, tua và xem trước, thêm **nhạc nền** có chỉnh âm lượng, chọn **hiệu ứng chuyển cảnh**, xuất WebM hoặc MP4 (H.264). MP4 được ghép ngay trên máy bằng FFmpeg đi kèm.
@@ -68,7 +68,15 @@ Với kịch bản, chọn **Script → Nodes**. Tiêu đề cảnh có dạng `
 
 ## Studio
 
-Tab **Studio** liệt kê các bộ phim và từng tập. Bấm **Import folder** và chọn thư mục bộ phim (gồm `_series.txt`, các tập `epXX.txt` và thư mục `characters/`); Museta tự dựng workflow ngay trong trình duyệt. Mỗi tập hiện số cảnh, thời lượng, số câu thoại, trạng thái và lần chạy gần nhất, kèm nút **Run**, **Open in canvas**, và sau khi chạy là **Play**, **Download MP4**. **Run all episodes** chạy lần lượt các tập còn lại, có dải tiến độ theo từng cảnh. Sửa kịch bản xong thì bấm **Update from folder**.
+Tab **Studio** liệt kê các bộ phim và từng tập. Bấm **Import folder** và chọn thư mục bộ phim (gồm `_series.txt`, các tập `epXX.txt` và thư mục `characters/`); Museta tự dựng workflow ngay trong trình duyệt. Mỗi tập hiện số cảnh, thời lượng, số câu thoại, trạng thái và lần chạy gần nhất, kèm nút **Queue**, **Open in canvas**, và khi đã có MP4 là **Play**, **Download MP4**. **Queue all episodes** xếp các tập chưa xong của bộ phim vào hàng đợi; **Queue every series** ở cột trái xếp tập của mọi bộ, xen kẽ giữa các bộ. Sửa kịch bản xong thì bấm **Update from folder**.
+
+## Hàng đợi sản xuất (Production)
+
+1. Xếp tập vào hàng đợi trong Studio.
+2. Mở tab **Production**, xem **Queue settings** (số worker, số lần thử mỗi tập, thời gian nghỉ giữa các lượt gửi Muse, URL chat mới) rồi bấm **Start**. Mỗi worker mở một cửa sổ Muse và một tab worker. Lần đầu hãy đăng nhập Muse trong từng cửa sổ và giữ chúng mở.
+3. Để Chrome chạy qua đêm. Máy không ngủ khi hàng đợi còn việc; mỗi tập bắt đầu bằng một cuộc chat Muse mới; MP4 được xuất lần lượt từng tập.
+4. Sáng ra duyệt: **Play**, rồi **Approve** (tập chuyển sang Done trong Studio), **Redo** (làm lại từ đầu) hoặc **Open in canvas** để sửa tay từng cảnh. **Download all** tải các MP4 đã duyệt.
+5. Hàng đợi tự tạm dừng khi Muse hết credit, một cửa sổ worker bị đăng xuất hoặc bị đóng, API key tvoiceai thiếu hoặc sai, hoặc ba tập liên tiếp không gửi được tới Muse. Xử lý xong bấm **Resume**: các tập dở chạy tiếp từ bước đã xong. Lỗi khác tự thử lại sau 1, 5 và 15 phút; tập lỗi mãi hoặc bị Muse từ chối sẽ nằm ở **Needs attention** kèm lý do.
 
 ## Làm phim ngắn giữ nguyên nhân vật
 
