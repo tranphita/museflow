@@ -105,6 +105,7 @@ export function isMultiInput(nodeType, portId) {
   return (
     (['generateImage', 'generateVideo'].includes(nodeType) && ['prompt', 'reference'].includes(portId)) ||
     (nodeType === 'references' && portId.startsWith('reference')) ||
+    (nodeType === 'generateVideo' && portId === 'voice') ||
     (nodeType === 'textConcat' && portId === 'text')
   );
 }

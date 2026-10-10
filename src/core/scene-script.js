@@ -40,8 +40,45 @@ export function parseCharacters(text) {
   return characters;
 }
 
+export function parseVoices(text) {
+  const voices = { default: '', byName: {} };
+  for (const [, name, id] of scriptPreamble(text).matchAll(
+    /^\s*(?:GIỌNG\s+ĐỌC|VOICE)(?:\s+([^:\n]+?))?\s*:\s*(\S+)\s*$/gim,
+  )) {
+    if (name) voices.byName[name.trim().normalize('NFC').toLowerCase()] = id;
+    else voices.default = id;
+  }
+  return voices;
+}
+
 export function parseVoiceId(text) {
-  return /^\s*(?:GIỌNG\s+ĐỌC|VOICE)\s*:\s*(\S+)/im.exec(scriptPreamble(text))?.[1] || '';
+  return parseVoices(text).default;
+}
+
+export function voiceFor(voices, speaker) {
+  return (speaker && voices.byName[speaker.normalize('NFC').toLowerCase()]) || voices.default;
+}
+
+export function parseVoiceLines(voiceText, speakerNames = []) {
+  const known = new Set(speakerNames.map(name => name.normalize('NFC').toLowerCase()));
+  const unquote = line => line.replace(/^["“”']+|["“”']+$/g, '').trim();
+  const lines = voiceText
+    .split(/\r?\n/)
+    .map(line => line.replace(/^\s*[-*•]\s*/, '').trim())
+    .filter(Boolean)
+    .map(line => {
+      const spoken = /^([^:\n]{1,40}?)\s*:\s*(.+)$/.exec(line);
+      return spoken && known.has(spoken[1].trim().normalize('NFC').toLowerCase())
+        ? { speaker: spoken[1].trim(), text: unquote(spoken[2]) }
+        : { speaker: '', text: unquote(line) };
+    });
+  const merged = [];
+  for (const line of lines) {
+    const previous = merged.at(-1);
+    if (previous && !line.speaker && !previous.speaker) previous.text = `${previous.text} ${line.text}`;
+    else merged.push(line);
+  }
+  return merged.filter(line => line.text);
 }
 
 export function parseFilmStyle(text) {

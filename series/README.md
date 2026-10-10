@@ -51,7 +51,15 @@ Mỗi thư mục con là một bộ phim. Nhân vật được giữ nguyên qua
 
 ## Lời thoại bằng giọng TTS (tvoiceai)
 
-Thêm dòng `Lời thoại:` vào cảnh để Museta đọc bằng giọng TTS và trộn vào đúng clip khi xuất MP4 (âm thanh gốc của clip được hạ nhỏ bên dưới, clip tự kéo dài nếu câu đọc dài hơn). Đặt giọng cho cả bộ bằng dòng `GIỌNG ĐỌC: <voice id>` trong `_series.txt`. Dán API key tvoiceai vào **Settings → Voiceover** một lần; key chỉ lưu trong trình duyệt, không nằm trong workflow. Bộ [gym-idol](gym-idol/) đã dùng sẵn cách này.
+Thêm dòng `Lời thoại:` vào cảnh để Museta đọc bằng giọng TTS và trộn vào đúng clip khi xuất MP4 (âm thanh gốc của clip được hạ nhỏ bên dưới, clip tự kéo dài nếu câu đọc dài hơn). Đặt giọng mặc định bằng `GIỌNG ĐỌC: <voice id>` và giọng riêng cho từng nhân vật bằng `GIỌNG ĐỌC <Tên>: <voice id>` trong `_series.txt`. Hội thoại nhiều người viết theo từng dòng:
+
+```
+Lời thoại:
+- Hảo: Good morning, honey!
+- Phi Ta: Good morning! I'm fine, thank you.
+```
+
+Mỗi dòng thành một node Voiceover với giọng của người nói; khi xuất MP4 các câu được xếp nối tiếp trong clip (cách nhau 0,35 giây) và clip tự kéo dài cho đủ thoại. Dán API key tvoiceai vào **Settings → Voiceover** một lần; key chỉ lưu trong trình duyệt, không nằm trong workflow. Cả hai bộ đã dùng sẵn cách này; bộ học tiếng Anh dùng giọng riêng cho Hảo và Phi Ta.
 
 ## Thêm tập mới
 

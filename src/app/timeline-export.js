@@ -7,7 +7,8 @@ import {
   buildConcatList,
   buildConcatCopyArgs,
   buildEncodeArgs,
-  clipLengthForVoice,
+  clipLengthForVoices,
+  scheduleVoices,
 } from '../core/ffmpeg-plan.js';
 import { $, setRunStatus } from './dom.js';
 import { ensureDockTimeline, closeTimelinePreview, visibleTimelineClipOrder } from './timeline.js';
@@ -15,15 +16,22 @@ import { ensureDockTimeline, closeTimelinePreview, visibleTimelineClipOrder } fr
 async function loadClipVoiceovers(ffmpeg, clips, clipInfo, signal) {
   let voiced = 0;
   for (let index = 0; index < clips.length; index++) {
-    const voice = sourceFor(getIncoming(clips[index].id, 'voice')[0])?.data?.asset;
-    if (!voice?.url) continue;
-    const response = await fetch(voice.url, { signal });
-    if (!response.ok) throw new Error(`Could not read the voiceover for clip ${index + 1}.`);
-    const path = `/voice_${String(index).padStart(3, '0')}.bin`;
-    await ffmpeg.writeFile(path, new Uint8Array(await response.arrayBuffer()), { signal });
-    clipInfo[index].voicePath = path;
-    clipInfo[index].duration = clipLengthForVoice(clipInfo[index].duration, Number(voice.duration) || 0);
-    voiced++;
+    const assets = getIncoming(clips[index].id, 'voice')
+      .map(edge => sourceFor(edge)?.data?.asset)
+      .filter(asset => asset?.url);
+    if (!assets.length) continue;
+    const durations = assets.map(asset => Number(asset.duration) || 0);
+    const { offsets } = scheduleVoices(durations);
+    clipInfo[index].voices = [];
+    for (const [order, asset] of assets.entries()) {
+      const response = await fetch(asset.url, { signal });
+      if (!response.ok) throw new Error(`Could not read voiceover ${order + 1} for clip ${index + 1}.`);
+      const path = `/voice_${String(index).padStart(3, '0')}_${order}.bin`;
+      await ffmpeg.writeFile(path, new Uint8Array(await response.arrayBuffer()), { signal });
+      clipInfo[index].voices.push({ path, offset: offsets[order] });
+    }
+    clipInfo[index].duration = clipLengthForVoices(clipInfo[index].duration, durations);
+    voiced += assets.length;
   }
   return voiced;
 }

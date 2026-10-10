@@ -1,11 +1,24 @@
 export const TIMELINE_OUTPUT = '/museta-timeline.mp4';
 const MUSIC_FADE_SECONDS = 1.5;
 const CLIP_AUDIO_UNDER_VOICE = 0.35;
+const VOICE_LEAD_SECONDS = 0.2;
+const VOICE_GAP_SECONDS = 0.35;
 const VOICE_TAIL_SECONDS = 0.3;
+const round2 = value => Math.round(value * 100) / 100;
 
-export function clipLengthForVoice(duration, voiceDuration) {
-  if (!voiceDuration) return duration;
-  return Math.min(60, Math.max(duration, Math.round((voiceDuration + VOICE_TAIL_SECONDS) * 100) / 100));
+export function scheduleVoices(voiceDurations) {
+  const offsets = [];
+  let cursor = VOICE_LEAD_SECONDS;
+  for (const duration of voiceDurations) {
+    offsets.push(round2(cursor));
+    cursor += (Number(duration) || 0) + VOICE_GAP_SECONDS;
+  }
+  const length = voiceDurations.length ? round2(cursor - VOICE_GAP_SECONDS + VOICE_TAIL_SECONDS) : 0;
+  return { offsets, length };
+}
+
+export function clipLengthForVoices(duration, voiceDurations) {
+  return Math.min(60, Math.max(duration, scheduleVoices(voiceDurations).length));
 }
 
 export const TRANSITIONS = Object.freeze({
@@ -31,7 +44,7 @@ export function timelineLength(durations, transition) {
 }
 
 export function canJoinWithoutReencode(clipInfo, { hasMusic = false, transition = null } = {}) {
-  if (hasMusic || !clipInfo.length || clipInfo.some(item => item.voicePath)) return false;
+  if (hasMusic || !clipInfo.length || clipInfo.some(item => item.voices?.length)) return false;
   if (
     normalizeTransition(
       transition,
@@ -99,11 +112,16 @@ export function buildEncodeArgs({ clipInfo, inputPaths, silentInput, music = nul
     silentIndexes.set(index, nextInput++);
     args.push('-stream_loop', '-1', '-i', silentInput);
   });
-  const voiceIndexes = new Map();
+  const voiceInputs = new Map();
   clipInfo.forEach((item, index) => {
-    if (!item.voicePath) return;
-    voiceIndexes.set(index, nextInput++);
-    args.push('-i', item.voicePath);
+    if (!item.voices?.length) return;
+    voiceInputs.set(
+      index,
+      item.voices.map(voice => {
+        args.push('-i', voice.path);
+        return { input: nextInput++, offset: voice.offset };
+      }),
+    );
   });
   const musicIndex = music ? nextInput++ : -1;
   if (music) args.push('-stream_loop', '-1', '-i', music.path);
@@ -117,13 +135,22 @@ export function buildEncodeArgs({ clipInfo, inputPaths, silentInput, music = nul
     );
     const audioSource = item.hasAudio ? `${index}:a:0` : `${silentIndexes.get(index)}:a:0`;
     filters.push(
-      `[${audioSource}]aresample=48000,aformat=sample_fmts=fltp:channel_layouts=stereo,asetpts=PTS-STARTPTS,apad=pad_dur=${duration},atrim=duration=${duration}${voiceIndexes.has(index) ? `,volume=${CLIP_AUDIO_UNDER_VOICE}[bed${index}]` : `[a${index}]`}`,
+      `[${audioSource}]aresample=48000,aformat=sample_fmts=fltp:channel_layouts=stereo,asetpts=PTS-STARTPTS,apad=pad_dur=${duration},atrim=duration=${duration}${voiceInputs.has(index) ? `,volume=${CLIP_AUDIO_UNDER_VOICE}[bed${index}]` : `[a${index}]`}`,
     );
-    if (voiceIndexes.has(index))
+    const voices = voiceInputs.get(index) || [];
+    voices.forEach(({ input, offset }, order) => {
+      const delay = Math.round(offset * 1000);
       filters.push(
-        `[${voiceIndexes.get(index)}:a:0]aresample=48000,aformat=sample_fmts=fltp:channel_layouts=stereo,asetpts=PTS-STARTPTS,apad=pad_dur=${duration},atrim=duration=${duration}[voice${index}]`,
-        `[bed${index}][voice${index}]amix=inputs=2:duration=first:dropout_transition=0,volume=2[a${index}]`,
+        `[${input}:a:0]aresample=48000,aformat=sample_fmts=fltp:channel_layouts=stereo,asetpts=PTS-STARTPTS,adelay=${delay}|${delay}[voice${index}_${order}]`,
       );
+    });
+    if (voices.length) {
+      const mixInputs = voices.map((_, order) => `[voice${index}_${order}]`).join('');
+      // amix divides every input by the input count; scale back so voices keep their level.
+      filters.push(
+        `[bed${index}]${mixInputs}amix=inputs=${voices.length + 1}:duration=first:dropout_transition=0,volume=${voices.length + 1}[a${index}]`,
+      );
+    }
     concatInputs.push(`[v${index}][a${index}]`);
   });
   if (blend.type === 'cut' || clipInfo.length < 2)

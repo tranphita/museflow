@@ -3,7 +3,9 @@ import {
   parseSceneScript,
   parseCharacters,
   parseFilmStyle,
-  parseVoiceId,
+  parseVoices,
+  parseVoiceLines,
+  voiceFor,
   charactersForScene,
   characterSheetPrompt,
   castNote,
@@ -32,8 +34,15 @@ export function buildSceneGraph(script, { baseY = 40, characterImages = {} } = {
   const scenes = parseSceneScript(script),
     characters = parseCharacters(script),
     filmStyle = parseFilmStyle(script),
-    voiceId = parseVoiceId(script) || DEFAULT_VOICE_ID,
-    rowHeight = scenes.some(scene => scene.voiceText) ? 1480 : 1100;
+    voices = parseVoices(script),
+    voiceLines = scenes.map(scene =>
+      parseVoiceLines(
+        scene.voiceText,
+        characters.map(character => character.name),
+      ),
+    ),
+    voiceRows = Math.max(0, ...voiceLines.map(lines => Math.ceil(lines.length / 2))),
+    rowHeight = voiceRows ? 1040 + voiceRows * 440 : 1100;
   if (!scenes.length) return null;
   const nodes = [],
     edges = [],
@@ -115,12 +124,19 @@ export function buildSceneGraph(script, { baseY = 40, characterImages = {} } = {
       edges.push(edge(prompt.id, 'text', videoNode.id, 'prompt'));
       if (imageNode) edges.push(edge(imageNode.id, 'image', videoNode.id, 'reference'));
       connectCast(videoNode);
-      if (scene.voiceText) {
-        const voice = makeNode('voiceover', x, y + 980);
-        voice.data = { text: scene.voiceText, voiceId, speed: 1, status: 'idle', sceneLabel: label };
+      voiceLines[index].forEach((line, order) => {
+        const voice = makeNode('voiceover', x + (order % 2) * 330, y + 980 + Math.floor(order / 2) * 440);
+        voice.data = {
+          text: line.text,
+          voiceId: voiceFor(voices, line.speaker) || DEFAULT_VOICE_ID,
+          speed: 1,
+          status: 'idle',
+          sceneLabel: `${label}${line.speaker ? ` · ${line.speaker}` : ''} · ${order + 1}`,
+          ...(line.speaker ? { speaker: line.speaker } : {}),
+        };
         nodes.push(voice);
         edges.push(edge(voice.id, 'audio', videoNode.id, 'voice'));
-      }
+      });
       videos.push({ node: videoNode, seconds: scene.seconds });
     }
   });
