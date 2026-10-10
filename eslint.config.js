@@ -33,6 +33,8 @@ const browserGlobals = Object.fromEntries(
     'HTMLCanvasElement',
     'HTMLVideoElement',
     'MediaRecorder',
+    'MediaStream',
+    'AudioContext',
     'CSS',
     'Node',
     'TextEncoder',
