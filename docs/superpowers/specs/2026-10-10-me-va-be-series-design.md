@@ -55,12 +55,12 @@ buildAss({ events, width, height }) → string (nội dung file .ass)
   - Dòng VI ngay dưới: cỡ ≈ 3,8% chiều cao, chữ trắng ngà, viền đen.
   - Cụm `*...*` tô vàng `#FFD84D` ở cả hai dòng (`{\c&H4DD8FF&}…{\r}`).
   - Neo giữa dưới (`\an2`), `MarginV` = 22% chiều cao để tránh caption và nút của TikTok/Shorts; lề trái/phải 7% chiều rộng, libass tự xuống dòng.
-- **Font:** bundle `vendor/fonts/Baloo2-ExtraBold.ttf` (SIL OFL, đủ dấu tiếng Việt) và ghi vào `licenses/` + `THIRD_PARTY_NOTICES.md`. Escape `{`, `}`, `\` và xuống dòng trong text trước khi ghi vào `.ass`.
+- **Font:** bundle `vendor/fonts/BeVietnamPro-ExtraBold.ttf` (SIL OFL, thiết kế cho tiếng Việt; đã kiểm chứng libass trong ffmpeg.wasm nạp qua `fontsdir`) và ghi vào `licenses/` + `THIRD_PARTY_NOTICES.md`. Escape `{`, `}`, `\` và xuống dòng trong text trước khi ghi vào `.ass`.
 
 ## 4. Tích hợp vào xuất MP4
 
 - `loadClipVoiceovers` giữ thêm `en`, `vi`, `duration` của từng voice trong `clipInfo[index].voices`.
-- Khi phụ đề bật và có ít nhất một event: ghi `/subs.ass` và `/fonts/Baloo2-ExtraBold.ttf` vào FS của FFmpeg.
+- Khi phụ đề bật và có ít nhất một event: ghi `/subs.ass` và `/fonts/BeVietnamPro-ExtraBold.ttf` vào FS của FFmpeg.
 - `buildEncodeArgs({ …, subtitlesPath })`: nếu có thì thêm `[outv]subtitles=/subs.ass:fontsdir=/fonts[subv]` và map `[subv]`; nếu không thì giữ nguyên lệnh hiện tại (byte-for-byte, test cũ không đổi).
 - `canJoinWithoutReencode(clipInfo, { …, hasSubtitles })` trả `false` khi có phụ đề.
 - Lỗi font/ass → báo lỗi xuất rõ ràng ("Không dựng được phụ đề: …"), không lặng lẽ xuất bản không phụ đề.
@@ -135,7 +135,7 @@ Dòng `Audio:` mọi cảnh: "chỉ tiếng môi trường nhẹ, không lời t
 | `src/core/script-check.js` | Ba kiểm tra ở mục 5 |
 | `src/app/timeline-export.js` | Thu `en/vi/duration`, ghi font + `.ass`, truyền `subtitlesPath` |
 | `src/app/render.js` (node Timeline) | Ô **Phụ đề** |
-| `vendor/fonts/`, `licenses/`, `THIRD_PARTY_NOTICES.md` | Font Baloo 2 + giấy phép OFL |
+| `vendor/fonts/`, `licenses/`, `THIRD_PARTY_NOTICES.md` | Font Be Vietnam Pro + giấy phép OFL |
 | `series/me-va-be/` | `_series.txt`, `ep01`…`ep05` |
 | `series/README.md`, `README.md`, `README-vi.md` | Mục "Phụ đề song ngữ" |
 
