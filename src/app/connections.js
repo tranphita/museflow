@@ -24,31 +24,31 @@ export function connectionChoices(from) {
         kind: 'existing',
         targetId: target.id,
         targetPort: input.id,
-        label: `${nodeDefs[target.type].title} · ${input.label}${target.data?.dockOnly ? ' (Timeline dock)' : ''}`,
+        label: `${nodeDefs[target.type].title} · ${input.label}${target.data?.dockOnly ? ' (dock Timeline)' : ''}`,
       });
     }
   }
   const candidates =
     output.type === 'image'
       ? [
-          ['references', 'reference1', 'References · image 1'],
-          ['preview', 'media', 'Preview · image'],
+          ['references', 'reference1', 'References · ảnh 1'],
+          ['preview', 'media', 'Preview · ảnh'],
           ['imageResize', 'image', 'Image Resize'],
-          ['generateImage', 'reference', 'Generate Image · reference'],
-          ['generateVideo', 'reference', 'Generate Video · reference'],
+          ['generateImage', 'reference', 'Generate Image · tham chiếu'],
+          ['generateVideo', 'reference', 'Generate Video · tham chiếu'],
         ]
       : output.type === 'video'
         ? [
             ['preview', 'media', 'Preview · video'],
-            ['timeline', 'clip1', 'Timeline · add clip'],
+            ['timeline', 'clip1', 'Timeline · thêm clip'],
           ]
         : output.type === 'text'
           ? [
               ['generateImage', 'prompt', 'Generate Image · prompt'],
               ['generateVideo', 'prompt', 'Generate Video · prompt'],
               ['textAppend', 'text', 'Text Append'],
-              ['textConcat', 'text', 'Text Merge · text'],
-              ['voiceover', 'text', 'Voiceover · text'],
+              ['textConcat', 'text', 'Text Merge · văn bản'],
+              ['voiceover', 'text', 'Voiceover · văn bản'],
             ]
           : output.type === 'negative'
             ? [
@@ -56,7 +56,7 @@ export function connectionChoices(from) {
                 ['generateVideo', 'negative', 'Generate Video · negative'],
               ]
             : output.type === 'audio'
-              ? [['generateVideo', 'voice', 'Generate Video · voice']]
+              ? [['generateVideo', 'voice', 'Generate Video · giọng đọc']]
               : [];
   const create = candidates.map(([type, port, label]) => ({
     kind: 'create',
@@ -84,7 +84,7 @@ export function openConnectionPicker(from, x, y) {
   delete menu.dataset.edgeId;
   const title = document.createElement('div');
   title.className = 'menu-caption';
-  title.textContent = `Send ${output.label} · ${output.type}`;
+  title.textContent = `Gửi ${output.label} · ${output.type}`;
   menu.appendChild(title);
   const addSection = label => {
     const section = document.createElement('div');
@@ -101,17 +101,17 @@ export function openConnectionPicker(from, x, y) {
     menu.appendChild(button);
   };
   if (choices.existing.length) {
-    addSection('Connect existing node');
+    addSection('Nối với node có sẵn');
     choices.existing.forEach((choice, index) => addChoice(choice, index));
   }
   if (choices.create.length) {
-    addSection('Create a compatible node');
+    addSection('Tạo node phù hợp');
     choices.create.forEach((choice, index) => addChoice(choice, choices.existing.length + index));
   }
   if (!state.pendingConnection.choices.length) {
     const empty = document.createElement('div');
     empty.className = 'menu-caption';
-    empty.textContent = 'No compatible node actions for this output.';
+    empty.textContent = 'Không có node nào phù hợp với đầu ra này.';
     menu.appendChild(empty);
   }
   menu.classList.remove('hidden');
@@ -129,7 +129,7 @@ export function runConnectionChoice(index) {
     state.connectingFrom = pending.from;
     connect(choice.targetId, choice.targetPort);
     selectNode(choice.targetId, { add: true });
-    setRunStatus(`Connected to ${choice.label}.`, 'ok');
+    setRunStatus(`Đã nối với ${choice.label}.`, 'ok');
     return;
   }
   const before = new Set(state.nodes.map(node => node.id));
@@ -140,23 +140,20 @@ export function runConnectionChoice(index) {
       node => node.type === choice.type && node.data?.dockOnly === false && choice.type === 'timeline',
     );
   if (!target || target.type !== choice.type) {
-    setRunStatus('Could not create the selected node.', 'error');
+    setRunStatus('Không tạo được node đã chọn.', 'error');
     return;
   }
   state.connectingFrom = pending.from;
   connect(target.id, choice.targetPort);
   selectNode(target.id);
-  setRunStatus(
-    `${nodeDefs[target.type].title} created and connected to ${choice.label.split(' · ').at(-1)}.`,
-    'ok',
-  );
+  setRunStatus(`Đã tạo ${nodeDefs[target.type].title} và nối với ${choice.label.split(' · ').at(-1)}.`, 'ok');
 }
 
 export function connect(targetNodeId, targetPortId) {
   const from = state.connectingFrom;
   if (!from) return;
   if (!portCompatible(from, targetNodeId, targetPortId)) {
-    setRunStatus('Port types are not compatible.', 'error');
+    setRunStatus('Kiểu cổng không tương thích.', 'error');
     state.connectingFrom = null;
     return;
   }
@@ -164,10 +161,7 @@ export function connect(targetNodeId, targetPortId) {
     source = nodeById(from.nodeId),
     multi = isMultiInput(target?.type, targetPortId);
   if (wouldCreateCycle(from.nodeId, targetNodeId, multi ? null : targetPortId)) {
-    setRunStatus(
-      'This connection would create a workflow loop. Connect the nodes in one direction.',
-      'error',
-    );
+    setRunStatus('Kết nối này sẽ tạo vòng lặp trong workflow. Hãy nối các node theo một chiều.', 'error');
     state.connectingFrom = null;
     return;
   }
@@ -186,7 +180,7 @@ export function connect(targetNodeId, targetPortId) {
         edge.targetPort === targetPortId &&
         !(edge.source === from.nodeId && edge.sourcePort === from.portId),
     );
-  if (!duplicate || willReplace) createUndoSnapshot('Connect nodes');
+  if (!duplicate || willReplace) createUndoSnapshot('Nối node');
   if (!multi)
     state.edges = state.edges.filter(
       edge => !(edge.target === targetNodeId && edge.targetPort === targetPortId),
@@ -324,8 +318,9 @@ export function onWireUp(e) {
         const created = state.nodes.at(-1);
         state.connectingFrom = { nodeId: created.id, portId: 'text' };
         connect(from.nodeId, from.portId);
-        setRunStatus(`${nodeDefs[type].title} created and connected.`, 'ok');
-      } else setRunStatus('Drop on an output port or on empty canvas to create a prompt node.', 'warn');
+        setRunStatus(`Đã tạo ${nodeDefs[type].title} và nối xong.`, 'ok');
+      } else
+        setRunStatus('Thả vào một cổng đầu ra hoặc vào chỗ trống trên canvas để tạo node prompt.', 'warn');
     }
     state.suppressPortClick = true;
     setTimeout(() => (state.suppressPortClick = false), 80);
@@ -355,7 +350,7 @@ export function onWireUp(e) {
       if (inside) openConnectionPicker(from, e.clientX, e.clientY);
       else {
         state.connectingFrom = null;
-        setRunStatus('Drop the output on the canvas to choose a compatible node.', 'warn');
+        setRunStatus('Thả đầu ra lên canvas để chọn node phù hợp.', 'warn');
       }
     }
     state.suppressPortClick = true;

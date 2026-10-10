@@ -12,7 +12,7 @@ export function addNode(type, x = 250 + Math.random() * 220, y = 160 + Math.rand
   const dockTimeline =
     type === 'timeline' && state.nodes.find(node => node.type === 'timeline' && node.data?.dockOnly);
   if (dockTimeline) {
-    createUndoSnapshot('Add Timeline node');
+    createUndoSnapshot('Thêm node Timeline');
     dockTimeline.data.dockOnly = false;
     dockTimeline.x = x;
     dockTimeline.y = y;
@@ -40,7 +40,7 @@ export function addNode(type, x = 250 + Math.random() * 220, y = 160 + Math.rand
                     : type === 'voiceover'
                       ? { text: '', voiceId: DEFAULT_VOICE_ID, speed: 1, status: 'idle' }
                       : {};
-  createUndoSnapshot(`Add ${nodeDefs[type]?.title || 'node'}`);
+  createUndoSnapshot(`Thêm ${nodeDefs[type]?.title || 'node'}`);
   const node = { id: uid(type), type, x, y, data };
   state.nodes.push(node);
   if (type === 'references') syncReferenceFanOut(node);
@@ -56,18 +56,18 @@ export function addNode(type, x = 250 + Math.random() * 220, y = 160 + Math.rand
 }
 
 export function addTextNote(x = 250 + Math.random() * 220, y = 160 + Math.random() * 180) {
-  createUndoSnapshot('Add text note');
-  const note = { id: uid('note'), x, y, text: 'Write a note…', width: 260, height: 160 };
+  createUndoSnapshot('Thêm ghi chú');
+  const note = { id: uid('note'), x, y, text: 'Viết ghi chú…', width: 260, height: 160 };
   state.notes.push(note);
   render();
   saveState();
-  setRunStatus('Text note added to canvas.', 'ok');
+  setRunStatus('Đã thêm ghi chú vào canvas.', 'ok');
 }
 
 export function removeNode(id) {
   const existing = nodeById(id);
   if (!existing) return;
-  createUndoSnapshot(`Delete ${nodeDefs[existing.type]?.title || 'node'}`);
+  createUndoSnapshot(`Xoá ${nodeDefs[existing.type]?.title || 'node'}`);
   state.nodes = state.nodes.filter(n => n.id !== id);
   state.edges = state.edges.filter(e => e.source !== id && e.target !== id);
   state.selectedNodeIds = state.selectedNodeIds.filter(nodeId => nodeId !== id);
@@ -93,7 +93,7 @@ export function removeSelectedNodes() {
   const ids = new Set(state.selectedNodeIds);
   if (!ids.size && state.selectedNodeId) ids.add(state.selectedNodeId);
   if (!ids.size) return;
-  createUndoSnapshot(`Delete ${ids.size} node${ids.size === 1 ? '' : 's'}`);
+  createUndoSnapshot(`Xoá ${ids.size} node`);
   state.nodes = state.nodes.filter(node => !ids.has(node.id));
   state.edges = state.edges.filter(edge => !ids.has(edge.source) && !ids.has(edge.target));
   state.selectedNodeIds = [];
@@ -109,10 +109,10 @@ export function buildSceneNodesFromScript() {
   if (!graph) {
     status.className = 'error';
     status.textContent =
-      'No scenes found. Use headings like “CẢNH 1 (0:00–0:07): Title” and add Prompt ảnh or Prompt video.';
+      'Không tìm thấy cảnh nào. Hãy dùng tiêu đề như “CẢNH 1 (0:00–0:07): Tên cảnh” và thêm Prompt ảnh hoặc Prompt video.';
     return;
   }
-  createUndoSnapshot('Create nodes from script');
+  createUndoSnapshot('Tạo node từ kịch bản');
   state.nodes.push(...graph.nodes);
   state.edges.push(...graph.edges);
   let made = graph.nodes.length;
@@ -139,7 +139,7 @@ export function buildSceneNodesFromScript() {
   if ($('#timelineDock').classList.contains('collapsed')) toggleTimeline();
   const castCount = graph.cast.length;
   setRunStatus(
-    `Created ${castCount ? `${castCount} character reference${castCount === 1 ? '' : 's'} · ` : ''}${graph.scenes.length} scenes · ${made} nodes · ${graph.videos.length} video clips ordered on the Timeline.`,
+    `Đã tạo ${castCount ? `${castCount} ảnh tham chiếu nhân vật · ` : ''}${graph.scenes.length} cảnh · ${made} node · ${graph.videos.length} clip video đã xếp trên Timeline.`,
     'ok',
   );
 }
@@ -157,7 +157,7 @@ export function arrangeNodes() {
       if (!groups.has(l)) groups.set(l, []);
       groups.get(l).push(id);
     }
-    createUndoSnapshot('Arrange nodes');
+    createUndoSnapshot('Sắp xếp node');
     for (const [l, ids] of groups.entries())
       ids.forEach((id, row) => {
         const node = nodeById(id);
@@ -165,7 +165,7 @@ export function arrangeNodes() {
         node.y = 60 + row * 260;
       });
     render();
-    setRunStatus('Nodes arranged by workflow order.', 'ok');
+    setRunStatus('Đã sắp xếp node theo thứ tự workflow.', 'ok');
   } catch (error) {
     setRunStatus(error.message, 'error');
   }

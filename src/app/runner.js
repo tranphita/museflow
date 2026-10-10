@@ -34,20 +34,20 @@ import { MESSAGE, preferredMuseTabId, museTabMessage, sendMuseStop, queryMuseTab
 export function validateTargetPrompt(targetId) {
   const target = nodeById(targetId);
   if (!target || !['generateImage', 'generateVideo'].includes(target.type))
-    throw new Error('Selected generation node no longer exists.');
+    throw new Error('Node tạo đã chọn không còn tồn tại.');
   const prompt = resolvePrompt(targetId);
   if (prompt.trim()) return prompt;
   const edge = getIncoming(targetId, 'prompt')[0],
     source = edge && nodeById(edge.source);
   const detail = !edge
-    ? 'Connect a Prompt, Text Append, or Text Merge node to this prompt input.'
+    ? 'Hãy nối một node Prompt, Text Append hoặc Text Merge vào ô prompt này.'
     : !source
-      ? 'The connected prompt node no longer exists.'
-      : `The connected ${nodeDefs[source.type]?.title || 'text'} node has no text.`;
+      ? 'Node prompt đã nối không còn tồn tại.'
+      : `Node ${nodeDefs[source.type]?.title || 'văn bản'} đã nối chưa có nội dung.`;
   target.data.status = 'error';
   target.data.error = detail;
   render();
-  throw new Error(`${nodeDefs[target.type]?.title || 'Generation node'} ${target.id}: ${detail}`);
+  throw new Error(`${nodeDefs[target.type]?.title || 'Node tạo'} ${target.id}: ${detail}`);
 }
 
 export function stopGeneration(nodeId = state.activeGenerationId) {
@@ -57,9 +57,9 @@ export function stopGeneration(nodeId = state.activeGenerationId) {
   if (state.activeGenerationId === nodeId) state.generationAbortController?.abort();
   if (node) {
     node.data.status = 'stopped';
-    node.data.error = 'Generation stopped by user.';
+    node.data.error = 'Đã dừng tạo theo yêu cầu của bạn.';
   }
-  setRunStatus(`Stopped ${node?.type === 'generateVideo' ? 'video' : 'image'} generation: ${nodeId}`, 'warn');
+  setRunStatus(`Đã dừng tạo ${node?.type === 'generateVideo' ? 'video' : 'ảnh'}: ${nodeId}`, 'warn');
   render();
   // Cancellation is best-effort for Muse, but never wait for its response to unlock the UI.
   void sendMuseStop(null);
@@ -69,7 +69,7 @@ export function stopGeneration(nodeId = state.activeGenerationId) {
   } catch {}
 }
 
-const stoppedError = () => new DOMException('Generation stopped by user.', 'AbortError');
+const stoppedError = () => new DOMException('Đã dừng tạo theo yêu cầu của bạn.', 'AbortError');
 const isAbort = (error, signal) => error?.name === 'AbortError' || signal?.aborted;
 
 function publishToPreviews(node) {
@@ -84,7 +84,7 @@ async function runImageResize(node) {
   const source = sourceFor(getIncoming(node.id, 'image')[0]);
   const url = source?.data?.localDataUrl || source?.data?.asset?.url;
   if (!url) {
-    setRunStatus('Image Resize is waiting for an input image.', 'warn');
+    setRunStatus('Image Resize đang chờ ảnh đầu vào.', 'warn');
     return;
   }
   const image = await loadImage(url),
@@ -94,7 +94,7 @@ async function runImageResize(node) {
     id: uid('asset'),
     kind: 'image',
     url: canvas.toDataURL('image/png'),
-    name: `Resized ${node.data.width}×${node.data.height}`,
+    name: `Ảnh đổi cỡ ${node.data.width}×${node.data.height}`,
     width: canvas.width,
     height: canvas.height,
     sourceNodeId: node.id,
@@ -114,7 +114,7 @@ async function runVoiceover(node, signal) {
   node.data.status = 'running';
   node.data.error = '';
   render();
-  setRunStatus(`Creating voiceover: ${node.data.customName || node.data.sceneLabel || node.id}`, 'warn');
+  setRunStatus(`Đang tạo lồng tiếng: ${node.data.customName || node.data.sceneLabel || node.id}`, 'warn');
   try {
     const url = await synthesizeSpeech(voiceoverText(node), {
       voiceId: node.data.voiceId || DEFAULT_VOICE_ID,
@@ -122,12 +122,14 @@ async function runVoiceover(node, signal) {
       signal,
     });
     const duration = await audioDuration(url);
-    node.data.asset = { id: uid('voice'), kind: 'audio', url, name: `Voiceover ${node.id}`, duration };
+    node.data.asset = { id: uid('voice'), kind: 'audio', url, name: `Lồng tiếng ${node.id}`, duration };
     node.data.status = 'success';
     render();
   } catch (error) {
     node.data.status = isAbort(error, signal) ? 'stopped' : 'error';
-    node.data.error = isAbort(error, signal) ? 'Voiceover stopped by user.' : error?.message || String(error);
+    node.data.error = isAbort(error, signal)
+      ? 'Đã dừng lồng tiếng theo yêu cầu của bạn.'
+      : error?.message || String(error);
     render();
     throw error;
   }
@@ -154,10 +156,7 @@ export async function runVoiceoverNode(nodeId) {
   const node = nodeById(nodeId);
   if (!node || node.type !== 'voiceover' || state.isRunning) return;
   if (!(await ensureTtsApiKey())) {
-    setRunStatus(
-      'Paste your tvoiceai API key in Settings → Voiceover, press Save, then run the voice again.',
-      'warn',
-    );
+    setRunStatus('Dán API key tvoiceai vào Cài đặt → Lồng tiếng, bấm Lưu rồi chạy lại giọng đọc.', 'warn');
     return;
   }
   state.isRunning = true;
@@ -171,7 +170,7 @@ export async function runVoiceoverNode(nodeId) {
     markStep(node.id, 'done');
     finishRun('done');
     await saveAfterRun();
-    setRunStatus('Voiceover created.', 'ok');
+    setRunStatus('Đã tạo lồng tiếng.', 'ok');
   } catch (error) {
     const stopped = isAbort(error, controller.signal);
     markStep(node.id, stopped ? 'stopped' : 'error', error?.message || String(error));
@@ -193,7 +192,7 @@ async function requestMuseMedia(node, request, signal, tabId) {
   if (signal.aborted) throw stoppedError();
   if (!reply?.ok && reply?.code === 'SCENE_REFUSED') {
     setRunStatus(
-      `Muse could not create ${node.data.sceneLabel || 'this scene'}; retrying once with a close, safe alternative…`,
+      `Muse không tạo được ${node.data.sceneLabel || 'cảnh này'}; đang tự thử lại một lần với phương án gần giống và an toàn hơn…`,
       'warn',
     );
     reply = await send({
@@ -203,7 +202,10 @@ async function requestMuseMedia(node, request, signal, tabId) {
     });
   }
   if (signal.aborted) throw stoppedError();
-  if (!reply?.ok) throw new Error(reply?.error || `Muse.ai did not return a generated ${request.mediaType}.`);
+  if (!reply?.ok)
+    throw new Error(
+      reply?.error || `Muse.ai không trả về ${request.mediaType === 'video' ? 'video' : 'ảnh'} nào.`,
+    );
   return reply;
 }
 
@@ -228,18 +230,19 @@ async function transferableUrl(url) {
 
 async function generateNode(node, { again, signal, progressLabel, tabId }) {
   const isVideo = node.type === 'generateVideo',
-    mediaType = isVideo ? 'video' : 'image';
+    mediaType = isVideo ? 'video' : 'image',
+    mediaWord = isVideo ? 'video' : 'ảnh';
   const prompt = resolvePrompt(node.id);
   if (!String(prompt).trim())
     throw new Error(
-      `${nodeDefs[node.type].title} ${node.id}: connect a Prompt, Text Append, or Text Merge node first.`,
+      `${nodeDefs[node.type].title} ${node.id}: hãy nối một node Prompt, Text Append hoặc Text Merge trước.`,
     );
   const negativePrompt = resolveNegativePrompt(node.id);
   const continuityPrevious = isVideo && node.data.continuity ? timelinePredecessor(node.id) : null,
     continuityStartFrame = continuityPrevious?.data?.endFrame?.url ? continuityPrevious.data.endFrame : null;
   if (isVideo && node.data.continuity && !continuityStartFrame)
     throw new Error(
-      `End-frame continuity for ${node.id} needs the previous Timeline clip to be generated successfully with an extractable final frame. Put clips in order and run the previous clip first.`,
+      `Nối tiếp từ khung cuối cho ${node.id} cần clip trước đó trên Timeline đã tạo thành công và lấy được khung hình cuối. Hãy xếp clip đúng thứ tự và chạy clip trước đó trước.`,
     );
   const referenceImages = resolveReferences(node.id);
   state.activeGenerationId = node.id;
@@ -249,7 +252,7 @@ async function generateNode(node, { again, signal, progressLabel, tabId }) {
   node.data.endFrame = null;
   publishToPreviews(node);
   render();
-  setRunStatus(`${progressLabel} · generating ${mediaType}: ${stepLabel(node)}`, 'warn');
+  setRunStatus(`${progressLabel} · đang tạo ${mediaWord}: ${stepLabel(node)}`, 'warn');
   try {
     const musePrompt = buildMusePrompt({
       mediaType,
@@ -289,23 +292,23 @@ async function generateNode(node, { again, signal, progressLabel, tabId }) {
       } catch (error) {
         if (isAbort(error, signal) || attempt >= retries) throw error;
         setRunStatus(
-          `${progressLabel} · ${error?.message || error} · automatic retry ${attempt + 1}/${retries}…`,
+          `${progressLabel} · ${error?.message || error} · tự thử lại ${attempt + 1}/${retries}…`,
           'warn',
         );
       }
     }
     const url = isVideo ? reply.url : await persistImage(reply.url);
-    if (!url) throw new Error(`Muse.ai returned an empty ${mediaType} attachment.`);
+    if (!url) throw new Error(`Muse.ai trả về ${mediaWord} rỗng.`);
     const intrinsic = await mediaDimensions(url, mediaType);
     if (isRatioMismatch(intrinsic.width, intrinsic.height, node.data.size))
       throw new Error(
-        `Muse returned ${intrinsic.width} × ${intrinsic.height}, which does not match the requested ${node.data.size} aspect ratio. The old result was cleared; retry generation after checking the Muse output.`,
+        `Muse trả về ${intrinsic.width} × ${intrinsic.height}, không khớp tỉ lệ khung hình ${node.data.size} đã yêu cầu. Kết quả cũ đã bị xoá; hãy kiểm tra kết quả trên Muse rồi tạo lại.`,
       );
     node.data.asset = {
       id: uid('asset'),
       kind: mediaType,
       url,
-      name: `${isVideo ? 'Video' : 'Image'} ${node.id}`,
+      name: `${isVideo ? 'Video' : 'Ảnh'} ${node.id}`,
       sourceNodeId: node.id,
       width: intrinsic.width,
       height: intrinsic.height,
@@ -320,7 +323,7 @@ async function generateNode(node, { again, signal, progressLabel, tabId }) {
   } catch (err) {
     if (isAbort(err, signal)) {
       node.data.status = 'stopped';
-      node.data.error = 'Generation stopped by user.';
+      node.data.error = 'Đã dừng tạo theo yêu cầu của bạn.';
       render();
       throw stoppedError();
     }
@@ -371,7 +374,7 @@ export async function execute(targetId = null, { again = false } = {}) {
   for (const node of state.nodes)
     if (isGenerator(node) && node.data.status === 'running') {
       node.data.status = node.data.asset?.url ? 'success' : 'idle';
-      if (node.data.status === 'idle') node.data.error = 'Previous run was interrupted; ready to retry.';
+      if (node.data.status === 'idle') node.data.error = 'Lượt chạy trước bị gián đoạn; có thể thử lại.';
     }
   const abortController = new AbortController(),
     signal = abortController.signal;
@@ -379,14 +382,14 @@ export async function execute(targetId = null, { again = false } = {}) {
   state.activeGenerationId = targetId;
   state.isRunning = true;
   $('#runBtn').disabled = false;
-  $('#runBtn').textContent = '■ Stop workflow';
-  $('#runBtn').title = 'Stop the running workflow and its remaining nodes';
+  $('#runBtn').textContent = '■ Dừng workflow';
+  $('#runBtn').title = 'Dừng workflow đang chạy và các node còn lại';
   setRunStatus(
     targetId
       ? again
-        ? 'Regenerating video with stronger prompt adherence…'
-        : 'Running selected generation node…'
-      : 'Running workflow...',
+        ? 'Đang tạo lại video, bám prompt sát hơn…'
+        : 'Đang chạy node tạo đã chọn…'
+      : 'Đang chạy workflow…',
     'warn',
   );
   const continueOnError = !targetId && Boolean(state.settings?.continueOnError);
@@ -405,7 +408,7 @@ export async function execute(targetId = null, { again = false } = {}) {
       return item?.type === 'voiceover' && !(item.data.asset?.url && (item.data.locked || targetId));
     });
     if (voicesToCreate && !(await ensureTtsApiKey()))
-      throw new Error('Paste your tvoiceai API key in Settings → Voiceover, press Save, then run again.');
+      throw new Error('Dán API key tvoiceai vào Cài đặt → Lồng tiếng, bấm Lưu rồi chạy lại.');
     startRun(
       order.filter(id => producesMedia(nodeById(id)) || nodeById(id)?.type === 'imageResize'),
       { single: Boolean(targetId) },
@@ -450,9 +453,7 @@ export async function execute(targetId = null, { again = false } = {}) {
                 again,
                 signal: runController.signal,
                 tabId,
-                progressLabel: targetId
-                  ? 'Selected node'
-                  : `Generation ${++generationStep}/${totalGenerations}`,
+                progressLabel: targetId ? 'Node đã chọn' : `Lượt tạo ${++generationStep}/${totalGenerations}`,
               });
       const task = work
         .then(
@@ -499,7 +500,7 @@ export async function execute(targetId = null, { again = false } = {}) {
           }
           const blocker = stepDependencies(id, inRun).find(dep => failed.has(dep));
           if (blocker) {
-            const reason = `Skipped: it needs “${stepLabel(nodeById(blocker))}”, which did not finish.`;
+            const reason = `Đã bỏ qua: cần “${stepLabel(nodeById(blocker))}” nhưng bước đó chưa xong.`;
             if (isGenerator(n)) {
               generationStep++;
               n.data.status = 'error';
@@ -531,21 +532,19 @@ export async function execute(targetId = null, { again = false } = {}) {
     if (fatal) throw fatal;
     finishRun(
       'done',
-      failures.length
-        ? `${failures.length} step${failures.length === 1 ? '' : 's'} failed; nodes that depended on them were skipped.`
-        : '',
+      failures.length ? `${failures.length} bước bị lỗi; các node phụ thuộc vào chúng đã được bỏ qua.` : '',
     );
     try {
       await saveAfterRun();
       if (failures.length)
         setRunStatus(
-          `Workflow finished with ${failures.length} failed node${failures.length === 1 ? '' : 's'} · ${failures[0].node.data.customName || failures[0].node.id}: ${failures[0].message}`,
+          `Workflow đã chạy xong nhưng có ${failures.length} node bị lỗi · ${failures[0].node.data.customName || failures[0].node.id}: ${failures[0].message}`,
           'error',
         );
-      else setRunStatus(targetId ? 'Node generation completed.' : 'Workflow completed.', 'ok');
+      else setRunStatus(targetId ? 'Node đã tạo xong.' : 'Workflow đã chạy xong.', 'ok');
     } catch (saveError) {
       setRunStatus(
-        `Generation completed, but workflow could not be saved: ${saveError?.message || String(saveError)}`,
+        `Đã tạo xong nhưng không lưu được workflow: ${saveError?.message || String(saveError)}`,
         'warn',
       );
     }
@@ -554,10 +553,10 @@ export async function execute(targetId = null, { again = false } = {}) {
       const active = state.nodes.find(n => n.id === state.activeGenerationId);
       if (active && active.data.status === 'running') {
         active.data.status = 'stopped';
-        active.data.error = 'Generation stopped by user.';
+        active.data.error = 'Đã dừng tạo theo yêu cầu của bạn.';
         render();
       }
-      if (runStarted) finishRun('stopped', 'Stopped by you.');
+      if (runStarted) finishRun('stopped', 'Bạn đã dừng.');
       try {
         await saveAfterRun();
       } catch {}
@@ -573,7 +572,7 @@ export async function execute(targetId = null, { again = false } = {}) {
     if (runStarted) finishRun('error', message);
     setRunStatus(
       /failed to fetch/i.test(message)
-        ? `Muse connection failed. Reload ${APP_NAME} ${APP_VERSION}, then check the Muse session.`
+        ? `Kết nối Muse thất bại. Tải lại ${APP_NAME} ${APP_VERSION} rồi kiểm tra phiên Muse.`
         : `${APP_NAME} ${APP_VERSION} · ${message}`,
       'error',
     );
@@ -581,7 +580,7 @@ export async function execute(targetId = null, { again = false } = {}) {
       await saveAfterRun();
     } catch (saveError) {
       setRunStatus(
-        `${runStatus.textContent} · Auto-save failed: ${saveError?.message || String(saveError)}`,
+        `${runStatus.textContent} · Tự động lưu thất bại: ${saveError?.message || String(saveError)}`,
         'error',
       );
     }
@@ -591,8 +590,8 @@ export async function execute(targetId = null, { again = false } = {}) {
     state.generationAbortController = null;
     state.generationRequestId = null;
     $('#runBtn').disabled = false;
-    $('#runBtn').textContent = '▶ Run workflow';
-    $('#runBtn').title = 'Run every node in the workflow in dependency order';
+    $('#runBtn').textContent = '▶ Chạy workflow';
+    $('#runBtn').title = 'Chạy mọi node trong workflow theo thứ tự phụ thuộc';
     render();
   }
 }

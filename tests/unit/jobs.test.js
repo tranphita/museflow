@@ -111,7 +111,7 @@ test('run results become a failure kind with the message that explains it', () =
   assert.equal(runFailure({ outcome: 'done', steps: [{ status: 'done' }, { status: 'kept' }] }), null);
   assert.deepEqual(runFailure({ outcome: 'stopped', steps: [] }), {
     kind: 'stopped',
-    message: 'Stopped by you.',
+    message: 'Bạn đã dừng.',
   });
   assert.deepEqual(
     runFailure({

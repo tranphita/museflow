@@ -239,7 +239,7 @@ async page => {
     paused.status === 'queued' &&
     paused.attempts === 0 &&
     ui.rows === 4 &&
-    /credits/i.test(ui.banner) &&
+    /credit/i.test(ui.banner) &&
     ui.keepAwakeEver &&
     errors.length === 0;
   return { pass, killed, finished, counts, theft, paused, ui, errors };

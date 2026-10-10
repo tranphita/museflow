@@ -33,12 +33,12 @@ export function createUndoSnapshot(label, { preserveRuntime = true } = {}) {
 
 export function undoLastChange() {
   if (state.isRunning) {
-    setRunStatus('Stop the running workflow before undoing edits.', 'warn');
+    setRunStatus('Hãy dừng workflow đang chạy trước khi hoàn tác.', 'warn');
     return;
   }
   const previous = undoStack.pop();
   if (!previous) {
-    setRunStatus('Nothing to undo.', 'warn');
+    setRunStatus('Không có gì để hoàn tác.', 'warn');
     return;
   }
   if (previous.preserveRuntime) {
@@ -67,7 +67,7 @@ export function undoLastChange() {
   normalizeSavedGraph();
   syncSettingsUI();
   render();
-  setRunStatus(`Undid: ${previous.label}.`, 'ok');
+  setRunStatus(`Đã hoàn tác: ${previous.label}.`, 'ok');
 }
 
 export function isUndoTrackedTarget(target) {
@@ -78,15 +78,15 @@ export function trackUndoEdit(event) {
   const target = event.target;
   if (!isUndoTrackedTarget(target)) return;
   const owner = target.closest('.node'),
-    title = owner?.querySelector('.node-title')?.textContent || 'text note';
+    title = owner?.querySelector('.node-title')?.textContent || 'ghi chú';
   if (pendingNativeUndoTarget === target) {
-    if (lastUndoInput === target && undoStack.at(-1)?.label === `Edit ${title}`) undoStack.pop();
+    if (lastUndoInput === target && undoStack.at(-1)?.label === `Sửa ${title}`) undoStack.pop();
     lastUndoInput = null;
     pendingNativeUndoTarget = null;
     return;
   }
   if (lastUndoInput !== target) {
-    createUndoSnapshot(`Edit ${title}`);
+    createUndoSnapshot(`Sửa ${title}`);
     lastUndoInput = target;
   }
 }

@@ -58,7 +58,7 @@ export function buildSceneGraph(script, { baseY = 40, characterImages = {} } = {
   };
   const cast = characters.map((character, index) => {
     const x = 80 + index * 650,
-      label = `Character: ${character.name}`,
+      label = `Nhân vật: ${character.name}`,
       photos = savedImages(character.name);
     if (photos.length) {
       const inputs = photos.map((url, photo) => {
@@ -94,7 +94,7 @@ export function buildSceneGraph(script, { baseY = 40, characterImages = {} } = {
   scenes.forEach((scene, index) => {
     const x = 80 + (index % 4) * 650,
       y = scenesY + Math.floor(index / 4) * rowHeight,
-      label = `Scene ${scene.number}${scene.title ? `: ${scene.title}` : ''}`,
+      label = `Cảnh ${scene.number}${scene.title ? `: ${scene.title}` : ''}`,
       sceneCast = charactersForScene(scene, cast),
       sceneRules = rulesFor(
         rules,
@@ -158,7 +158,7 @@ export function buildSceneGraph(script, { baseY = 40, characterImages = {} } = {
   const avoid = parseAvoid(script);
   if (avoid) {
     const negative = makeNode('negativePrompt', -280, baseY + 560);
-    negative.data = { text: avoid, sceneLabel: 'Avoid in every shot' };
+    negative.data = { text: avoid, sceneLabel: 'Tránh trong mọi cảnh quay' };
     nodes.push(negative);
     for (const target of nodes.filter(isGenerator))
       edges.push(edge(negative.id, 'text', target.id, 'negative'));
@@ -168,7 +168,7 @@ export function buildSceneGraph(script, { baseY = 40, characterImages = {} } = {
 
 export function workflowFromScript(script, { characterImages = {} } = {}) {
   const graph = buildSceneGraph(script, { characterImages });
-  if (!graph) throw new Error('No scenes found. Use headings like “CẢNH 1 (0:00–0:07): Title”.');
+  if (!graph) throw new Error('Không tìm thấy cảnh nào. Dùng tiêu đề dạng “CẢNH 1 (0:00–0:07): Tên cảnh”.');
   const references = makeNode('references', -280, 40);
   references.data = {};
   const timeline = {
@@ -189,9 +189,9 @@ export function workflowFromScript(script, { characterImages = {} } = {}) {
   const newCharacters = graph.cast.filter(character => character.nodes[0].type === 'generateImage');
   const steps = [
     newCharacters.length &&
-      `Run each "Character" image node first and pick the best version (it is kept 🔒 for Run workflow). Right-click it → Save character image, and put the file in the series characters/ folder so later episodes reuse the same face.`,
-    'Run workflow to generate every scene in timeline order.',
-    'Check the Timeline, add ♪ Music if you like, then export MP4.',
+      `Chạy trước từng node ảnh "Nhân vật" và chọn bản đẹp nhất (bản đó được giữ 🔒 khi Chạy workflow). Nhấp chuột phải vào node → Lưu ảnh nhân vật, rồi đặt file vào thư mục characters/ của series để các tập sau dùng lại cùng khuôn mặt.`,
+    'Chạy workflow để tạo mọi cảnh theo thứ tự trên timeline.',
+    'Kiểm tra Timeline, thêm ♪ Nhạc nếu muốn, rồi xuất MP4.',
   ]
     .filter(Boolean)
     .map((step, index) => `${index + 1}. ${step}`);

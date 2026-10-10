@@ -306,7 +306,7 @@ export function topoOrder() {
       if (indeg.get(target) === 0) q.push(target);
     }
   }
-  if (out.length !== state.nodes.length) throw new Error('Workflow contains a cycle. Remove the loop first.');
+  if (out.length !== state.nodes.length) throw new Error('Workflow có vòng lặp. Hãy gỡ vòng lặp trước.');
   return out;
 }
 

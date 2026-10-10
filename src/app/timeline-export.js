@@ -25,7 +25,7 @@ async function loadClipVoiceovers(ffmpeg, clips, clipInfo, signal) {
     clipInfo[index].voices = [];
     for (const [order, asset] of assets.entries()) {
       const response = await fetch(asset.url, { signal });
-      if (!response.ok) throw new Error(`Could not read voiceover ${order + 1} for clip ${index + 1}.`);
+      if (!response.ok) throw new Error(`Không đọc được lồng tiếng ${order + 1} của clip ${index + 1}.`);
       const path = `/voice_${String(index).padStart(3, '0')}_${order}.bin`;
       await ffmpeg.writeFile(path, new Uint8Array(await response.arrayBuffer()), { signal });
       clipInfo[index].voices.push({ path, offset: offsets[order] });
@@ -40,9 +40,9 @@ async function loadTimelineMusic(ffmpeg, node, signal) {
   const music = node.data.music;
   if (!music?.url) return null;
   const response = await fetch(music.url, { signal });
-  if (!response.ok) throw new Error(`Could not read the background music (HTTP ${response.status}).`);
+  if (!response.ok) throw new Error(`Không đọc được nhạc nền (HTTP ${response.status}).`);
   const bytes = new Uint8Array(await response.arrayBuffer());
-  if (!bytes.length) throw new Error('The background music file is empty.');
+  if (!bytes.length) throw new Error('File nhạc nền bị rỗng.');
   const path = '/timeline-music.bin';
   await ffmpeg.writeFile(path, bytes, { signal });
   return { path, volume: music.volume };
@@ -70,7 +70,7 @@ export async function exportTimelineMp4WithFFmpeg(
   formatSelect.disabled = true;
   stopButton.classList.remove('hidden');
   const throwIfStopped = () => {
-    if (signal.aborted) throw new DOMException('Timeline export stopped.', 'AbortError');
+    if (signal.aborted) throw new DOMException('Đã dừng xuất timeline.', 'AbortError');
   };
   const onLog = event => {
       if (event?.message) {
@@ -80,9 +80,9 @@ export async function exportTimelineMp4WithFFmpeg(
     },
     onProgress = event => {
       if (!signal.aborted && Number.isFinite(event?.progress)) {
-        button.textContent = `Encoding ${Math.max(0, Math.min(99, Math.round(event.progress * 100)))}%…`;
+        button.textContent = `Đang mã hoá ${Math.max(0, Math.min(99, Math.round(event.progress * 100)))}%…`;
         setRunStatus(
-          `Encoding MP4 with FFmpeg · ${Math.max(0, Math.min(99, Math.round(event.progress * 100)))}%`,
+          `Đang mã hoá MP4 bằng FFmpeg · ${Math.max(0, Math.min(99, Math.round(event.progress * 100)))}%`,
           'warn',
         );
       }
@@ -90,8 +90,8 @@ export async function exportTimelineMp4WithFFmpeg(
   try {
     ffmpeg.on('log', onLog);
     ffmpeg.on('progress', onProgress);
-    button.textContent = 'Loading FFmpeg…';
-    setRunStatus('Loading the local FFmpeg video engine…', 'warn');
+    button.textContent = 'Đang tải FFmpeg…';
+    setRunStatus('Đang tải bộ xử lý video FFmpeg trên máy…', 'warn');
     // The bundled UMD wrapper uses importScripts() to load the core, so let
     // it create a classic worker instead of forcing the module class worker.
     await ffmpeg.load(
@@ -104,13 +104,13 @@ export async function exportTimelineMp4WithFFmpeg(
     const clipInfo = [];
     for (let index = 0; index < clips.length; index++) {
       throwIfStopped();
-      button.textContent = `Loading clips ${index + 1}/${clips.length}…`;
-      setRunStatus(`Loading timeline clip ${index + 1}/${clips.length} into local FFmpeg…`, 'warn');
+      button.textContent = `Đang tải clip ${index + 1}/${clips.length}…`;
+      setRunStatus(`Đang nạp clip timeline ${index + 1}/${clips.length} vào FFmpeg trên máy…`, 'warn');
       const response = await fetch(clips[index].data.asset.url, { credentials: 'include', signal });
       if (!response.ok)
-        throw new Error(`Could not download timeline clip ${index + 1} (HTTP ${response.status}).`);
+        throw new Error(`Không tải được clip timeline ${index + 1} (HTTP ${response.status}).`);
       const bytes = new Uint8Array(await response.arrayBuffer());
-      if (!bytes.length) throw new Error(`Timeline clip ${index + 1} is empty.`);
+      if (!bytes.length) throw new Error(`Clip timeline ${index + 1} bị rỗng.`);
       const inputPath = `/scene_${String(index).padStart(3, '0')}.bin`;
       await ffmpeg.writeFile(inputPath, bytes, { signal });
       sourceUrls.push(inputPath);
@@ -134,7 +134,7 @@ export async function exportTimelineMp4WithFFmpeg(
         probe = JSON.parse(typeof raw === 'string' ? raw : new TextDecoder().decode(raw));
       const videoStream = probe.streams?.find(stream => stream.codec_type === 'video'),
         audioStream = probe.streams?.find(stream => stream.codec_type === 'audio');
-      if (!videoStream) throw new Error(`Timeline clip ${index + 1} has no readable video stream.`);
+      if (!videoStream) throw new Error(`Clip timeline ${index + 1} không có luồng video đọc được.`);
       clipInfo.push({
         hasAudio: !!audioStream,
         width: Number(videoStream.width) || 1280,
@@ -160,17 +160,19 @@ export async function exportTimelineMp4WithFFmpeg(
           .slice(-5)
           .map(item => item.trim())
           .filter(Boolean)
-          .join(' ') || `FFmpeg exited with code ${exitCode}.`,
+          .join(' ') || `FFmpeg dừng với mã lỗi ${exitCode}.`,
       );
     const voiced = await loadClipVoiceovers(ffmpeg, clips, clipInfo, signal);
-    if (voiced)
-      setRunStatus(`Mixing ${voiced} voiceover${voiced === 1 ? '' : 's'} into the timeline…`, 'warn');
+    if (voiced) setRunStatus(`Đang trộn ${voiced} đoạn lồng tiếng vào timeline…`, 'warn');
     const music = await loadTimelineMusic(ffmpeg, node, signal);
     if (canJoinWithoutReencode(clipInfo, { hasMusic: Boolean(music), transition: node.data.transition })) {
       const concatFile = '/timeline-inputs.txt';
       await ffmpeg.writeFile(concatFile, new TextEncoder().encode(buildConcatList(sourceUrls)), { signal });
-      button.textContent = 'Joining MP4 clips…';
-      setRunStatus('Joining compatible timeline clips without re-encoding (fast, original quality)…', 'warn');
+      button.textContent = 'Đang ghép clip MP4…';
+      setRunStatus(
+        'Đang ghép các clip timeline tương thích mà không mã hoá lại (nhanh, giữ chất lượng gốc)…',
+        'warn',
+      );
       const exitCode = await ffmpeg.exec(buildConcatCopyArgs(concatFile), -1, { signal });
       if (exitCode !== 0) throw failure(exitCode);
     } else {
@@ -184,9 +186,9 @@ export async function exportTimelineMp4WithFFmpeg(
         music,
         transition: node.data.transition,
       });
-      button.textContent = 'Encoding MP4…';
+      button.textContent = 'Đang mã hoá MP4…';
       setRunStatus(
-        `FFmpeg is assembling${music ? ' and mixing background music into' : ' and encoding'} the complete timeline locally…`,
+        `FFmpeg đang dựng và ${music ? 'trộn nhạc nền vào' : 'mã hoá'} toàn bộ timeline trên máy…`,
         'warn',
       );
       const exitCode = await ffmpeg.exec(args, -1, { signal });
@@ -194,8 +196,7 @@ export async function exportTimelineMp4WithFFmpeg(
     }
     throwIfStopped();
     const output = await ffmpeg.readFile(TIMELINE_OUTPUT, 'binary', { signal });
-    if (!(output instanceof Uint8Array) || !output.length)
-      throw new Error('FFmpeg produced an empty MP4 file.');
+    if (!(output instanceof Uint8Array) || !output.length) throw new Error('FFmpeg tạo ra file MP4 rỗng.');
     if (state.timelineExportUrl) URL.revokeObjectURL(state.timelineExportUrl);
     state.timelineExportUrl = URL.createObjectURL(new Blob([output], { type: 'video/mp4' }));
     const player = $('#timelinePlayer'),
@@ -214,10 +215,10 @@ export async function exportTimelineMp4WithFFmpeg(
     link.download = `${fileName || `Museta-Timeline-${new Date().toISOString().replace(/[:.]/g, '-')}`}.mp4`;
     if (download) link.click();
     exported = true;
-    setRunStatus('Timeline exported as MP4 (H.264) with local FFmpeg.', 'ok');
+    setRunStatus('Đã xuất timeline thành MP4 (H.264) bằng FFmpeg trên máy.', 'ok');
   } catch (error) {
-    if (error?.name === 'AbortError' || signal.aborted) setRunStatus('Timeline export stopped.', 'warn');
-    else setRunStatus(`Timeline export failed: ${error?.message || String(error)}`, 'error');
+    if (error?.name === 'AbortError' || signal.aborted) setRunStatus('Đã dừng xuất timeline.', 'warn');
+    else setRunStatus(`Xuất timeline thất bại: ${error?.message || String(error)}`, 'error');
   } finally {
     ffmpeg.off('log', onLog);
     ffmpeg.off('progress', onProgress);
@@ -227,7 +228,7 @@ export async function exportTimelineMp4WithFFmpeg(
     state.timelineExporting = false;
     button.disabled = false;
     formatSelect.disabled = false;
-    button.textContent = '⇩ Export';
+    button.textContent = '⇩ Xuất';
     stopButton.classList.add('hidden');
   }
   return exported;
@@ -244,21 +245,18 @@ export async function exportTimelineVideo({ format = '', fileName = '', download
     formatSelect = $('#timelineExportFormat'),
     requestedFormat = format || formatSelect.value;
   if (!clips.length) {
-    setRunStatus('Add completed video clips to the Timeline before exporting.', 'warn');
+    setRunStatus('Hãy thêm các clip video đã tạo xong vào Timeline trước khi xuất.', 'warn');
     return false;
   }
   if (requestedFormat === 'mp4') {
     if (!window.FFmpegWASM?.FFmpeg) {
-      setRunStatus(
-        'The bundled FFmpeg engine could not be loaded. Reload the extension and try again.',
-        'error',
-      );
+      setRunStatus('Không tải được FFmpeg đi kèm. Tải lại tiện ích rồi thử lại.', 'error');
       return false;
     }
     return exportTimelineMp4WithFFmpeg(node, clips, button, formatSelect, fileName, download);
   }
   if (!window.MediaRecorder || !HTMLCanvasElement.prototype.captureStream) {
-    setRunStatus('This browser cannot export a stitched video from the Timeline.', 'error');
+    setRunStatus('Trình duyệt này không xuất được video ghép từ Timeline.', 'error');
     return false;
   }
   state.timelineExporting = true;
@@ -282,7 +280,7 @@ export async function exportTimelineVideo({ format = '', fileName = '', download
     recordingPromise = null,
     recorderMimeType = '';
   const throwIfStopped = () => {
-    if (exportSignal.aborted) throw new DOMException('Timeline export stopped.', 'AbortError');
+    if (exportSignal.aborted) throw new DOMException('Đã dừng xuất timeline.', 'AbortError');
   };
   const waitForExportDelay = duration =>
     new Promise((resolve, reject) => {
@@ -293,7 +291,7 @@ export async function exportTimelineVideo({ format = '', fileName = '', download
         }, duration),
         cancel = () => {
           clearTimeout(timer);
-          reject(new DOMException('Timeline export stopped.', 'AbortError'));
+          reject(new DOMException('Đã dừng xuất timeline.', 'AbortError'));
         };
       exportSignal.addEventListener('abort', cancel, { once: true });
     });
@@ -311,16 +309,16 @@ export async function exportTimelineVideo({ format = '', fileName = '', download
   try {
     for (let index = 0; index < clips.length; index++) {
       throwIfStopped();
-      button.textContent = `Preparing ${index + 1}/${clips.length}…`;
-      setRunStatus(`Preparing timeline clip ${index + 1}/${clips.length} for export…`, 'warn');
+      button.textContent = `Đang chuẩn bị ${index + 1}/${clips.length}…`;
+      setRunStatus(`Đang chuẩn bị clip timeline ${index + 1}/${clips.length} để xuất…`, 'warn');
       const response = await fetch(clips[index].data.asset.url, {
         credentials: 'include',
         signal: exportSignal,
       });
       if (!response.ok)
-        throw new Error(`Could not download timeline clip ${index + 1} (HTTP ${response.status}).`);
+        throw new Error(`Không tải được clip timeline ${index + 1} (HTTP ${response.status}).`);
       const blob = await response.blob();
-      if (!blob.size) throw new Error(`Timeline clip ${index + 1} is empty.`);
+      if (!blob.size) throw new Error(`Clip timeline ${index + 1} bị rỗng.`);
       sourceUrls.push(URL.createObjectURL(blob));
     }
     video = document.createElement('video');
@@ -333,7 +331,7 @@ export async function exportTimelineVideo({ format = '', fileName = '', download
     const waitForData = () =>
       new Promise((resolve, reject) => {
         if (exportSignal.aborted) {
-          reject(new DOMException('Timeline export stopped.', 'AbortError'));
+          reject(new DOMException('Đã dừng xuất timeline.', 'AbortError'));
           return;
         }
         if (video.readyState >= 2) {
@@ -342,7 +340,7 @@ export async function exportTimelineVideo({ format = '', fileName = '', download
         }
         let timer = setTimeout(() => {
           cleanup();
-          reject(new Error('Video decoding timed out.'));
+          reject(new Error('Hết thời gian giải mã video.'));
         }, 20000);
         const ready = () => {
             cleanup();
@@ -350,11 +348,11 @@ export async function exportTimelineVideo({ format = '', fileName = '', download
           },
           failed = () => {
             cleanup();
-            reject(new Error('The video file could not be decoded.'));
+            reject(new Error('Không giải mã được file video.'));
           },
           cancel = () => {
             cleanup();
-            reject(new DOMException('Timeline export stopped.', 'AbortError'));
+            reject(new DOMException('Đã dừng xuất timeline.', 'AbortError'));
           },
           cleanup = () => {
             clearTimeout(timer);
@@ -376,7 +374,7 @@ export async function exportTimelineVideo({ format = '', fileName = '', download
     canvas.width = Math.max(2, Math.floor((originalWidth * scale) / 2) * 2);
     canvas.height = Math.max(2, Math.floor((originalHeight * scale) / 2) * 2);
     const context = canvas.getContext('2d', { alpha: false });
-    if (!context) throw new Error('Could not create the video export canvas.');
+    if (!context) throw new Error('Không tạo được canvas để xuất video.');
     const exportFps = 20;
     const drawFrame = () => {
       if (!video || !context) return;
@@ -431,7 +429,7 @@ export async function exportTimelineVideo({ format = '', fileName = '', download
     recorderMimeType = mimeTypes.find(type => MediaRecorder.isTypeSupported?.(type)) || '';
     if (requestedFormat === 'mp4' && !recorderMimeType)
       throw new Error(
-        'This browser cannot encode MP4 (H.264). Choose WebM, or use a browser with MP4 MediaRecorder support.',
+        'Trình duyệt này không mã hoá được MP4 (H.264). Hãy chọn WebM hoặc dùng trình duyệt có MediaRecorder hỗ trợ MP4.',
       );
     const recorderOptions = {
       videoBitsPerSecond:
@@ -449,7 +447,7 @@ export async function exportTimelineVideo({ format = '', fileName = '', download
       recorder.ondataavailable = event => {
         if (event.data?.size) chunks.push(event.data);
       };
-      recorder.onerror = event => reject(event.error || new Error('Video encoding failed.'));
+      recorder.onerror = event => reject(event.error || new Error('Mã hoá video thất bại.'));
       recorder.onstop = () =>
         resolve(new Blob(chunks, { type: recorder.mimeType || recorderMimeType || 'video/webm' }));
     });
@@ -471,8 +469,8 @@ export async function exportTimelineVideo({ format = '', fileName = '', download
         await waitForExportDelay(60);
         if (recorder.state === 'paused') recorder.resume();
       }
-      button.textContent = `Exporting ${index + 1}/${clips.length}…`;
-      setRunStatus(`Exporting timeline clip ${index + 1}/${clips.length} in track order…`, 'warn');
+      button.textContent = `Đang xuất ${index + 1}/${clips.length}…`;
+      setRunStatus(`Đang xuất clip timeline ${index + 1}/${clips.length} theo thứ tự trên track…`, 'warn');
       const duration = Math.max(
         1,
         Math.min(60, Number(node.data.durations?.[clips[index].id] || clips[index].data.duration || 5)),
@@ -486,12 +484,12 @@ export async function exportTimelineVideo({ format = '', fileName = '', download
     recorder.stop();
     await completed;
     const output = await recordingPromise;
-    if (!output.size) throw new Error('The exported video is empty.');
+    if (!output.size) throw new Error('Video xuất ra bị rỗng.');
     const actualMime = (output.type || recorder.mimeType || recorderMimeType || 'video/webm').toLowerCase(),
       extension = actualMime.includes('mp4') ? 'mp4' : 'webm';
     if (requestedFormat === 'mp4' && extension !== 'mp4')
       throw new Error(
-        'The browser did not produce an MP4 file. Choose WebM or use a browser with MP4 MediaRecorder support.',
+        'Trình duyệt không tạo ra file MP4. Hãy chọn WebM hoặc dùng trình duyệt có MediaRecorder hỗ trợ MP4.',
       );
     if (state.timelineExportUrl) URL.revokeObjectURL(state.timelineExportUrl);
     state.timelineExportUrl = URL.createObjectURL(output);
@@ -512,11 +510,11 @@ export async function exportTimelineVideo({ format = '', fileName = '', download
     if (download) link.click();
     exported = true;
     const transitionNote =
-      (node.data.transition?.type || 'cut') !== 'cut' ? ' Transitions are applied in MP4 export only.' : '';
-    setRunStatus(`Stitched timeline exported as ${extension.toUpperCase()}.${transitionNote}`, 'ok');
+      (node.data.transition?.type || 'cut') !== 'cut' ? ' Chuyển cảnh chỉ áp dụng khi xuất MP4.' : '';
+    setRunStatus(`Đã xuất timeline ghép thành ${extension.toUpperCase()}.${transitionNote}`, 'ok');
   } catch (error) {
-    if (error?.name === 'AbortError') setRunStatus('Timeline export stopped.', 'warn');
-    else setRunStatus(`Timeline export failed: ${error?.message || String(error)}`, 'error');
+    if (error?.name === 'AbortError') setRunStatus('Đã dừng xuất timeline.', 'warn');
+    else setRunStatus(`Xuất timeline thất bại: ${error?.message || String(error)}`, 'error');
   } finally {
     if (frameRequest) cancelAnimationFrame(frameRequest);
     clearTimeout(frameTimer);
@@ -536,7 +534,7 @@ export async function exportTimelineVideo({ format = '', fileName = '', download
     state.timelineExportAbortController = null;
     button.disabled = false;
     formatSelect.disabled = false;
-    button.textContent = '⇩ Export';
+    button.textContent = '⇩ Xuất';
     stopButton.classList.add('hidden');
   }
   return exported;
@@ -546,5 +544,5 @@ export function stopTimelineExport() {
   if (!state.timelineExporting) return;
   state.timelineExportAbortController?.abort();
   state.timelineFFmpeg?.terminate();
-  setRunStatus('Stopping timeline export…', 'warn');
+  setRunStatus('Đang dừng xuất timeline…', 'warn');
 }

@@ -21,11 +21,11 @@ export function renderTimelineBody(node, body) {
   const bar = document.createElement('div');
   bar.className = 'timeline-toolbar';
   const count = document.createElement('span');
-  count.textContent = `${ordered.length} clip${ordered.length === 1 ? '' : 's'}`;
+  count.textContent = `${ordered.length} clip`;
   const play = document.createElement('button');
   play.type = 'button';
   play.className = 'small-btn';
-  play.textContent = '▶ Preview sequence';
+  play.textContent = '▶ Xem trước chuỗi cảnh';
   play.disabled = !ordered.some(id => nodeById(id)?.data?.asset?.url);
   play.onclick = () => playTimeline(node);
   bar.append(count, play);
@@ -35,7 +35,7 @@ export function renderTimelineBody(node, body) {
   if (!ordered.length) {
     const empty = document.createElement('div');
     empty.className = 'timeline-empty';
-    empty.textContent = 'Drop video nodes here or connect them to clip inputs';
+    empty.textContent = 'Thả node video vào đây hoặc nối chúng vào đầu vào clip';
     track.appendChild(empty);
   }
   ordered.forEach((id, index) => {
@@ -60,7 +60,7 @@ export function renderTimelineBody(node, body) {
         from = arr.indexOf(moving),
         to = arr.indexOf(id);
       if (from >= 0 && to >= 0 && from !== to) {
-        createUndoSnapshot('Reorder Timeline clips');
+        createUndoSnapshot('Sắp xếp lại clip trên Timeline');
         arr.splice(from, 1);
         arr.splice(to, 0, moving);
         node.data.clipOrder = arr;
@@ -71,10 +71,10 @@ export function renderTimelineBody(node, body) {
     };
     const label = document.createElement('div');
     label.className = 'timeline-clip-head';
-    label.textContent = `${String(index + 1).padStart(2, '0')} · ${source.data.asset?.name || 'Video clip'}`;
+    label.textContent = `${String(index + 1).padStart(2, '0')} · ${source.data.asset?.name || 'Clip video'}`;
     const length = document.createElement('label');
     length.className = 'clip-duration';
-    length.textContent = 'Play (sec)';
+    length.textContent = 'Phát (giây)';
     const input = document.createElement('input');
     input.type = 'number';
     input.min = '1';
@@ -88,7 +88,7 @@ export function renderTimelineBody(node, body) {
     length.appendChild(input);
     const status = document.createElement('span');
     status.className = `timeline-clip-state ${source.data.status || 'idle'}`;
-    status.textContent = source.data.status || 'waiting';
+    status.textContent = source.data.status || 'đang chờ';
     clip.append(label, length, status);
     track.appendChild(clip);
   });
@@ -99,7 +99,7 @@ export function renderTimelineBody(node, body) {
 export function createTimelineDropZone(node) {
   const zone = document.createElement('div');
   zone.className = 'timeline-inline-drop';
-  zone.textContent = 'Drop video node here to add to timeline';
+  zone.textContent = 'Thả node video vào đây để thêm vào timeline';
   zone.ondragover = event => {
     event.preventDefault();
     zone.classList.add('drag-over');
@@ -137,19 +137,19 @@ export function ensureDockTimeline() {
 
 export function addTimelineClip(timeline, nodeId) {
   if (!nodeId || nodeById(nodeId)?.type !== 'generateVideo') {
-    setRunStatus('Only Generate Video outputs can be added to the timeline.', 'warn');
+    setRunStatus('Chỉ đầu ra của Generate Video mới thêm được vào timeline.', 'warn');
     return;
   }
   timeline = timeline || state.nodes.find(item => item.type === 'timeline') || null;
   if (timeline?.data?.clipOrder?.includes(nodeId)) return;
-  createUndoSnapshot('Add video to Timeline');
+  createUndoSnapshot('Thêm video vào Timeline');
   timeline = timeline || ensureDockTimeline();
   timeline.data.clipOrder = timeline.data.clipOrder || [];
   if (!timeline.data.clipOrder.includes(nodeId)) timeline.data.clipOrder.push(nodeId);
   syncTimelineDock();
   render();
   saveState();
-  setRunStatus('Video added to timeline.', 'ok');
+  setRunStatus('Đã thêm video vào timeline.', 'ok');
 }
 
 export function importAllVideosToTimeline() {
@@ -161,13 +161,13 @@ export function importAllVideosToTimeline() {
   if (!additions.length) {
     setRunStatus(
       all.length
-        ? 'All Generate Video nodes are already on the timeline.'
-        : 'No Generate Video nodes to import.',
+        ? 'Mọi node Generate Video đều đã có trên timeline.'
+        : 'Không có node Generate Video nào để nhập.',
       'warn',
     );
     return;
   }
-  createUndoSnapshot('Import videos to Timeline');
+  createUndoSnapshot('Nhập video vào Timeline');
   const timeline = timelineBefore || ensureDockTimeline(),
     order = timeline.data.clipOrder,
     addIds = new Set(additions.map(video => video.id));
@@ -177,7 +177,7 @@ export function importAllVideosToTimeline() {
   saveState();
   if ($('#timelineDock').classList.contains('collapsed')) toggleTimeline();
   setRunStatus(
-    `Imported ${additions.length} video node${additions.length === 1 ? '' : 's'} to the timeline. Run will generate videos in timeline order.`,
+    `Đã nhập ${additions.length} node video vào timeline. Khi chạy, video sẽ được tạo theo thứ tự trên timeline.`,
     'ok',
   );
 }
@@ -195,7 +195,7 @@ export function syncTimelineTransition(node = ensureDockTimeline()) {
 export function setTimelineTransition({ type, duration }) {
   const node = ensureDockTimeline(),
     current = node.data.transition || { type: 'cut', duration: 0.5 };
-  createUndoSnapshot('Change timeline transition', { preserveRuntime: false });
+  createUndoSnapshot('Đổi chuyển cảnh của timeline', { preserveRuntime: false });
   node.data.transition = {
     type: type ?? current.type,
     duration: Math.max(0.1, Math.min(2, Number(duration ?? current.duration) || 0.5)),
@@ -207,7 +207,7 @@ export function setTimelineTransition({ type, duration }) {
 export function syncTimelineMusic(node = ensureDockTimeline()) {
   const music = node.data.music;
   $('#timelineMusicControls').classList.toggle('hidden', !music?.url);
-  $('#timelineMusicBtn').textContent = music?.url ? '♪ Change' : '♪ Music';
+  $('#timelineMusicBtn').textContent = music?.url ? '♪ Đổi nhạc' : '♪ Nhạc';
   $('#timelineMusicName').textContent = music?.name || '';
   $('#timelineMusicName').title = music?.name || '';
   $('#timelineMusicVolume').value = String(music?.volume ?? DEFAULT_MUSIC_VOLUME);
@@ -216,11 +216,11 @@ export function syncTimelineMusic(node = ensureDockTimeline()) {
 export function setTimelineMusic(file) {
   if (!file) return;
   if (!file.type.startsWith('audio/')) {
-    setRunStatus('Choose an audio file for background music.', 'warn');
+    setRunStatus('Hãy chọn một file âm thanh làm nhạc nền.', 'warn');
     return;
   }
   const node = ensureDockTimeline();
-  createUndoSnapshot('Set background music', { preserveRuntime: false });
+  createUndoSnapshot('Đặt nhạc nền', { preserveRuntime: false });
   node.data.music = {
     id: uid('music'),
     url: URL.createObjectURL(file),
@@ -229,7 +229,7 @@ export function setTimelineMusic(file) {
   };
   syncTimelineMusic(node);
   saveState();
-  setRunStatus(`Background music added: ${file.name}. It is mixed into Preview and Export.`, 'ok');
+  setRunStatus(`Đã thêm nhạc nền: ${file.name}. Nhạc được trộn vào bản xem trước và bản xuất.`, 'ok');
 }
 
 export function setTimelineMusicVolume(value) {
@@ -243,12 +243,12 @@ export function setTimelineMusicVolume(value) {
 export function removeTimelineMusic() {
   const node = ensureDockTimeline();
   if (!node.data.music) return;
-  createUndoSnapshot('Remove background music', { preserveRuntime: false });
+  createUndoSnapshot('Gỡ nhạc nền', { preserveRuntime: false });
   delete node.data.music;
   stopMusicPreview();
   syncTimelineMusic(node);
   saveState();
-  setRunStatus('Background music removed.', 'ok');
+  setRunStatus('Đã gỡ nhạc nền.', 'ok');
 }
 
 function startMusicPreview(node, startTime) {
@@ -285,19 +285,17 @@ export function syncTimelineDock() {
   const allVideos = state.nodes.filter(item => item.type === 'generateVideo'),
     candidates = allVideos.filter(item => !(node.data.clipOrder || []).includes(item.id));
   addButton.disabled = !candidates.length;
-  addButton.title = addButton.disabled
-    ? 'All video outputs are already on the timeline'
-    : 'Add a video output';
+  addButton.title = addButton.disabled ? 'Mọi đầu ra video đều đã có trên timeline' : 'Thêm một đầu ra video';
   importAllButton.disabled = !candidates.length;
   importAllButton.title = !allVideos.length
-    ? 'No Generate Video nodes to import'
+    ? 'Không có node Generate Video nào để nhập'
     : !candidates.length
-      ? 'All Generate Video nodes are already on the timeline'
-      : 'Import all Generate Video nodes';
+      ? 'Mọi node Generate Video đều đã có trên timeline'
+      : 'Nhập mọi node Generate Video';
   outputMenu.innerHTML = '';
   if (!candidates.length) {
     const empty = document.createElement('span');
-    empty.textContent = 'No video outputs available';
+    empty.textContent = 'Chưa có đầu ra video nào';
     outputMenu.appendChild(empty);
   }
   candidates.forEach((video, index) => {
@@ -314,7 +312,7 @@ export function syncTimelineDock() {
     .map(id => nodeById(id))
     .filter(item => item?.type === 'generateVideo');
   node.data.clipOrder = clips.map(item => item.id);
-  count.textContent = `${clips.length} clip${clips.length === 1 ? '' : 's'}`;
+  count.textContent = `${clips.length} clip`;
   track.innerHTML = '';
   const pixelsPerSecond = 42,
     total = clips.reduce(
@@ -328,7 +326,7 @@ export function syncTimelineDock() {
   const ruler = document.createElement('div');
   ruler.className = 'timeline-ruler';
   ruler.setAttribute('role', 'slider');
-  ruler.setAttribute('aria-label', 'Timeline playback position');
+  ruler.setAttribute('aria-label', 'Vị trí phát trên timeline');
   ruler.setAttribute('aria-valuemin', '0');
   ruler.setAttribute('aria-valuemax', String(total));
   ruler.tabIndex = 0;
@@ -395,7 +393,7 @@ export function syncTimelineDock() {
   if (!clips.length) {
     const empty = document.createElement('div');
     empty.className = 'dock-empty';
-    empty.textContent = 'Drop Generate Video nodes here to build your scene sequence';
+    empty.textContent = 'Thả node Generate Video vào đây để dựng chuỗi cảnh';
     lane.appendChild(empty);
   }
   clips.forEach((clip, index) => {
@@ -418,7 +416,7 @@ export function syncTimelineDock() {
         from = node.data.clipOrder.indexOf(moving),
         to = node.data.clipOrder.indexOf(clip.id);
       if (from >= 0 && to >= 0 && from !== to) {
-        createUndoSnapshot('Reorder Timeline clips');
+        createUndoSnapshot('Sắp xếp lại clip trên Timeline');
         node.data.clipOrder.splice(from, 1);
         node.data.clipOrder.splice(to, 0, moving);
         syncTimelineDock();
@@ -447,7 +445,7 @@ export function syncTimelineDock() {
     title.textContent = `${String(index + 1).padStart(2, '0')} · ${clip.data.asset?.name || 'Video ' + (index + 1)}`;
     title.title = title.textContent;
     const length = document.createElement('label');
-    length.textContent = 'Duration';
+    length.textContent = 'Thời lượng';
     const input = document.createElement('input');
     input.type = 'number';
     input.min = '1';
@@ -465,9 +463,9 @@ export function syncTimelineDock() {
     const remove = document.createElement('button');
     remove.type = 'button';
     remove.textContent = '×';
-    remove.title = 'Remove clip';
+    remove.title = 'Gỡ clip';
     remove.onclick = () => {
-      createUndoSnapshot('Remove Timeline clip');
+      createUndoSnapshot('Gỡ clip khỏi Timeline');
       node.data.clipOrder = node.data.clipOrder.filter(id => id !== clip.id);
       syncTimelineDock();
       render();
@@ -505,7 +503,7 @@ export function toggleTimeline() {
     collapsed = dock.classList.toggle('collapsed'),
     button = $('#timelineToggleBtn');
   button.textContent = collapsed ? '▲' : '▼';
-  button.title = collapsed ? 'Show timeline' : 'Hide timeline';
+  button.title = collapsed ? 'Hiện timeline' : 'Ẩn timeline';
   button.setAttribute('aria-expanded', String(!collapsed));
 }
 
@@ -536,7 +534,7 @@ export function playTimeline(node, { startTime = 0 } = {}) {
       .map(id => nodeById(id))
       .filter(n => n?.type === 'generateVideo' && n.data?.asset?.url);
   if (!clips.length) {
-    setRunStatus('Connect completed video clips to the timeline first.', 'warn');
+    setRunStatus('Hãy nối các clip video đã tạo xong vào timeline trước.', 'warn');
     return;
   }
   clearTimeout(state.timelinePreviewTimer);
@@ -585,7 +583,7 @@ export function playTimeline(node, { startTime = 0 } = {}) {
       }
       let timer = setTimeout(() => {
         cleanup();
-        reject(new Error('The next timeline clip did not load in time.'));
+        reject(new Error('Clip timeline tiếp theo không tải kịp.'));
       }, 15000);
       const ready = () => {
           cleanup();
@@ -593,7 +591,7 @@ export function playTimeline(node, { startTime = 0 } = {}) {
         },
         failed = () => {
           cleanup();
-          reject(new Error('The next timeline clip could not be loaded.'));
+          reject(new Error('Không tải được clip timeline tiếp theo.'));
         },
         cleanup = () => {
           clearTimeout(timer);
@@ -629,7 +627,7 @@ export function playTimeline(node, { startTime = 0 } = {}) {
       if (head) head.style.left = `${total * 42}px`;
       cancelAnimationFrame(state.timelinePlayheadFrame);
       stopMusicPreview();
-      setRunStatus('Timeline preview complete.', 'ok');
+      setRunStatus('Đã xem trước xong timeline.', 'ok');
       return;
     }
     const clipIndex = index,
@@ -664,9 +662,9 @@ export function playTimeline(node, { startTime = 0 } = {}) {
         next.onended = () => {
           if (token === state.timelinePreviewToken) playNext();
         };
-        setRunStatus(`Timeline clip is ready; press Play to continue (${error.message})`, 'warn');
+        setRunStatus(`Clip timeline đã sẵn sàng; bấm Phát để tiếp tục (${error.message})`, 'warn');
       } else if (token === state.timelinePreviewToken)
-        setRunStatus(`Timeline preview paused: ${error.message}`, 'error');
+        setRunStatus(`Xem trước timeline đã tạm dừng: ${error.message}`, 'error');
       return;
     }
     if (token !== state.timelinePreviewToken) {
@@ -706,7 +704,7 @@ export function playTimeline(node, { startTime = 0 } = {}) {
     };
     next.onended = advance;
     state.timelinePreviewTimer = setTimeout(advance, Math.max(0.1, durationOf(clip) - clipOffset) * 1000);
-    setRunStatus(`Timeline shot ${index}/${clips.length}`, 'warn');
+    setRunStatus(`Timeline: cảnh quay ${index}/${clips.length}`, 'warn');
   };
   playNext();
 }

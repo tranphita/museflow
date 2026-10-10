@@ -23,7 +23,7 @@ const formatTime = ms => {
 };
 
 export function stepLabel(node) {
-  if (!node) return 'Removed node';
+  if (!node) return 'Node đã bị xoá';
   const title = node.data.customName || nodeDefs[node.type]?.title || node.type;
   return node.data.sceneLabel && !node.data.customName ? `${title} · ${node.data.sceneLabel}` : title;
 }
@@ -103,16 +103,14 @@ function summary(run) {
   const elapsed = formatTime((run.endedAt || Date.now()) - run.startedAt);
   if (run.outcome === 'running') {
     const current = run.steps.find(step => step.status === 'running');
-    return `Running ${Math.min(finished + 1, total)}/${total} · ${elapsed}${current ? ` · ${current.label}` : ''}`;
+    return `Đang chạy ${Math.min(finished + 1, total)}/${total} · ${elapsed}${current ? ` · ${current.label}` : ''}`;
   }
-  if (run.outcome === 'stopped') return `Stopped by you after ${elapsed} · ${finished}/${total} steps`;
+  if (run.outcome === 'stopped') return `Bạn đã dừng sau ${elapsed} · ${finished}/${total} bước`;
   if (run.outcome === 'error') {
     const failedStep = run.steps.find(step => step.status === 'error');
-    return `Stopped at ${failedStep?.label || 'a step'} after ${elapsed}`;
+    return `Dừng ở ${failedStep?.label || 'một bước'} sau ${elapsed}`;
   }
-  return failed
-    ? `Finished in ${elapsed} with ${failed} failed step${failed === 1 ? '' : 's'}`
-    : `Finished all ${total} steps in ${elapsed}`;
+  return failed ? `Xong sau ${elapsed}, có ${failed} bước bị lỗi` : `Xong cả ${total} bước trong ${elapsed}`;
 }
 
 export function renderRunPanel() {
@@ -136,7 +134,7 @@ export function renderRunPanel() {
     ...run.steps.map(step => {
       const item = document.createElement('li');
       item.className = `run-step run-step-${step.status}`;
-      item.title = step.error || 'Show this node on the canvas';
+      item.title = step.error || 'Hiện node này trên canvas';
       const icon = document.createElement('span');
       icon.className = 'run-step-icon';
       icon.textContent = ICONS[step.status] || '○';

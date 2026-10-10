@@ -5,7 +5,10 @@ async page => {
   const errors = [];
   page.on('pageerror', e => errors.push(String(e)));
   await page.goto(`${base}/app.html`);
-  await page.evaluate(() => sessionStorage.clear());
+  await page.evaluate(() => {
+    sessionStorage.clear();
+    localStorage.setItem('museta-view', 'canvas');
+  });
   await page.reload();
   await page.waitForTimeout(800);
 
@@ -70,7 +73,7 @@ async page => {
   await page.selectOption('#timelineExportFormat', 'mp4');
   const downloadPromise = page.waitForEvent('download', { timeout: 120000 }).catch(() => null);
   await page.click('#timelineExportBtn');
-  await page.waitForFunction(() => /exported|failed|stopped/i.test(document.querySelector('#runStatus').textContent), null, { timeout: 120000 });
+  await page.waitForFunction(() => /đã xuất|thất bại|đã dừng/i.test(document.querySelector('#runStatus').textContent), null, { timeout: 120000 });
   const status = await page.locator('#runStatus').textContent();
   const download = await downloadPromise;
   const probe = await page.evaluate(async () => {

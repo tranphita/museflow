@@ -37,7 +37,7 @@ async page => {
 
   await page.click('#runBtn');
   await page.waitForFunction(
-    () => /completed/i.test(document.querySelector('#runStatus').textContent),
+    () => /xong/i.test(document.querySelector('#runStatus').textContent),
     null,
     {
       timeout: 10000,
@@ -51,7 +51,7 @@ async page => {
 
   const runAndWait = async () => {
     await page.click('#runBtn');
-    await page.waitForFunction(() => !/Running|generating|retry/i.test(document.querySelector('#runStatus').textContent), null, { timeout: 10000 });
+    await page.waitForFunction(() => !/Đang chạy|đang tạo|tự thử lại/i.test(document.querySelector('#runStatus').textContent), null, { timeout: 10000 });
     return page.locator('#runStatus').textContent();
   };
   await runAndWait();
@@ -60,7 +60,7 @@ async page => {
   await page.click('#settingsBtn');
   await page.selectOption('#autoRetrySetting', '1');
   await page.click('#saveSettingsBtn');
-  await page.waitForFunction(() => document.querySelector('#runStatus').textContent === 'Saved.');
+  await page.waitForFunction(() => document.querySelector('#runStatus').textContent === 'Đã lưu.');
   await page.evaluate(() => {
     window.__failNext = 1;
     window.__museTabMessages.length = 0;
@@ -77,7 +77,7 @@ async page => {
   await page.click('#settingsBtn');
   await page.selectOption('#autoRetrySetting', '0');
   await page.click('#saveSettingsBtn');
-  await page.waitForFunction(() => document.querySelector('#runStatus').textContent === 'Saved.');
+  await page.waitForFunction(() => document.querySelector('#runStatus').textContent === 'Đã lưu.');
   await page.evaluate(() => (window.__failNext = 1));
   results.failRunStatus = await runAndWait();
   results.failedNodeStatus = await page.locator('.node .status.error').first().textContent();

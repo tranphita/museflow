@@ -76,7 +76,7 @@ test('topoOrder respects edges and throws on a cycle', () => {
   assert.deepEqual(topoOrder(), ['p', 'gen']);
   state.nodes.push(node('t1', 'textAppend'), node('t2', 'textAppend'));
   state.edges.push(edge('t1', 'text', 't2', 'text'), edge('t2', 'text', 't1', 'text'));
-  assert.throws(() => topoOrder(), /cycle/);
+  assert.throws(() => topoOrder(), /vòng lặp/);
 });
 
 test('topoOrder runs videos in timeline order', () => {

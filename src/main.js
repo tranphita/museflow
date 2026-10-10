@@ -84,7 +84,7 @@ $('#scriptModal').onclick = event => {
 $('#scriptInput').addEventListener('input', () => {
   const count = parseSceneScript($('#scriptInput').value).length;
   $('#scriptImportStatus').className = '';
-  $('#scriptImportStatus').textContent = count ? `${count} scene${count === 1 ? '' : 's'} detected.` : '';
+  $('#scriptImportStatus').textContent = count ? `Đã nhận diện ${count} cảnh.` : '';
 });
 $('#timelineToggleBtn').onclick = toggleTimeline;
 $('#timelineExportBtn').onclick = exportTimelineVideo;
@@ -118,7 +118,7 @@ $('#workflowFileInput').onchange = event => {
 $('#settingsBtn').onclick = async () => {
   syncSettingsUI();
   $('#ttsApiKeySetting').placeholder = (await getTtsApiKey())
-    ? 'Saved — paste a new key to replace it'
+    ? 'Đã lưu — dán key mới để thay thế'
     : 'sk_tvoice_…';
   $('#settingsModal').classList.remove('hidden');
 };
@@ -278,12 +278,12 @@ document.addEventListener(
       e.preventDefault();
       if (state.selectedEdgeIds.length) {
         const ids = new Set(state.selectedEdgeIds);
-        createUndoSnapshot(`Delete ${ids.size} connection${ids.size === 1 ? '' : 's'}`);
+        createUndoSnapshot(`Xoá ${ids.size} kết nối`);
         state.edges = state.edges.filter(edge => !ids.has(edge.id));
         state.selectedEdgeIds = [];
         render();
         saveState();
-        setRunStatus('Selected connections deleted.', 'ok');
+        setRunStatus('Đã xoá các kết nối đã chọn.', 'ok');
       } else removeSelectedNodes();
     }
     if (e.key.toLowerCase() === 'h' && !isTextEntry(e.target)) {

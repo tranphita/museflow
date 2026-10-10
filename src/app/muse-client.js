@@ -11,7 +11,7 @@ export const MESSAGE = Object.freeze({
 const MUSE_TAB_URLS = ['https://muse.ai/*', 'https://*.muse.ai/*'];
 const BRIDGE_FILES = ['bridge/muse-ui.js', 'bridge/refusal.js', 'bridge/muse-bridge.js'];
 
-const stoppedError = () => new DOMException('Generation stopped by user.', 'AbortError');
+const stoppedError = () => new DOMException('Đã dừng tạo theo yêu cầu của bạn.', 'AbortError');
 
 export let preferredMuseTabId = null;
 
@@ -26,7 +26,7 @@ export async function museTabMessage(message, preferredTabId, signal, { onlyThis
   if (signal?.aborted) throw stoppedError();
   const allTabs = await queryMuseTabs();
   const tabs = onlyThisTab ? allTabs.filter(tab => tab.id === preferredTabId) : allTabs;
-  if (!tabs.length) throw new Error('Open Muse.ai and sign in, then retry.');
+  if (!tabs.length) throw new Error('Mở Muse.ai và đăng nhập rồi thử lại.');
   const preferred = preferredTabId ?? preferredMuseTabId;
   if (preferred) {
     const index = tabs.findIndex(tab => tab.id === preferred);
@@ -38,7 +38,7 @@ export async function museTabMessage(message, preferredTabId, signal, { onlyThis
     if (!tab.id) continue;
     try {
       const response = await sendMuseTabMessage(tab.id, message, signal);
-      if (response === undefined) throw new Error('The Muse page bridge did not answer.');
+      if (response === undefined) throw new Error('Cầu nối trang Muse không phản hồi.');
       preferredMuseTabId = tab.id;
       return response;
     } catch (error) {
@@ -56,7 +56,7 @@ export async function museTabMessage(message, preferredTabId, signal, { onlyThis
     }
   }
   throw new Error(
-    `Muse tab found, but Museta could not attach its page bridge: ${lastError || 'unknown browser error'}. Check Muse site access in the browser extension settings, then retry.`,
+    `Đã thấy tab Muse nhưng Museta không gắn được cầu nối trang: ${lastError || 'lỗi trình duyệt không xác định'}. Kiểm tra quyền truy cập trang Muse trong cài đặt tiện ích của trình duyệt rồi thử lại.`,
   );
 }
 
@@ -103,7 +103,7 @@ function renderDiagnostics(checks) {
     const item = document.createElement('li');
     item.className = check.ok === null ? 'warn' : check.ok ? 'ok' : 'error';
     item.textContent = `${check.ok === null ? '•' : check.ok ? '✓' : '✗'} ${check.label}`;
-    if (check.ok === false) item.title = `Update bridge/muse-ui.js → ${check.hint}`;
+    if (check.ok === false) item.title = `Cập nhật bridge/muse-ui.js → ${check.hint}`;
     list.appendChild(item);
   }
 }
@@ -113,10 +113,10 @@ export async function testMuseSession(preferredTabId) {
     status = $('#connectionStatus');
   if (button) button.disabled = true;
   status.className = 'warn';
-  status.textContent = 'Checking Muse session…';
+  status.textContent = 'Đang kiểm tra phiên Muse…';
   try {
     const result = await museTabMessage({ type: MESSAGE.checkSession }, preferredTabId);
-    if (!result?.ok) throw new Error(result?.error || 'Muse session check failed.');
+    if (!result?.ok) throw new Error(result?.error || 'Kiểm tra phiên Muse thất bại.');
     const diagnostics = await museTabMessage({ type: MESSAGE.diagnose }, preferredMuseTabId).catch(
       () => null,
     );
@@ -127,19 +127,20 @@ export async function testMuseSession(preferredTabId) {
     const ready = Boolean(result.composer && result.signedIn);
     status.className = ready && !failedHooks.length ? 'ok' : 'warn';
     status.textContent = failedHooks.length
-      ? `Muse page changed: ${failedHooks.map(check => check.label).join(', ')} not found. Generation may fail until bridge/muse-ui.js is updated.`
+      ? `Trang Muse đã thay đổi: không tìm thấy ${failedHooks.map(check => check.label).join(', ')}. Có thể tạo thất bại cho tới khi cập nhật bridge/muse-ui.js.`
       : ready
-        ? 'Muse session connected.'
+        ? 'Đã kết nối phiên Muse.'
         : result.loginRequired
-          ? 'Muse asks you to sign in. Sign in on the Muse tab, then check again.'
+          ? 'Muse yêu cầu đăng nhập. Đăng nhập trên tab Muse rồi kiểm tra lại.'
           : result.composer
-            ? 'Muse chat is ready. Session state could not be confirmed; generation can still be tried.'
-            : 'Muse tab found, but its chat message box is not ready. Open a Muse chat and try again.';
-    museStatus.textContent = ready ? '● Muse session ready' : '● Muse session needs attention';
+            ? 'Khung chat Muse đã sẵn sàng. Chưa xác nhận được trạng thái phiên; vẫn có thể thử tạo.'
+            : 'Đã thấy tab Muse nhưng ô nhập tin nhắn chưa sẵn sàng. Mở một cuộc chat Muse rồi thử lại.';
+    museStatus.textContent = ready ? '● Phiên Muse sẵn sàng' : '● Phiên Muse cần kiểm tra';
     museStatus.className = ready ? 'ok' : result.loginRequired ? 'warn' : 'ok';
-    if (!ready && !result.loginRequired) museStatus.textContent = '● Muse chat ready · session unconfirmed';
+    if (!ready && !result.loginRequired)
+      museStatus.textContent = '● Chat Muse sẵn sàng · chưa xác nhận phiên';
     if (failedHooks.length) {
-      museStatus.textContent = '● Muse page changed · open Settings';
+      museStatus.textContent = '● Trang Muse đã thay đổi · mở Cài đặt';
       museStatus.className = 'warn';
     }
     return ready || Boolean(result.composer && !result.loginRequired);
@@ -147,7 +148,7 @@ export async function testMuseSession(preferredTabId) {
     status.className = 'error';
     status.textContent = error.message;
     renderDiagnostics([]);
-    museStatus.textContent = '● Muse session check failed';
+    museStatus.textContent = '● Kiểm tra phiên Muse thất bại';
     museStatus.className = 'error';
     return false;
   } finally {
@@ -162,11 +163,11 @@ export async function detectMuse() {
       const active = tabs.find(t => t.active) || tabs[0];
       await testMuseSession(active.id);
     } else {
-      museStatus.textContent = '● Open muse.ai and sign in';
+      museStatus.textContent = '● Mở muse.ai và đăng nhập';
       museStatus.className = 'warn';
     }
   } catch {
-    museStatus.textContent = '● Muse session check unavailable';
+    museStatus.textContent = '● Không kiểm tra được phiên Muse';
     museStatus.className = 'warn';
   }
 }
@@ -174,7 +175,7 @@ export async function detectMuse() {
 const wait = ms => new Promise(resolve => setTimeout(resolve, ms));
 
 export async function prepareMuseTab(tabId, url, { timeoutMs = 90_000 } = {}) {
-  const closed = 'The Muse tab for this worker was closed. Open Muse.ai and sign in, then retry.';
+  const closed = 'Tab Muse của worker này đã bị đóng. Mở Muse.ai và đăng nhập rồi thử lại.';
   if (!(await chrome.tabs.update(tabId, { url }).catch(() => null))) throw new Error(closed);
   const deadline = Date.now() + timeoutMs;
   let last = null;
@@ -186,10 +187,10 @@ export async function prepareMuseTab(tabId, url, { timeoutMs = 90_000 } = {}) {
     last = await museTabMessage({ type: MESSAGE.checkSession }, tabId, undefined, {
       onlyThisTab: true,
     }).catch(error => ({ ok: false, error: error?.message || String(error) }));
-    if (last?.loginRequired) throw new Error('Muse is signed out. Open Muse.ai and sign in, then retry.');
+    if (last?.loginRequired) throw new Error('Muse đã đăng xuất. Mở Muse.ai và đăng nhập rồi thử lại.');
     if (last?.composer) return;
   }
   throw new Error(
-    `Muse chat is not ready after ${Math.round(timeoutMs / 1000)} s. ${last?.error || ''}`.trim(),
+    `Khung chat Muse chưa sẵn sàng sau ${Math.round(timeoutMs / 1000)} giây. ${last?.error || ''}`.trim(),
   );
 }

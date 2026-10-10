@@ -29,7 +29,7 @@ export function openCanvasMenu(e) {
     menu.appendChild(title);
     [
       ['＋ Prompt', 'add:prompt'],
-      ['＋ Text note', 'add:text'],
+      ['＋ Ghi chú', 'add:text'],
       ['＋ Negative Prompt', 'add:negativePrompt'],
       ['＋ Image Input', 'add:imageInput'],
       ['＋ References', 'add:references'],
@@ -38,11 +38,11 @@ export function openCanvasMenu(e) {
       ['＋ Timeline', 'add:timeline'],
       ['＋ Voiceover', 'add:voiceover'],
       ['＋ Preview', 'add:preview'],
-      ['Save workflow', 'save'],
-      ['▶ Run workflow', 'run'],
-      ['Arrange nodes', 'arrange'],
-      ['Delete selected node', 'delete-selected'],
-      ['Remove all connections', 'disconnect-all'],
+      ['Lưu workflow', 'save'],
+      ['▶ Chạy workflow', 'run'],
+      ['Sắp xếp node', 'arrange'],
+      ['Xoá node đã chọn', 'delete-selected'],
+      ['Xoá mọi kết nối', 'disconnect-all'],
     ].forEach(([label, action]) => {
       const button = document.createElement('button');
       button.type = 'button';
@@ -73,30 +73,30 @@ export function openCanvasMenu(e) {
     button.dataset.contextAction = action;
     menu.appendChild(button);
   };
-  addAction('Rename node…', 'node-rename');
+  addAction('Đổi tên node…', 'node-rename');
   if (['generateImage', 'generateVideo'].includes(node.type))
     addAction(
       node.data.status === 'running'
-        ? `■ Stop ${node.type === 'generateVideo' ? 'Video' : 'Image'}`
-        : `▶ Run ${node.type === 'generateVideo' ? 'Video' : 'Image'}`,
+        ? `■ Dừng ${node.type === 'generateVideo' ? 'video' : 'ảnh'}`
+        : `▶ Chạy ${node.type === 'generateVideo' ? 'video' : 'ảnh'}`,
       'node-run',
     );
-  if (node.type === 'generateVideo') addAction('↻ Again · follow prompt more closely', 'node-again');
-  if (node.type === 'timeline') addAction('▶ Preview sequence', 'node-preview');
+  if (node.type === 'generateVideo') addAction('↻ Làm lại · bám sát prompt hơn', 'node-again');
+  if (node.type === 'timeline') addAction('▶ Xem trước cả chuỗi', 'node-preview');
   if ((nodeDefs[node.type]?.outputs || []).some(port => port.type === 'text'))
-    addAction('Create Text Merge node', 'node-create-text-merge');
+    addAction('Tạo node Text Merge', 'node-create-text-merge');
   if ((nodeDefs[node.type]?.outputs || []).some(port => ['image', 'video'].includes(port.type)))
-    addAction('Create Preview node', 'node-create-preview');
-  if (node.type === 'imageInput') addAction('Choose / replace image', 'node-choose-image');
-  if (node.type === 'imageResize') addAction('Download resized image', 'node-download-image');
+    addAction('Tạo node Preview', 'node-create-preview');
+  if (node.type === 'imageInput') addAction('Chọn / thay ảnh', 'node-choose-image');
+  if (node.type === 'imageResize') addAction('Tải xuống ảnh đã đổi cỡ', 'node-download-image');
   if (node.type === 'generateImage' && node.data.asset?.url)
-    addAction(node.data.characterName ? 'Save character image' : 'Download image', 'node-download-image');
-  if (node.type === 'preview') addAction('Download preview', 'node-download-preview');
+    addAction(node.data.characterName ? 'Lưu ảnh nhân vật' : 'Tải xuống ảnh', 'node-download-image');
+  if (node.type === 'preview') addAction('Tải xuống bản xem trước', 'node-download-preview');
   if (node.type === 'prompt' || node.type === 'negativePrompt' || node.type === 'textAppend')
-    addAction('Focus text field', 'node-focus-text');
-  addAction('Duplicate node', 'node-duplicate');
-  addAction('Disconnect node', 'node-disconnect');
-  addAction('Delete node', 'node-delete');
+    addAction('Chuyển tới ô văn bản', 'node-focus-text');
+  addAction('Nhân bản node', 'node-duplicate');
+  addAction('Ngắt kết nối node', 'node-disconnect');
+  addAction('Xoá node', 'node-delete');
   menu.classList.remove('hidden');
   menu.style.left = `${Math.min(e.clientX, innerWidth - 230)}px`;
   menu.style.top = `${Math.min(e.clientY, innerHeight - 380)}px`;
@@ -112,11 +112,11 @@ export function openEdgeMenu(e) {
   delete menu.dataset.nodeId;
   const title = document.createElement('div');
   title.className = 'menu-caption';
-  title.textContent = 'Connection';
+  title.textContent = 'Kết nối';
   menu.appendChild(title);
   const button = document.createElement('button');
   button.type = 'button';
-  button.textContent = 'Delete connection';
+  button.textContent = 'Xoá kết nối';
   button.dataset.contextAction = 'edge-delete';
   menu.appendChild(button);
   menu.classList.remove('hidden');
@@ -145,18 +145,18 @@ export function runNodeContextAction(action) {
     const current =
         node.data.customName ||
         `${nodeDefs[node.type].title}${node.data.sceneLabel ? ` · ${node.data.sceneLabel}` : ''}`,
-      name = window.prompt('Enter a name for this node:', current);
+      name = window.prompt('Nhập tên cho node này:', current);
     if (name === null) return;
     const trimmed = name.trim();
     if (!trimmed) {
-      setRunStatus('Node name cannot be empty.', 'warn');
+      setRunStatus('Tên node không được để trống.', 'warn');
       return;
     }
-    createUndoSnapshot('Rename node');
+    createUndoSnapshot('Đổi tên node');
     node.data.customName = trimmed;
     render();
     saveState();
-    setRunStatus('Node renamed.', 'ok');
+    setRunStatus('Đã đổi tên node.', 'ok');
     return;
   }
   if (action === 'node-run') {
@@ -178,7 +178,7 @@ export function runNodeContextAction(action) {
   if (action === 'node-create-text-merge') {
     const output = (nodeDefs[node.type]?.outputs || []).find(port => port.type === 'text');
     if (!output) return;
-    createUndoSnapshot('Create Text Merge node');
+    createUndoSnapshot('Tạo node Text Merge');
     const target = makeNode('textConcat', node.x + 350, node.y);
     target.data = { separator: ', ' };
     state.nodes.push(target);
@@ -191,13 +191,13 @@ export function runNodeContextAction(action) {
     });
     render();
     saveState();
-    setRunStatus('Text Merge created and connected to this text output.', 'ok');
+    setRunStatus('Đã tạo Text Merge và nối với đầu ra văn bản này.', 'ok');
     return;
   }
   if (action === 'node-create-preview') {
     const output = (nodeDefs[node.type].outputs || []).find(port => ['image', 'video'].includes(port.type));
     if (output) {
-      createUndoSnapshot('Create Preview node');
+      createUndoSnapshot('Tạo node Preview');
       const target = makeNode('preview', node.x + 350, node.y);
       state.nodes.push(target);
       state.connectingFrom = { nodeId: node.id, portId: output.id };
@@ -207,11 +207,11 @@ export function runNodeContextAction(action) {
   }
   if (action === 'node-disconnect') {
     if (state.edges.some(edge => edge.source === node.id || edge.target === node.id)) {
-      createUndoSnapshot('Disconnect node');
+      createUndoSnapshot('Ngắt kết nối node');
       state.edges = state.edges.filter(edge => edge.source !== node.id && edge.target !== node.id);
       render();
       saveState();
-      setRunStatus('Node connections removed.', 'ok');
+      setRunStatus('Đã xoá các kết nối của node.', 'ok');
     }
     return;
   }
@@ -234,11 +234,11 @@ export function runNodeContextAction(action) {
         ? `${node.data.characterName}.${extension}`
         : node.data.asset.name || 'museta-output';
       link.click();
-    } else setRunStatus('This node has no output to download.', 'warn');
+    } else setRunStatus('Node này chưa có kết quả để tải xuống.', 'warn');
     return;
   }
   if (action === 'node-duplicate') {
-    createUndoSnapshot('Duplicate node');
+    createUndoSnapshot('Nhân bản node');
     const copy = structuredClone(node);
     copy.id = uid(node.type);
     copy.x += 36;
@@ -251,7 +251,7 @@ export function runNodeContextAction(action) {
     }
     render();
     saveState();
-    setRunStatus('Node duplicated.', 'ok');
+    setRunStatus('Đã nhân bản node.', 'ok');
   }
 }
 export function runCanvasAction(action) {
@@ -261,13 +261,13 @@ export function runCanvasAction(action) {
     closeCanvasMenu();
     if (!edgeId) return;
     const before = state.edges.length;
-    if (state.edges.some(edge => edge.id === edgeId)) createUndoSnapshot('Delete connection');
+    if (state.edges.some(edge => edge.id === edgeId)) createUndoSnapshot('Xoá kết nối');
     state.edges = state.edges.filter(edge => edge.id !== edgeId);
     delete menu.dataset.edgeId;
     if (state.edges.length !== before) {
       render();
       saveState();
-      setRunStatus('Connection deleted.', 'ok');
+      setRunStatus('Đã xoá kết nối.', 'ok');
     }
     return;
   }
@@ -300,17 +300,17 @@ export function runCanvasAction(action) {
   if (action === 'delete-selected') {
     if (state.selectedNodeIds.length) removeSelectedNodes();
     else if (state.selectedNodeId) removeNode(state.selectedNodeId);
-    else setRunStatus('Select one or more nodes first.', 'warn');
+    else setRunStatus('Hãy chọn một hoặc nhiều node trước.', 'warn');
     return;
   }
   if (action === 'disconnect-all') {
     if (state.edges.length) {
-      createUndoSnapshot('Remove all connections');
+      createUndoSnapshot('Xoá mọi kết nối');
       state.edges = [];
       state.connectingFrom = null;
       render();
       saveState();
-      setRunStatus('All connections removed.', 'ok');
+      setRunStatus('Đã xoá mọi kết nối.', 'ok');
     }
   }
 }

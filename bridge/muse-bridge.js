@@ -55,7 +55,7 @@
   const delay = (ms, signal) =>
     new Promise((resolve, reject) => {
       if (signal?.aborted) {
-        reject(new DOMException('Generation stopped by user.', 'AbortError'));
+        reject(new DOMException('Đã dừng tạo theo yêu cầu của bạn.', 'AbortError'));
         return;
       }
       const timer = setTimeout(() => {
@@ -65,7 +65,7 @@
       const cancel = () => {
         clearTimeout(timer);
         signal?.removeEventListener('abort', cancel);
-        reject(new DOMException('Generation stopped by user.', 'AbortError'));
+        reject(new DOMException('Đã dừng tạo theo yêu cầu của bạn.', 'AbortError'));
       };
       signal?.addEventListener('abort', cancel, { once: true });
     });
@@ -109,13 +109,11 @@
     const end = Date.now() + timeout;
     while (Date.now() < end) {
       if (document.readyState === 'complete' && findComposer() && isHydrated()) return;
-      if (signal?.aborted) throw new DOMException('Generation stopped by user.', 'AbortError');
+      if (signal?.aborted) throw new DOMException('Đã dừng tạo theo yêu cầu của bạn.', 'AbortError');
       await delay(120, signal);
     }
     if (!findComposer())
-      throw new Error(
-        'Muse chat is not ready. Open the Muse chat page and wait for the message box to load.',
-      );
+      throw new Error('Khung chat Muse chưa sẵn sàng. Mở trang chat Muse và chờ ô nhập tin nhắn tải xong.');
   }
 
   function isHydrated() {
@@ -168,19 +166,19 @@
     const composer = findComposer();
     const check = (id, label, found, hint) => ({ id, label, ok: Boolean(found), hint });
     return [
-      check('composer', 'Chat message box', composer, 'selectors.composer / text.composerPlaceholder'),
-      check('hydrated', 'Muse page finished loading', isHydrated(), 'selectors.hydrationState'),
+      check('composer', 'Ô nhập tin nhắn chat', composer, 'selectors.composer / text.composerPlaceholder'),
+      check('hydrated', 'Trang Muse đã tải xong', isHydrated(), 'selectors.hydrationState'),
       findSendButton() || composer?.closest('form') || composer?.value.trim()
-        ? check('send', 'Send button', findSendButton() || composer?.closest('form'), 'text.sendButton')
+        ? check('send', 'Nút gửi', findSendButton() || composer?.closest('form'), 'text.sendButton')
         : {
             id: 'send',
-            label: 'Send button (appears once a prompt is typed)',
+            label: 'Nút gửi (hiện ra khi đã nhập prompt)',
             ok: null,
             hint: 'text.sendButton',
           },
       check(
         'upload',
-        'Image upload control (needed for references)',
+        'Nút tải ảnh lên (cần cho ảnh tham chiếu)',
         findImageUploadInput(composer).input ||
           [...document.querySelectorAll(UI.selectors.uploadTrigger)].some(el =>
             UI.text.uploadButton.test(
@@ -191,7 +189,7 @@
       ),
       check(
         'login',
-        'Signed in',
+        'Đã đăng nhập',
         !(
           document.querySelector(UI.selectors.loginField) &&
           UI.text.loginPrompt.test(document.body?.innerText || '')
@@ -307,15 +305,16 @@
     signal,
   ) {
     const throwIfAborted = () => {
-      if (signal?.aborted) throw new DOMException('Generation stopped by user.', 'AbortError');
+      if (signal?.aborted) throw new DOMException('Đã dừng tạo theo yêu cầu của bạn.', 'AbortError');
     };
     throwIfAborted();
-    if (!String(prompt || '').trim()) throw new Error('Prompt is empty.');
+    const mediaWord = mediaType === 'video' ? 'video' : 'ảnh';
+    if (!String(prompt || '').trim()) throw new Error('Prompt đang trống.');
     await waitHydrated(15000, signal);
     throwIfAborted();
     const composer = findComposer();
     if (!visible(composer))
-      throw new Error('Muse message box is not visible. Open the chat composer and retry.');
+      throw new Error('Không thấy ô nhập tin nhắn của Muse. Mở khung chat rồi thử lại.');
     const referenceList =
       Array.isArray(referenceImages) && referenceImages.length
         ? referenceImages
@@ -334,7 +333,7 @@
     composer.scrollIntoView({ block: 'center' });
     composer.focus();
     const setter = Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype, 'value')?.set;
-    if (!setter) throw new Error('Muse message box is unsupported.');
+    if (!setter) throw new Error('Ô nhập tin nhắn của Muse không được hỗ trợ.');
     setter.call(composer, String(prompt));
     composer.dispatchEvent(new Event('input', { bubbles: true }));
     composer.dispatchEvent(new Event('change', { bubbles: true }));
@@ -346,7 +345,7 @@
       await delay(100, signal);
     }
     if (!composer.value.trim())
-      throw new Error('Muse did not accept the prompt into its message box. Nothing was submitted.');
+      throw new Error('Muse không nhận prompt vào ô nhập tin nhắn. Chưa có gì được gửi.');
     const bubbleCount = () => document.querySelectorAll(UI.selectors.chatBubble).length;
     const beforeSendCount = bubbleCount();
     let submitted = false;
@@ -382,7 +381,7 @@
     }
     if (!submitted || !accepted)
       throw new Error(
-        'Muse did not confirm the prompt submission. Check the chat box and try again; Museta will not resubmit automatically.',
+        'Muse không xác nhận đã gửi prompt. Kiểm tra khung chat rồi thử lại; Museta sẽ không tự gửi lại.',
       );
     const deadline = Date.now() + Math.min(900, Math.max(30, Number(timeoutSec) || 600)) * 1000;
     let lastProgress = Date.now(),
@@ -431,14 +430,14 @@
         if (src.startsWith('data:')) return { ok: true, url: src };
         try {
           const response = await fetch(src, { credentials: 'include' });
-          if (!response.ok) throw new Error(`${mediaType} download returned HTTP ${response.status}.`);
+          if (!response.ok) throw new Error(`Tải ${mediaWord} về trả lỗi HTTP ${response.status}.`);
           const blob = await response.blob();
           return { ok: true, url: await blobToDataUrl(blob) };
         } catch (error) {
           return {
             ok: true,
             url: src,
-            error: `New ${mediaType} detected but could not be copied locally: ${error.message}`,
+            error: `Đã thấy ${mediaWord} mới nhưng không sao chép về máy được: ${error.message}`,
           };
         }
       }
@@ -452,7 +451,7 @@
         }
         if (isClearRefusal(currentContext) || Date.now() - refusalContextSince >= 1200) {
           if (stop) clickMuseStop();
-          const error = new Error(`Muse could not generate this scene: ${currentContext.slice(-700)}`);
+          const error = new Error(`Muse không tạo được cảnh này: ${currentContext.slice(-700)}`);
           error.code = 'SCENE_REFUSED';
           throw error;
         }
@@ -462,13 +461,14 @@
       }
       if (!stop && Date.now() - lastProgress > 5000) {
         const tail = (document.body?.innerText || '').slice(-800);
-        if (UI.text.outOfCredits.test(tail)) throw new Error('Muse account has insufficient image credits.');
+        if (UI.text.outOfCredits.test(tail))
+          throw new Error('Tài khoản Muse không đủ credit tạo ảnh. Hãy nạp thêm credit rồi thử lại.');
       }
       await waitForAttachmentChange(Math.min(500, deadline - Date.now()), signal);
     }
     throwIfAborted();
     throw new Error(
-      `Timed out waiting for a new Muse ${mediaType} attachment. Prompt was submitted once; it was not resubmitted.`,
+      `Hết thời gian chờ ${mediaWord} mới từ Muse. Prompt đã được gửi một lần và không gửi lại.`,
     );
   }
 
@@ -476,13 +476,12 @@
     const files = await Promise.all(
       references.map(async (reference, index) => {
         const url = typeof reference === 'string' ? reference : reference?.url;
-        if (!url) throw new Error(`Reference image ${index + 1} has no URL.`);
+        if (!url) throw new Error(`Ảnh tham chiếu ${index + 1} không có URL.`);
         const response = await fetch(url, { credentials: 'include' });
-        if (!response.ok)
-          throw new Error(`Could not load reference image ${index + 1} (${response.status}).`);
+        if (!response.ok) throw new Error(`Không tải được ảnh tham chiếu ${index + 1} (${response.status}).`);
         const blob = await response.blob();
         if (!blob.type.startsWith('image/') || !blob.size)
-          throw new Error(`Reference ${index + 1} is not a readable image.`);
+          throw new Error(`Ảnh tham chiếu ${index + 1} không đọc được.`);
         const extension =
           (blob.type.split('/')[1] || 'png').replace('jpeg', 'jpg').replace(/[^a-z0-9]/gi, '') || 'png';
         return new File([blob], `museta-reference-${String(index + 1).padStart(2, '0')}.${extension}`, {
@@ -511,9 +510,7 @@
       }
     }
     if (!input)
-      throw new Error(
-        'Muse image upload control was not found near the chat composer; the prompt was not submitted.',
-      );
+      throw new Error('Không tìm thấy nút tải ảnh lên của Muse gần khung chat; prompt chưa được gửi.');
     const previewElements = () => [...document.querySelectorAll(UI.selectors.uploadPreview)].filter(visible);
     const previewKey = el => {
       const src = el.matches('img')
@@ -523,7 +520,7 @@
       return `${src}|${el.getAttribute('data-testid') || ''}|${el.getAttribute('class') || ''}|${el.getAttribute('aria-label') || ''}|${el.getAttribute('title') || ''}`;
     };
     const setter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'files')?.set;
-    if (!setter) throw new Error('Browser does not allow setting the Muse attachment input.');
+    if (!setter) throw new Error('Trình duyệt không cho phép gán file vào ô đính kèm của Muse.');
     const uploadBatch = async batch => {
       const previousPreviews = new Set(previewElements().map(previewKey));
       const transfer = new DataTransfer();
@@ -547,12 +544,12 @@
           return !previousPreviews.has(key) && Boolean(src);
         });
       while (Date.now() < deadline) {
-        if (signal?.aborted) throw new DOMException('Generation stopped by user.', 'AbortError');
+        if (signal?.aborted) throw new DOMException('Đã dừng tạo theo yêu cầu của bạn.', 'AbortError');
         if (previewSeen() || (accepted() && Date.now() - started > 1000)) return;
         await delay(160, signal);
       }
       throw new Error(
-        `Muse did not confirm ${batch.length} reference image${batch.length === 1 ? '' : 's'} in the chat composer (upload input accepts: ${input.accept || 'any file'}); the prompt was not submitted.`,
+        `Muse không xác nhận ${batch.length} ảnh tham chiếu trong khung chat (ô tải lên nhận: ${input.accept || 'mọi loại file'}); prompt chưa được gửi.`,
       );
     };
     if (files.length > 1 && !input.multiple) {
@@ -564,7 +561,7 @@
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
       reader.onload = () => resolve(String(reader.result || ''));
-      reader.onerror = () => reject(reader.error || new Error('Media conversion failed.'));
+      reader.onerror = () => reject(reader.error || new Error('Chuyển đổi media thất bại.'));
       reader.readAsDataURL(blob);
     });
   }

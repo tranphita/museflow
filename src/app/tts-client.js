@@ -3,7 +3,7 @@ const SECRETS_KEY = 'museta-secrets';
 const POLL_MS = 2000;
 const TIMEOUT_MS = 5 * 60 * 1000;
 
-const stoppedError = () => new DOMException('Voiceover stopped by user.', 'AbortError');
+const stoppedError = () => new DOMException('Đã dừng lồng tiếng theo yêu cầu của bạn.', 'AbortError');
 const wait = (ms, signal) =>
   new Promise((resolve, reject) => {
     if (signal?.aborted) return reject(stoppedError());
@@ -42,21 +42,21 @@ async function request(path, apiKey, options = {}) {
   const body = await response.json().catch(() => ({}));
   if (!response.ok || body.success === false)
     throw new Error(
-      `Voiceover service error (HTTP ${response.status}): ${body.error || body.message || 'request failed'}`,
+      `Lỗi dịch vụ lồng tiếng (HTTP ${response.status}): ${body.error || body.message || 'yêu cầu thất bại'}`,
     );
   return body;
 }
 
 export async function synthesizeSpeech(text, { voiceId, speed = 1, signal, onProgress } = {}) {
   const apiKey = await getTtsApiKey();
-  if (!apiKey) throw new Error('Add your tvoiceai API key in Settings → Voiceover first.');
-  if (!String(text || '').trim()) throw new Error('Voiceover text is empty.');
+  if (!apiKey) throw new Error('Hãy thêm API key tvoiceai trong Cài đặt → Lồng tiếng trước.');
+  if (!String(text || '').trim()) throw new Error('Nội dung lồng tiếng đang trống.');
   const job = await request('/api/tts', apiKey, {
     method: 'POST',
     body: JSON.stringify({ text, voice_id: voiceId, speed: Number(speed) || 1, format: 'mp3' }),
     signal,
   });
-  if (!job.jobId) throw new Error('Voiceover service did not return a job id.');
+  if (!job.jobId) throw new Error('Dịch vụ lồng tiếng không trả về ID công việc.');
   const deadline = Date.now() + TIMEOUT_MS;
   while (Date.now() < deadline) {
     await wait(POLL_MS, signal);
@@ -64,13 +64,13 @@ export async function synthesizeSpeech(text, { voiceId, speed = 1, signal, onPro
     onProgress?.(Number(status.progress) || 0, status);
     if (status.status === 'done' && status.audioUrl) {
       const audio = await fetch(status.audioUrl.replace(/^http:/i, 'https:'), { signal });
-      if (!audio.ok) throw new Error(`Could not download the voiceover (HTTP ${audio.status}).`);
+      if (!audio.ok) throw new Error(`Không tải được file lồng tiếng (HTTP ${audio.status}).`);
       const blob = await audio.blob();
-      if (!blob.size) throw new Error('The voiceover file is empty.');
+      if (!blob.size) throw new Error('File lồng tiếng bị rỗng.');
       return URL.createObjectURL(blob);
     }
     if (/error|fail/i.test(status.status || ''))
-      throw new Error(`Voiceover failed: ${status.error || status.status}`);
+      throw new Error(`Lồng tiếng thất bại: ${status.error || status.status}`);
   }
-  throw new Error('Timed out waiting for the voiceover.');
+  throw new Error('Hết thời gian chờ lồng tiếng.');
 }

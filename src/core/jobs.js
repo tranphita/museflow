@@ -8,16 +8,16 @@ export const BACKOFF_MS = [60_000, 5 * 60_000, 15 * 60_000];
 export const ACTIVE_STATUSES = new Set(['running', 'exporting']);
 export const OPEN_STATUSES = new Set(['queued', 'running', 'exporting', 'review']);
 export const PAUSE_REASONS = {
-  '': 'The queue is not running. Press Start to open the worker windows.',
-  user: 'Paused. Episodes that are running finish first. Press Resume to continue.',
-  stop: 'Stopped. Unfinished episodes went back to the queue and continue from their last finished step.',
-  credits: 'Muse ran out of credits. Top up, then press Resume.',
+  '': 'Hàng đợi chưa chạy. Bấm Bắt đầu để mở các cửa sổ worker.',
+  user: 'Đã tạm dừng. Các tập đang chạy sẽ làm xong trước. Bấm Tiếp tục để chạy tiếp.',
+  stop: 'Đã dừng. Các tập chưa xong đã về lại hàng đợi và sẽ chạy tiếp từ bước cuối cùng đã xong.',
+  credits: 'Muse đã hết credit. Hãy nạp thêm rồi bấm Tiếp tục.',
   'signed-out':
-    'Muse is signed out in a worker window, or the window was closed. Sign in there, then press Resume; a closed window opens again by itself.',
+    'Muse bị đăng xuất trong một cửa sổ worker, hoặc cửa sổ đó đã bị đóng. Hãy đăng nhập lại ở đó rồi bấm Tiếp tục; cửa sổ bị đóng sẽ tự mở lại.',
   'tts-key':
-    'The tvoiceai API key is missing or was rejected. Fix it in Settings → Voiceover, then press Resume.',
+    'API key tvoiceai bị thiếu hoặc bị từ chối. Hãy sửa trong Cài đặt → Lồng tiếng rồi bấm Tiếp tục.',
   breaker:
-    'Three episodes in a row could not reach Muse. The Muse page may have changed. Check a worker window, then press Resume.',
+    'Ba tập liên tiếp không kết nối được với Muse. Có thể trang Muse đã thay đổi. Hãy kiểm tra một cửa sổ worker rồi bấm Tiếp tục.',
 };
 const BREAKER_KINDS = new Set(['bridge', 'timeout']);
 const BREAKER_LIMIT = 3;
@@ -120,14 +120,14 @@ export function nextAttempt(job, kind, now, maxAttempts = 3) {
 
 export function runFailure(run, fallbackMessage = '') {
   if (!run) {
-    const message = fallbackMessage || 'The episode did not start.';
+    const message = fallbackMessage || 'Tập này chưa bắt đầu chạy.';
     return { kind: classifyError(message), message };
   }
-  if (run.outcome === 'stopped') return { kind: 'stopped', message: 'Stopped by you.' };
+  if (run.outcome === 'stopped') return { kind: 'stopped', message: 'Bạn đã dừng.' };
   const messages = run.steps
     .filter(step => step.status === 'error')
-    .map(step => step.error || 'A step failed.');
-  if (run.outcome === 'error') messages.unshift(run.message || 'The episode stopped on an error.');
+    .map(step => step.error || 'Một bước bị lỗi.');
+  if (run.outcome === 'error') messages.unshift(run.message || 'Tập này dừng vì gặp lỗi.');
   if (!messages.length) return null;
   const kind = worstKind(messages.map(classifyError));
   return { kind, message: messages.find(message => classifyError(message) === kind) };

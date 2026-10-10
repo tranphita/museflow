@@ -19,7 +19,7 @@ Mỗi thư mục con là một bộ phim. Nhân vật được giữ nguyên qua
 
 ## Dùng trong Studio (không cần lệnh npm)
 
-Mở Museta → tab **Studio** → **Import folder** → chọn thư mục bộ phim (ví dụ `series\hoc-tieng-anh`). Museta đọc `_series.txt`, các tập `epXX.txt` và ảnh trong `characters/`, rồi hiện danh sách tập. Bấm **Queue** ở từng tập, **Queue all episodes** cho cả bộ, hoặc **Queue every series** để xếp mọi bộ xen kẽ nhau. Sau đó mở tab **Production** và bấm **Start**: mỗi worker mở một cửa sổ Muse riêng và sản xuất qua đêm; tập đang dở sẽ chạy tiếp từ bước đã xong nếu bị lỗi hoặc tắt máy. Sáng ra bấm **Play** rồi **Approve**, **Redo** hoặc **Open in canvas** để sửa từng cảnh. MP4 được lưu trong Studio, bấm **Download MP4** để tải. Sửa kịch bản xong thì bấm **Update from folder** và chọn lại thư mục; tập nào đổi nội dung sẽ hiện "Script changed".
+Mở Museta → tab **Studio** → **Nhập thư mục** → chọn thư mục bộ phim (ví dụ `series\hoc-tieng-anh`). Museta đọc `_series.txt`, các tập `epXX.txt` và ảnh trong `characters/`, rồi hiện danh sách tập. Bấm **Xếp hàng** ở từng tập, **Xếp hàng cả bộ** cho cả bộ, hoặc **Xếp hàng mọi bộ** để xếp mọi bộ xen kẽ nhau. Sau đó mở tab **Sản xuất** và bấm **Bắt đầu**: mỗi worker mở một cửa sổ Muse riêng và sản xuất qua đêm; tập đang dở sẽ chạy tiếp từ bước đã xong nếu bị lỗi hoặc tắt máy. Sáng ra bấm **Phát** rồi **Duyệt**, **Làm lại** hoặc **Mở trong Canvas** để sửa từng cảnh. MP4 được lưu trong Studio, bấm **Tải MP4** để tải. Sửa kịch bản xong thì bấm **Cập nhật từ thư mục** và chọn lại thư mục; tập nào đổi nội dung sẽ hiện "Kịch bản đã đổi".
 
 Thêm dòng `TÊN BỘ:` vào `_series.txt` và `TIÊU ĐỀ:` ở đầu mỗi tập để Studio hiển thị tên có dấu.
 
@@ -31,12 +31,12 @@ Thêm dòng `TÊN BỘ:` vào `_series.txt` và `TIÊU ĐỀ:` ở đầu mỗi 
    npm run series -- series/hoc-tieng-anh series/gym-idol
    ```
 
-2. **Tập 1: chốt gương mặt nhân vật.** Import `workflows/ep01-...workflow.json`, bấm **Run Image** trên từng node "Character: …" cho tới khi ưng, chọn bản đẹp nhất trong dải **Versions** (node tự khoá 🔒). Chuột phải node → **Save character image** và lưu vào `characters/` với đúng tên nhân vật, ví dụ `characters/Hảo.png`, `characters/Phi Ta.png`.
+2. **Tập 1: chốt gương mặt nhân vật.** Import `workflows/ep01-...workflow.json`, bấm **▶ Chạy ảnh** trên từng node "Character: …" cho tới khi ưng, chọn bản đẹp nhất trong dải **Phiên bản** (node tự khoá 🔒). Chuột phải node → **Lưu ảnh nhân vật** và lưu vào `characters/` với đúng tên nhân vật, ví dụ `characters/Hảo.png`, `characters/Phi Ta.png`.
 
 3. **Build lại workflow.** Chạy lại lệnh ở bước 1. Từ giờ mọi tập dùng ảnh trong `characters/` (node **Image Input**) thay vì tạo nhân vật mới, nên gương mặt giống nhau ở mọi tập.
 
-4. **Chạy cả bộ một lần:** dùng Studio và tab **Production** như ở mục trên; file trong `workflows/` vẫn import được vào canvas để chạy tay.
-5. **Làm từng tập.** Import workflow của tập, bấm **▶ Run workflow**, kiểm tra timeline, thêm **♪ Music** nếu muốn, rồi **⇩ Export** MP4.
+4. **Chạy cả bộ một lần:** dùng Studio và tab **Sản xuất** như ở mục trên; file trong `workflows/` vẫn import được vào canvas để chạy tay.
+5. **Làm từng tập.** Import workflow của tập, bấm **▶ Chạy workflow**, kiểm tra timeline, thêm **♪ Nhạc** nếu muốn, rồi **⇩ Xuất** MP4.
 
 ## Luật giữ nhất quán (LUẬT)
 
@@ -85,7 +85,7 @@ Lời thoại:
 - Phi Ta: Good morning! I'm fine, thank you.
 ```
 
-Mỗi dòng thành một node Voiceover với giọng của người nói; khi xuất MP4 các câu được xếp nối tiếp trong clip (cách nhau 0,35 giây) và clip tự kéo dài cho đủ thoại. Dán API key tvoiceai vào **Settings → Voiceover** một lần; key chỉ lưu trong trình duyệt, không nằm trong workflow. Cả hai bộ đã dùng sẵn cách này; bộ học tiếng Anh dùng giọng riêng cho Hảo và Phi Ta.
+Mỗi dòng thành một node Voiceover với giọng của người nói; khi xuất MP4 các câu được xếp nối tiếp trong clip (cách nhau 0,35 giây) và clip tự kéo dài cho đủ thoại. Dán API key tvoiceai vào **Cài đặt → Lồng tiếng** một lần; key chỉ lưu trong trình duyệt, không nằm trong workflow. Cả hai bộ đã dùng sẵn cách này; bộ học tiếng Anh dùng giọng riêng cho Hảo và Phi Ta.
 
 ## Thêm tập mới
 

@@ -28,7 +28,7 @@ export function renderNode(n) {
   title.title = title.textContent;
   const close = document.createElement('span');
   close.className = 'node-close';
-  close.title = 'Delete';
+  close.title = 'Xoá';
   close.textContent = '×';
   head.append(title, close);
   head.querySelector('.node-close').onclick = e => {
@@ -49,13 +49,13 @@ export function renderNode(n) {
     if (n.type === 'negativePrompt') {
       const hint = document.createElement('div');
       hint.className = 'hint';
-      hint.textContent = 'Connect to the negative input on an image or video node.';
+      hint.textContent = 'Nối vào đầu vào negative của node ảnh hoặc video.';
       body.appendChild(hint);
     }
     if (n.type === 'textAppend') {
       const hint = document.createElement('div');
       hint.className = 'hint';
-      hint.textContent = 'Appends this text to an incoming prompt.';
+      hint.textContent = 'Nối thêm đoạn văn bản này vào sau prompt đầu vào.';
       body.appendChild(hint);
     }
   }
@@ -63,9 +63,9 @@ export function renderNode(n) {
   if (n.type === 'textConcat') {
     const separator = document.createElement('input');
     separator.value = n.data.separator ?? ', ';
-    separator.placeholder = 'Separator';
+    separator.placeholder = 'Dấu phân cách';
     separator.oninput = () => (n.data.separator = separator.value);
-    body.append('Join connected text inputs with:', separator);
+    body.append('Nối các văn bản đầu vào bằng:', separator);
   }
 
   if (n.type === 'imageInput') {
@@ -76,12 +76,12 @@ export function renderNode(n) {
     } else {
       const empty = document.createElement('div');
       empty.className = 'empty';
-      empty.textContent = 'No image selected';
+      empty.textContent = 'Chưa chọn ảnh';
       body.appendChild(empty);
     }
     const label = document.createElement('label');
     label.className = 'small-btn';
-    label.textContent = 'Choose image';
+    label.textContent = 'Chọn ảnh';
     const input = document.createElement('input');
     input.type = 'file';
     input.accept = 'image/*';
@@ -99,7 +99,7 @@ export function renderNode(n) {
     body.appendChild(label);
     const hint = document.createElement('div');
     hint.className = 'hint';
-    hint.textContent = 'Connect this image to Generate Image → reference.';
+    hint.textContent = 'Nối ảnh này vào Generate Image → tham chiếu.';
     body.appendChild(hint);
   }
 
@@ -110,20 +110,19 @@ export function renderNode(n) {
       ),
       badge = document.createElement('span');
     badge.className = 'ref-badge';
-    badge.textContent = `${incoming} image source${incoming === 1 ? '' : 's'} connected`;
+    badge.textContent = `Đã nối ${incoming} nguồn ảnh`;
     body.appendChild(badge);
     const list = document.createElement('div');
     list.className = 'references-input-list';
     (nodeDefs.references.inputs || []).forEach(input => {
       const row = document.createElement('div');
-      row.textContent = `${input.label} · connect image source`;
+      row.textContent = `${input.label} · nối nguồn ảnh`;
       list.appendChild(row);
     });
     body.appendChild(list);
     const hint = document.createElement('div');
     hint.className = 'hint';
-    hint.textContent =
-      'All connected images are sent to every connected Generate Image and Generate Video node.';
+    hint.textContent = 'Mọi ảnh đã nối sẽ được gửi tới mọi node Generate Image và Generate Video đang nối.';
     body.appendChild(hint);
   }
 
@@ -132,11 +131,11 @@ export function renderNode(n) {
     controls.className = 'gen-controls';
     const size = document.createElement('select');
     [
-      ['1:1', 'Square'],
-      ['16:9', 'Landscape 16:9'],
-      ['9:16', 'Portrait 9:16'],
-      ['4:3', 'Landscape 4:3'],
-      ['3:4', 'Portrait 3:4'],
+      ['1:1', 'Vuông'],
+      ['16:9', 'Ngang 16:9'],
+      ['9:16', 'Dọc 9:16'],
+      ['4:3', 'Ngang 4:3'],
+      ['3:4', 'Dọc 3:4'],
     ].forEach(([v, label]) => {
       const o = document.createElement('option');
       o.value = v;
@@ -153,12 +152,12 @@ export function renderNode(n) {
     body.appendChild(controls);
     const st = document.createElement('div');
     st.className = `status ${n.data.status || 'idle'}`;
-    st.textContent = `${n.data.status || 'idle'}${n.data.error ? ' · ' + n.data.error : ''}`;
+    st.textContent = nodeStatusText(n.data);
     body.appendChild(st);
     if (n.data.asset?.width && n.data.asset?.height) {
       const dimensions = document.createElement('div');
       dimensions.className = `hint ${n.data.asset.sizeMismatch ? 'error' : ''}`;
-      dimensions.textContent = `Requested ${n.data.asset.requestedSize || n.data.size} · actual ${n.data.asset.width} × ${n.data.asset.height}${n.data.asset.sizeMismatch ? ' (Muse returned a different ratio)' : ''}`;
+      dimensions.textContent = `Yêu cầu ${n.data.asset.requestedSize || n.data.size} · thực tế ${n.data.asset.width} × ${n.data.asset.height}${n.data.asset.sizeMismatch ? ' (Muse trả về tỉ lệ khác)' : ''}`;
       body.appendChild(dimensions);
     }
     if (n.data.asset?.url) {
@@ -175,14 +174,14 @@ export function renderNode(n) {
     if (promptCount > 1) {
       const b = document.createElement('span');
       b.className = 'ref-badge';
-      b.textContent = `${promptCount} prompt sources combined`;
+      b.textContent = `Đã gộp ${promptCount} nguồn prompt`;
       body.appendChild(b);
     }
     const referenceCount = getIncoming(n.id, 'reference').length;
     if (referenceCount) {
       const b = document.createElement('span');
       b.className = 'ref-badge';
-      b.textContent = `${referenceCount} reference image${referenceCount === 1 ? '' : 's'} connected`;
+      b.textContent = `Đã nối ${referenceCount} ảnh tham chiếu`;
       body.appendChild(b);
     }
     body.appendChild(createHistoryStrip(n));
@@ -194,9 +193,9 @@ export function renderNode(n) {
     controls.className = 'gen-controls video-controls';
     const ratio = document.createElement('select');
     [
-      ['16:9', 'Landscape 16:9'],
-      ['9:16', 'Portrait 9:16'],
-      ['1:1', 'Square'],
+      ['16:9', 'Ngang 16:9'],
+      ['9:16', 'Dọc 9:16'],
+      ['1:1', 'Vuông'],
     ].forEach(([v, label]) => {
       const o = document.createElement('option');
       o.value = v;
@@ -230,25 +229,25 @@ export function renderNode(n) {
     };
     continuityLabel.append(
       continuity,
-      document.createTextNode('Use previous clip end frame as start reference'),
+      document.createTextNode('Dùng khung hình cuối của clip trước làm tham chiếu mở đầu'),
     );
     body.appendChild(continuityLabel);
     if (n.data.endFrame?.url) {
       const frame = document.createElement('img');
       frame.className = 'end-frame-thumb';
       frame.src = n.data.endFrame.url;
-      frame.alt = 'Extracted final frame for continuity';
-      frame.title = 'Video end frame · connect “end frame” to the next video reference';
+      frame.alt = 'Khung hình cuối đã trích để nối liền cảnh';
+      frame.title = 'Khung hình cuối của video · nối “khung cuối” vào tham chiếu của video tiếp theo';
       body.appendChild(frame);
     }
     const status = document.createElement('div');
     status.className = `status ${n.data.status || 'idle'}`;
-    status.textContent = `${n.data.status || 'idle'}${n.data.error ? ' · ' + n.data.error : ''}`;
+    status.textContent = nodeStatusText(n.data);
     body.appendChild(status);
     if (n.data.asset?.width && n.data.asset?.height) {
       const dimensions = document.createElement('div');
       dimensions.className = `hint ${n.data.asset.sizeMismatch ? 'error' : ''}`;
-      dimensions.textContent = `Requested ${n.data.asset.requestedSize || n.data.size} · actual ${n.data.asset.width} × ${n.data.asset.height}${n.data.asset.sizeMismatch ? ' (Muse returned a different ratio)' : ''}`;
+      dimensions.textContent = `Yêu cầu ${n.data.asset.requestedSize || n.data.size} · thực tế ${n.data.asset.width} × ${n.data.asset.height}${n.data.asset.sizeMismatch ? ' (Muse trả về tỉ lệ khác)' : ''}`;
       body.appendChild(dimensions);
     }
     if (n.data.asset?.url) {
@@ -262,8 +261,8 @@ export function renderNode(n) {
     timelineDrag.type = 'button';
     timelineDrag.className = 'video-timeline-drag';
     timelineDrag.draggable = true;
-    timelineDrag.innerHTML = '<span aria-hidden="true">⠿</span> Drag output to Timeline';
-    timelineDrag.title = 'Drag this output to the timeline';
+    timelineDrag.innerHTML = '<span aria-hidden="true">⠿</span> Kéo kết quả vào Timeline';
+    timelineDrag.title = 'Kéo kết quả này vào timeline';
     timelineDrag.ondragstart = event => {
       event.dataTransfer.setData('application/x-museta-video-node', n.id);
       event.dataTransfer.setData('text/plain', n.id);
@@ -288,20 +287,20 @@ export function renderNode(n) {
     width.min = '1';
     width.max = '4096';
     width.value = n.data.width || 1024;
-    width.title = 'Width';
+    width.title = 'Chiều rộng';
     width.oninput = () => (n.data.width = clampDimension(width.value));
     const height = document.createElement('input');
     height.type = 'number';
     height.min = '1';
     height.max = '4096';
     height.value = n.data.height || 1024;
-    height.title = 'Height';
+    height.title = 'Chiều cao';
     height.oninput = () => (n.data.height = clampDimension(height.value));
     const fit = document.createElement('select');
     [
-      ['cover', 'Crop to fill'],
-      ['contain', 'Fit inside'],
-      ['stretch', 'Stretch'],
+      ['cover', 'Cắt cho đầy khung'],
+      ['contain', 'Vừa trong khung'],
+      ['stretch', 'Kéo giãn'],
     ].forEach(([v, label]) => {
       const o = document.createElement('option');
       o.value = v;
@@ -322,7 +321,7 @@ export function renderNode(n) {
     const download = document.createElement('button');
     download.type = 'button';
     download.className = 'small-btn';
-    download.textContent = 'Download resized image';
+    download.textContent = 'Tải xuống ảnh đã đổi cỡ';
     download.disabled = !imageUrl;
     download.onclick = () => {
       out.toBlob(blob => {
@@ -356,7 +355,7 @@ export function renderNode(n) {
     } else {
       const empty = document.createElement('div');
       empty.className = 'empty preview-empty';
-      empty.textContent = 'Run workflow';
+      empty.textContent = 'Chạy workflow';
       body.appendChild(empty);
     }
   }
@@ -370,6 +369,19 @@ export function renderNode(n) {
   return el;
 }
 
+const nodeStatusLabels = {
+  idle: 'Chưa chạy',
+  running: 'Đang chạy',
+  success: 'Xong',
+  error: 'Lỗi',
+  stopped: 'Đã dừng',
+};
+
+function nodeStatusText(data) {
+  const status = data.status || 'idle';
+  return `${nodeStatusLabels[status] || status}${data.error ? ' · ' + data.error : ''}`;
+}
+
 export function createHistoryStrip(node) {
   const history = node.data.history || [];
   const strip = document.createElement('div');
@@ -377,14 +389,14 @@ export function createHistoryStrip(node) {
   if (history.length < 2 || node.data.status === 'running') return strip;
   const caption = document.createElement('span');
   caption.className = 'node-history-caption';
-  caption.textContent = `Versions · ${history.length}`;
+  caption.textContent = `Phiên bản · ${history.length}`;
   strip.appendChild(caption);
   history.forEach((entry, index) => {
     const item = document.createElement('div');
     item.className = `node-history-item${entry.id === node.data.asset?.id ? ' active' : ''}`;
     const pick = document.createElement('button');
     pick.type = 'button';
-    pick.title = `Use version ${history.length - index}${entry.prompt ? ` · ${entry.prompt.slice(0, 120)}` : ''}`;
+    pick.title = `Dùng phiên bản ${history.length - index}${entry.prompt ? ` · ${entry.prompt.slice(0, 120)}` : ''}`;
     const thumbUrl = entry.asset.kind === 'video' ? entry.endFrame?.url : entry.asset.url;
     if (thumbUrl) {
       const image = document.createElement('img');
@@ -395,13 +407,13 @@ export function createHistoryStrip(node) {
     pick.onclick = event => {
       event.stopPropagation();
       if (entry.id === node.data.asset?.id) return;
-      createUndoSnapshot('Switch output version', { preserveRuntime: false });
+      createUndoSnapshot('Đổi phiên bản kết quả', { preserveRuntime: false });
       restoreGeneration(node.data, entry.id);
       node.data.locked = true;
       render();
       saveState();
       setRunStatus(
-        `Using version ${history.length - index} of this node's output. It is kept when you run the workflow.`,
+        `Đang dùng phiên bản ${history.length - index} của kết quả node này. Phiên bản này được giữ khi bạn chạy workflow.`,
         'ok',
       );
     };
@@ -409,10 +421,10 @@ export function createHistoryStrip(node) {
     remove.type = 'button';
     remove.className = 'node-history-remove';
     remove.textContent = '×';
-    remove.title = 'Delete this version';
+    remove.title = 'Xoá phiên bản này';
     remove.onclick = event => {
       event.stopPropagation();
-      createUndoSnapshot('Delete output version', { preserveRuntime: false });
+      createUndoSnapshot('Xoá phiên bản kết quả', { preserveRuntime: false });
       removeGeneration(node.data, entry.id);
       render();
       saveState();
@@ -427,28 +439,28 @@ function renderVoiceoverBody(node, body) {
   const connected = getIncoming(node.id, 'text').length > 0;
   const text = document.createElement('textarea');
   text.className = 'voiceover-text';
-  text.placeholder = 'Text to read aloud…';
+  text.placeholder = 'Văn bản cần đọc…';
   text.value = connected ? voiceoverText(node) : node.data.text || '';
   text.readOnly = connected;
-  text.title = connected ? 'Text comes from the connected text node' : '';
+  text.title = connected ? 'Văn bản lấy từ node văn bản đang nối' : '';
   text.oninput = () => (node.data.text = text.value);
   const voice = document.createElement('input');
   voice.value = node.data.voiceId || DEFAULT_VOICE_ID;
-  voice.placeholder = 'Voice ID';
-  voice.title = 'tvoiceai voice ID';
+  voice.placeholder = 'ID giọng đọc';
+  voice.title = 'ID giọng đọc tvoiceai';
   voice.oninput = () => (node.data.voiceId = voice.value.trim());
   const speed = document.createElement('select');
   [0.8, 0.9, 1, 1.1, 1.2].forEach(value => {
     const option = document.createElement('option');
     option.value = String(value);
-    option.textContent = `Speed ${value}×`;
+    option.textContent = `Tốc độ ${value}×`;
     speed.appendChild(option);
   });
   speed.value = String(node.data.speed || 1);
   speed.onchange = () => (node.data.speed = Number(speed.value));
   const status = document.createElement('div');
   status.className = `status ${node.data.status || 'idle'}`;
-  status.textContent = `${node.data.status || 'idle'}${node.data.error ? ' · ' + node.data.error : ''}`;
+  status.textContent = nodeStatusText(node.data);
   body.append(text, voice, speed, status);
   if (node.data.asset?.url) {
     const audio = document.createElement('audio');
@@ -461,7 +473,7 @@ function renderVoiceoverBody(node, body) {
   const hint = document.createElement('div');
   hint.className = 'hint';
   hint.textContent =
-    'Connect “voice” to a Generate Video node to mix this narration into that clip in MP4 export.';
+    'Nối “giọng đọc” vào một node Generate Video để trộn lời đọc này vào clip đó khi xuất MP4.';
   body.appendChild(hint);
   const actions = document.createElement('div');
   actions.className = 'node-generation-actions';
@@ -469,7 +481,7 @@ function renderVoiceoverBody(node, body) {
   const run = document.createElement('button');
   run.type = 'button';
   run.className = 'node-run-button primary';
-  run.textContent = node.data.status === 'running' ? 'Creating…' : '▶ Run Voice';
+  run.textContent = node.data.status === 'running' ? 'Đang tạo…' : '▶ Chạy giọng đọc';
   run.disabled = state.isRunning;
   run.onclick = event => {
     event.stopPropagation();
@@ -483,18 +495,18 @@ function createKeepToggle(node) {
   const label = document.createElement('label');
   label.className = 'keep-result-toggle';
   label.title =
-    'Run workflow skips this node and keeps its current output. Run Image / Run Video still regenerates it.';
+    'Chạy workflow sẽ bỏ qua node này và giữ kết quả hiện tại. Nút Chạy ảnh / Chạy video vẫn tạo lại node này.';
   label.onpointerdown = event => event.stopPropagation();
   const checkbox = document.createElement('input');
   checkbox.type = 'checkbox';
   checkbox.checked = Boolean(node.data.locked);
   checkbox.disabled = !node.data.asset?.url && !node.data.locked;
   checkbox.onchange = () => {
-    createUndoSnapshot(checkbox.checked ? 'Keep node result' : 'Unlock node result');
+    createUndoSnapshot(checkbox.checked ? 'Giữ kết quả node' : 'Bỏ giữ kết quả node');
     node.data.locked = checkbox.checked;
     saveState();
   };
-  label.append(checkbox, document.createTextNode(' 🔒 Keep this result when running the workflow'));
+  label.append(checkbox, document.createTextNode(' 🔒 Giữ kết quả này khi chạy workflow'));
   return label;
 }
 
@@ -507,12 +519,12 @@ export function createNodeRunActions(node) {
   button.className = 'node-run-button primary';
   if (node.data.status === 'running') {
     button.classList.add('stop');
-    button.textContent = '■ Stop';
+    button.textContent = '■ Dừng';
     button.disabled = false;
-    button.title = 'Stop this generation';
+    button.title = 'Dừng lượt tạo này';
     button.dataset.stopGeneration = node.id;
   } else {
-    button.textContent = `▶ Run ${node.type === 'generateVideo' ? 'Video' : 'Image'}`;
+    button.textContent = `▶ Chạy ${node.type === 'generateVideo' ? 'video' : 'ảnh'}`;
     button.disabled = state.isRunning;
     button.onclick = event => {
       event.stopPropagation();
@@ -524,8 +536,8 @@ export function createNodeRunActions(node) {
     const again = document.createElement('button');
     again.type = 'button';
     again.className = 'node-run-button again';
-    again.textContent = '↻ Again';
-    again.title = 'Regenerate this video with stronger adherence to the connected prompt and references';
+    again.textContent = '↻ Làm lại';
+    again.title = 'Tạo lại video này, bám sát hơn vào prompt và ảnh tham chiếu đang nối';
     again.disabled = state.isRunning;
     again.onclick = event => {
       event.stopPropagation();
@@ -550,7 +562,7 @@ export function addPorts(el, n) {
     port.dataset.port = p.id;
     port.dataset.type = p.type;
     port.style.top = `${y}px`;
-    port.title = `Input: ${p.label} (${p.type})`;
+    port.title = `Đầu vào: ${p.label} (${p.type})`;
     if (p.type === 'text' || p.type === 'negative')
       port.onpointerdown = e => startWireFromInput(e, n.id, p.id, p.type);
     port.ondragover = e => {
@@ -563,7 +575,7 @@ export function addPorts(el, n) {
       e.stopPropagation();
       if (state.suppressPortClick) return;
       if (state.connectingFrom) connect(n.id, p.id);
-      else setRunStatus('Start from a compatible output port, then click this input.', 'warn');
+      else setRunStatus('Hãy bắt đầu từ một cổng đầu ra phù hợp, rồi bấm vào đầu vào này.', 'warn');
     };
     const label = document.createElement('span');
     label.className = 'port-label left';
@@ -573,10 +585,10 @@ export function addPorts(el, n) {
     if (count)
       port.title =
         n.type === 'textConcat'
-          ? `Text sources (${count} connected)`
+          ? `Nguồn văn bản (đã nối ${count})`
           : p.id === 'prompt'
-            ? `Prompt sources (${count} connected)`
-            : `Reference images (${count} connected)`;
+            ? `Nguồn prompt (đã nối ${count})`
+            : `Ảnh tham chiếu (đã nối ${count})`;
     el.append(label, port);
   });
   (def.outputs || []).forEach((p, i) => {
@@ -593,20 +605,20 @@ export function addPorts(el, n) {
     port.dataset.port = p.id;
     port.dataset.type = p.type;
     port.style.top = `${y}px`;
-    port.title = `Output: ${p.label} (${p.type})`;
+    port.title = `Đầu ra: ${p.label} (${p.type})`;
     port.onpointerdown = e => startWire(e, n.id, p.id);
     if (n.type === 'generateVideo') {
       port.classList.add('video-output-port');
       port.title =
         p.id === 'endFrame'
-          ? 'Connect this final frame to the next video’s reference input'
-          : 'Connect video output to the Timeline or another compatible input';
+          ? 'Nối khung hình cuối này vào đầu vào tham chiếu của video tiếp theo'
+          : 'Nối video đầu ra vào Timeline hoặc một đầu vào phù hợp khác';
     }
     port.onmousedown = e => {
       if (e.button === 0) {
         e.stopPropagation();
         state.connectingFrom = { nodeId: n.id, portId: p.id };
-        setRunStatus(`Connecting ${p.type}: click a compatible input port.`, 'warn');
+        setRunStatus(`Đang nối ${p.type}: bấm vào một cổng đầu vào phù hợp.`, 'warn');
       }
     };
     port.onclick = e => {
@@ -614,7 +626,7 @@ export function addPorts(el, n) {
       if (state.suppressPortClick) return;
       if (!state.draggingWire) {
         state.connectingFrom = { nodeId: n.id, portId: p.id };
-        setRunStatus(`Connecting ${p.type}: click a compatible input or drag to one.`, 'warn');
+        setRunStatus(`Đang nối ${p.type}: bấm vào một đầu vào phù hợp hoặc kéo tới đó.`, 'warn');
       }
     };
     const label = document.createElement('span');
@@ -658,7 +670,7 @@ export function setupDrag(handle, n, el) {
         rawDy = ev.clientY - sy;
       if (altCopy && !copied) {
         if (Math.hypot(rawDx, rawDy) < 3) return;
-        createUndoSnapshot(`Alt-drag copy ${group.length === 1 ? 'node' : 'nodes'}`);
+        createUndoSnapshot('Sao chép node bằng Alt-kéo');
         group = duplicateNodesForDrag(group);
         copied = true;
         undoRecorded = true;
@@ -669,7 +681,7 @@ export function setupDrag(handle, n, el) {
         dy = rawDy / zoom;
       if (Math.abs(dx) + Math.abs(dy) < 0.1) return;
       if (!undoRecorded) {
-        createUndoSnapshot(`Move ${group.length === 1 ? 'node' : 'nodes'}`);
+        createUndoSnapshot('Di chuyển node');
         undoRecorded = true;
       }
       moved = true;
@@ -691,7 +703,7 @@ export function setupDrag(handle, n, el) {
       window.removeEventListener('mouseup', up);
       if (moved) {
         scheduleAutoSave();
-        if (copied) setRunStatus('Node copy created.', 'ok');
+        if (copied) setRunStatus('Đã tạo bản sao node.', 'ok');
       }
     };
     window.addEventListener('mousemove', move);
@@ -792,14 +804,14 @@ export function renderCanvasNote(note) {
   const header = document.createElement('header');
   header.className = 'canvas-note-header';
   const title = document.createElement('span');
-  title.textContent = 'Text note';
+  title.textContent = 'Ghi chú';
   const remove = document.createElement('button');
   remove.type = 'button';
   remove.textContent = '×';
-  remove.title = 'Delete note';
+  remove.title = 'Xoá ghi chú';
   remove.onclick = event => {
     event.stopPropagation();
-    createUndoSnapshot('Delete text note');
+    createUndoSnapshot('Xoá ghi chú');
     state.notes = state.notes.filter(item => item.id !== note.id);
     render();
     saveState();
@@ -823,7 +835,7 @@ export function renderCanvasNote(note) {
   };
   const textarea = document.createElement('textarea');
   textarea.value = note.text || '';
-  textarea.placeholder = 'Write a note…';
+  textarea.placeholder = 'Viết ghi chú…';
   textarea.onbeforeinput = event => trackUndoEdit(event);
   textarea.oninput = () => {
     note.text = textarea.value;
@@ -841,7 +853,7 @@ export function moveTextNote(event) {
   const dx = (event.clientX - drag.startX) / state.zoom,
     dy = (event.clientY - drag.startY) / state.zoom;
   if (Math.abs(dx) + Math.abs(dy) < 2) return;
-  if (!drag.moved) createUndoSnapshot('Move text note');
+  if (!drag.moved) createUndoSnapshot('Di chuyển ghi chú');
   drag.moved = true;
   note.x = drag.x + dx;
   note.y = drag.y + dy;
@@ -867,16 +879,16 @@ export function renderCanvasGroup(group) {
   frame.style.height = `${group.height}px`;
   const label = document.createElement('span');
   label.className = 'canvas-group-label';
-  label.textContent = group.name || 'Group';
+  label.textContent = group.name || 'Nhóm';
   const remove = document.createElement('button');
   remove.type = 'button';
   remove.className = 'canvas-group-delete';
   remove.textContent = '×';
-  remove.title = 'Delete group region';
-  remove.setAttribute('aria-label', 'Delete group region');
+  remove.title = 'Xoá vùng nhóm';
+  remove.setAttribute('aria-label', 'Xoá vùng nhóm');
   remove.onclick = event => {
     event.stopPropagation();
-    createUndoSnapshot('Delete group region');
+    createUndoSnapshot('Xoá vùng nhóm');
     state.groups = state.groups.filter(item => item.id !== group.id);
     render();
     saveState();

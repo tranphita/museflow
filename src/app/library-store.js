@@ -36,11 +36,13 @@ function db() {
       };
       request.onblocked = () => {
         dbPromise = null;
-        reject(new Error('Another Museta tab still uses the old series library. Reload every Museta tab.'));
+        reject(
+          new Error('Một tab Museta khác vẫn đang dùng thư viện bộ phim cũ. Hãy tải lại mọi tab Museta.'),
+        );
       };
       request.onerror = () => {
         dbPromise = null;
-        reject(request.error || new Error('Could not open the series library.'));
+        reject(request.error || new Error('Không mở được thư viện bộ phim.'));
       };
     });
   return dbPromise;
@@ -53,8 +55,8 @@ async function transact(storeName, mode, body) {
     let result;
     body(tx.objectStore(storeName), value => (result = value));
     tx.oncomplete = () => resolve(result);
-    tx.onerror = () => reject(tx.error || new Error('Series library request failed.'));
-    tx.onabort = () => reject(tx.error || new Error('Series library request was cancelled.'));
+    tx.onerror = () => reject(tx.error || new Error('Không truy cập được thư viện bộ phim.'));
+    tx.onabort = () => reject(tx.error || new Error('Thao tác với thư viện bộ phim đã bị huỷ.'));
   });
 }
 
@@ -137,7 +139,7 @@ export function claimJob(workerId, now = Date.now()) {
           workerId: null,
           endedAt: now,
           errorKind: 'unknown',
-          error: `The worker stopped responding in all ${stuck.attempts} attempts; its tab may have crashed.`,
+          error: `Worker ngừng phản hồi trong cả ${stuck.attempts} lần thử; tab của worker có thể đã bị treo.`,
         });
       const job = control.paused ? null : pickNextJob(records, now, control.leaseMs, control.maxAttempts);
       if (!job) return done(null);
@@ -162,7 +164,7 @@ export async function finishJob(id, owner, outputKey, blob, patch) {
       result = next;
     };
     tx.oncomplete = () => resolve(result);
-    tx.onerror = () => reject(tx.error || new Error('Could not save the episode MP4.'));
-    tx.onabort = () => reject(tx.error || new Error('Saving the episode MP4 was cancelled.'));
+    tx.onerror = () => reject(tx.error || new Error('Không lưu được MP4 của tập.'));
+    tx.onabort = () => reject(tx.error || new Error('Việc lưu MP4 của tập đã bị huỷ.'));
   });
 }

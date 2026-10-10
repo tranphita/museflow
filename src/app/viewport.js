@@ -207,7 +207,7 @@ export function finishGroupMarquee(event) {
     height = bottom - top;
   if (width < 60 || height < 45) {
     setGroupDrawMode(false);
-    setRunStatus('Group region is too small. Drag a larger area to create it.', 'warn');
+    setRunStatus('Vùng nhóm quá nhỏ. Hãy kéo một vùng lớn hơn để tạo.', 'warn');
     return;
   }
   const zoom = state.zoom,
@@ -222,10 +222,10 @@ export function finishGroupMarquee(event) {
         return rect.left >= left && rect.right <= right && rect.top >= top && rect.bottom <= bottom;
       })
       .map(element => element.dataset.id);
-  createUndoSnapshot('Create group region');
+  createUndoSnapshot('Tạo vùng nhóm');
   state.groups.push({
     id: uid('group'),
-    name: `Group ${state.groups.length + 1}`,
+    name: `Nhóm ${state.groups.length + 1}`,
     x,
     y,
     width: w,
@@ -235,10 +235,7 @@ export function finishGroupMarquee(event) {
   setGroupDrawMode(false);
   render();
   saveState();
-  setRunStatus(
-    `Group region created${nodeIds.length ? ` around ${nodeIds.length} node${nodeIds.length === 1 ? '' : 's'}` : ''}.`,
-    'ok',
-  );
+  setRunStatus(`Đã tạo vùng nhóm${nodeIds.length ? ` quanh ${nodeIds.length} node` : ''}.`, 'ok');
 }
 export function cancelGroupMarquee() {
   const drag = state.groupMarquee;
@@ -255,7 +252,7 @@ export function setGroupDrawMode(active) {
   $('#viewport').classList.toggle('group-draw-mode', state.groupDrawMode);
   if (state.groupDrawMode)
     setRunStatus(
-      'Group tool active: drag across the canvas to mark a group region. Press G or Escape to cancel.',
+      'Đang bật công cụ nhóm: kéo trên canvas để đánh dấu vùng nhóm. Nhấn G hoặc Escape để huỷ.',
       'warn',
     );
 }

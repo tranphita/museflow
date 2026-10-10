@@ -28,23 +28,23 @@ import {
 
 const VIEW_KEY = 'museta-view';
 const STATUS_TEXT = {
-  new: 'Not run yet',
-  queued: 'Queued',
-  running: 'Running',
-  done: 'Done',
-  failed: 'Needs attention',
-  stopped: 'Stopped',
-  changed: 'Script changed',
+  new: 'Chưa chạy',
+  queued: 'Đã xếp hàng',
+  running: 'Đang chạy',
+  done: 'Xong',
+  failed: 'Cần xử lý',
+  stopped: 'Đã dừng',
+  changed: 'Kịch bản đã đổi',
 };
 const studio = { series: [], selectedId: null, jobs: [], jobSignature: '', enqueuing: false };
 
 const JOB_TEXT = {
-  queued: 'Queued',
-  running: 'Running',
-  exporting: 'Exporting MP4',
-  review: 'Ready to review',
-  done: 'Done',
-  failed: 'Needs attention',
+  queued: 'Đã xếp hàng',
+  running: 'Đang chạy',
+  exporting: 'Đang xuất MP4',
+  review: 'Chờ duyệt',
+  done: 'Xong',
+  failed: 'Cần xử lý',
 };
 
 const formatDuration = seconds =>
@@ -132,7 +132,7 @@ async function importFolder(fileList) {
     .filter(file => !file.relative.includes('/workflows/'));
   const roots = [...new Set(files.filter(file => isEpisodeFile(file.name)).map(file => file.dir))];
   if (!roots.length) {
-    setRunStatus('No episode files found. Choose a series folder that contains ep01-….txt files.', 'warn');
+    setRunStatus('Không tìm thấy file tập nào. Hãy chọn thư mục bộ phim có các file ep01-….txt.', 'warn');
     return;
   }
   for (const root of roots) {
@@ -144,7 +144,7 @@ async function importFolder(fileList) {
     studio.selectedId = root;
   }
   await loadLibrary();
-  setRunStatus(`Imported ${roots.length} series into the Studio.`, 'ok');
+  setRunStatus(`Đã nhập ${roots.length} bộ vào Studio.`, 'ok');
 }
 
 async function loadLibrary() {
@@ -166,10 +166,10 @@ function episodeState(series, episode) {
   const job = latestJob(series, episode);
   const view = episodeView(episode, job, series.importedAt);
   const fromJob = job && view.status === job.status;
-  const progress = job?.progress?.total ? `, step ${job.progress.done}/${job.progress.total}` : '';
+  const progress = job?.progress?.total ? `, bước ${job.progress.done}/${job.progress.total}` : '';
   const text =
     fromJob && job.status === 'running'
-      ? `Running${progress}, worker ${workerLabel(job.workerId)}`
+      ? `Đang chạy${progress}, worker ${workerLabel(job.workerId)}`
       : (fromJob && JOB_TEXT[view.status]) || STATUS_TEXT[view.status] || view.status;
   return { ...view, job, text };
 }
@@ -196,14 +196,14 @@ async function enqueue(pairs) {
 
 async function addToQueue(pairs) {
   const fresh = pairs.filter(({ series, episode }) => !episodeState(series, episode).open);
-  if (!fresh.length) return setRunStatus('Those episodes are already in the production queue.', 'warn');
+  if (!fresh.length) return setRunStatus('Các tập này đã có trong hàng đợi sản xuất.', 'warn');
   const blocked = fresh.filter(({ series, episode }) =>
     checkEpisode(episodeScript(series.bible, episode.text)).some(issue => issue.level === 'error'),
   );
   if (
     blocked.length &&
     !window.confirm(
-      `${blocked.length} of these episodes ${blocked.length === 1 ? 'has' : 'have'} script problems that will likely make Muse get it wrong. Queue anyway?`,
+      `${blocked.length} tập trong số này có lỗi kịch bản, nhiều khả năng sẽ khiến Muse làm sai. Vẫn xếp hàng?`,
     )
   )
     return;
@@ -217,7 +217,7 @@ async function addToQueue(pairs) {
       {
         seriesId: series.id,
         episodeId: episode.id,
-        title: `${series.name}, episode ${episode.number}: ${episode.title}`,
+        title: `${series.name}, tập ${episode.number}: ${episode.title}`,
         fileName: `${series.name} - Tap ${String(episode.number).padStart(2, '0')} - ${episode.title}.mp4`,
         script: episodeScript(series.bible, episode.text),
         order: start + index,
@@ -229,11 +229,8 @@ async function addToQueue(pairs) {
   for (const id of plan.remove) await deleteMediaWithPrefix(jobMediaPrefix(id)).catch(() => {});
   studio.jobSignature = '';
   await refreshJobs();
-  if (!plan.add.length) return setRunStatus('Those episodes are already in the production queue.', 'warn');
-  setRunStatus(
-    `Queued ${plan.add.length} episode${plan.add.length === 1 ? '' : 's'}. Open Production and press Start to run them.`,
-    'ok',
-  );
+  if (!plan.add.length) return setRunStatus('Các tập này đã có trong hàng đợi sản xuất.', 'warn');
+  setRunStatus(`Đã xếp hàng ${plan.add.length} tập. Mở Sản xuất và bấm Bắt đầu để chạy.`, 'ok');
 }
 
 const unfinished = series =>
@@ -246,7 +243,7 @@ const unfinished = series =>
 
 export async function downloadOutput(key, fileName) {
   const blob = await getOutput(key);
-  if (!blob) return setRunStatus('This MP4 is no longer in the library. Queue the episode again.', 'warn');
+  if (!blob) return setRunStatus('MP4 này không còn trong thư viện. Hãy xếp hàng lại tập này.', 'warn');
   const url = URL.createObjectURL(blob);
   const link = document.createElement('a');
   link.href = url;
@@ -257,7 +254,7 @@ export async function downloadOutput(key, fileName) {
 
 export async function playOutput(key, title) {
   const blob = await getOutput(key);
-  if (!blob) return setRunStatus('This MP4 is no longer in the library. Queue the episode again.', 'warn');
+  if (!blob) return setRunStatus('MP4 này không còn trong thư viện. Hãy xếp hàng lại tập này.', 'warn');
   const player = $('#studioPlayer');
   if (player.src) URL.revokeObjectURL(player.src);
   player.src = URL.createObjectURL(blob);
@@ -281,12 +278,12 @@ async function removeSeries(series) {
   const jobs = studio.jobs.filter(job => job.seriesId === series.id);
   if (jobs.some(job => ['running', 'exporting'].includes(job.status)))
     return setRunStatus(
-      'Wait until this series has no episode running, or press Stop now in Production.',
+      'Hãy đợi đến khi bộ này không còn tập nào đang chạy, hoặc bấm Dừng ngay trong Sản xuất.',
       'warn',
     );
   if (
     !window.confirm(
-      `Remove “${series.name}”, its queued episodes and its exported MP4s from the Studio? Files on your computer are not touched.`,
+      `Xoá “${series.name}” cùng các tập đang xếp hàng và các MP4 đã xuất khỏi Studio? File trên máy tính của bạn vẫn giữ nguyên.`,
     )
   )
     return;
@@ -322,8 +319,8 @@ function castStrip(series) {
     const text = el('div', 'cast-text');
     text.append(el('strong', '', character.name));
     const voice = voiceFor(voices, character.name);
-    text.append(el('span', '', photo ? 'Reference photos' : 'Generated face'));
-    if (voice) text.append(el('span', 'cast-voice', `Voice ${voice.replace(/^VIENEU_CLONE_/, '')}`));
+    text.append(el('span', '', photo ? 'Ảnh tham chiếu' : 'Khuôn mặt tự tạo'));
+    if (voice) text.append(el('span', 'cast-voice', `Giọng ${voice.replace(/^VIENEU_CLONE_/, '')}`));
     item.append(avatar, text);
     strip.appendChild(item);
   }
@@ -335,9 +332,7 @@ function issueToggle(row, issues) {
   const toggle = el(
     'button',
     `check-toggle ${errors ? 'has-errors' : 'has-warnings'}`,
-    errors
-      ? `${errors} problem${errors === 1 ? '' : 's'}`
-      : `${issues.length} note${issues.length === 1 ? '' : 's'}`,
+    errors ? `${errors} lỗi` : `${issues.length} ghi chú`,
   );
   toggle.type = 'button';
   toggle.setAttribute('aria-expanded', 'false');
@@ -352,7 +347,7 @@ function issueList(issues) {
   const list = el('ul', 'check-list');
   for (const issue of issues) {
     const item = el('li', `check-${issue.level}`);
-    if (issue.scene) item.appendChild(el('strong', '', `Scene ${issue.scene}`));
+    if (issue.scene) item.appendChild(el('strong', '', `Cảnh ${issue.scene}`));
     item.appendChild(el('span', '', issue.message));
     list.appendChild(item);
   }
@@ -363,7 +358,7 @@ function seriesNotes(series) {
   const notes = checkSeries(series.bible, { photoNames: Object.keys(series.characters) });
   if (!notes.length) return document.createDocumentFragment();
   const box = el('div', 'series-notes');
-  box.append(el('p', '', 'Before you run this series'), issueList(notes));
+  box.append(el('p', '', 'Trước khi chạy bộ này'), issueList(notes));
   return box;
 }
 
@@ -375,13 +370,13 @@ function episodeRow(series, episode) {
   main.append(el('h3', 'episode-title', episode.title));
   const facts = el('div', 'episode-facts');
   facts.append(
-    el('span', '', `${episode.scenes} scenes`),
+    el('span', '', `${episode.scenes} cảnh`),
     el('span', '', formatDuration(episode.seconds)),
-    el('span', '', `${episode.lines} lines`),
+    el('span', '', `${episode.lines} câu thoại`),
   );
   const issues = checkEpisode(episodeScript(series.bible, episode.text));
   if (issues.length) facts.appendChild(issueToggle(row, issues));
-  else facts.appendChild(el('span', 'check-ok', 'Script checks passed'));
+  else facts.appendChild(el('span', 'check-ok', 'Kịch bản đạt kiểm tra'));
   main.appendChild(facts);
   if (issues.length) main.appendChild(issueList(issues));
   if (current.error) main.appendChild(el('p', 'episode-error', current.error));
@@ -394,30 +389,28 @@ function episodeRow(series, episode) {
       el(
         'small',
         '',
-        `${new Date(finishedAt).toLocaleString([], { dateStyle: 'short', timeStyle: 'short' })}, took ${formatElapsed(tookMs)}`,
+        `${new Date(finishedAt).toLocaleString([], { dateStyle: 'short', timeStyle: 'short' })}, mất ${formatElapsed(tookMs)}`,
       ),
     );
   const actions = el('div', 'episode-actions');
-  const title = `Episode ${episode.number}: ${episode.title}`;
+  const title = `Tập ${episode.number}: ${episode.title}`;
   const fileName = `${series.name} - Tap ${String(episode.number).padStart(2, '0')} - ${episode.title}.mp4`;
   if (current.outputKey && !['running', 'exporting'].includes(current.status)) {
-    const play = el('button', 'ghost', 'Play');
+    const play = el('button', 'ghost', 'Phát');
     play.type = 'button';
     play.onclick = () => playOutput(current.outputKey, title);
-    const download = el('button', 'ghost', 'Download MP4');
+    const download = el('button', 'ghost', 'Tải MP4');
     download.type = 'button';
     download.onclick = () => downloadOutput(current.outputKey, fileName);
     actions.append(play, download);
   }
-  const open = el('button', 'ghost', 'Open in canvas');
+  const open = el('button', 'ghost', 'Mở trong Canvas');
   open.type = 'button';
   open.onclick = () => openInCanvas(series, episode);
-  const queue = el('button', 'run-one', current.outputKey ? 'Queue again' : 'Queue');
+  const queue = el('button', 'run-one', current.outputKey ? 'Xếp hàng lại' : 'Xếp hàng');
   queue.type = 'button';
   queue.disabled = current.open;
-  queue.title = current.open
-    ? 'This episode is already in the production queue'
-    : 'Add this episode to the production queue';
+  queue.title = current.open ? 'Tập này đã có trong hàng đợi sản xuất' : 'Thêm tập này vào hàng đợi sản xuất';
   queue.onclick = () => enqueue([{ series, episode }]);
   actions.append(open, queue);
   row.append(number, main, status, actions);
@@ -436,7 +429,7 @@ function renderSeriesList() {
         el('span', 'series-link-name', series.name),
         el('span', 'series-link-count', `${done}/${series.episodes.length}`),
       );
-      button.title = `${done} of ${series.episodes.length} episodes done`;
+      button.title = `Đã xong ${done}/${series.episodes.length} tập`;
       button.onclick = () => {
         studio.selectedId = series.id;
         renderStudio();
@@ -450,14 +443,14 @@ function renderSeriesList() {
 function renderEmpty(main) {
   const empty = el('div', 'studio-empty');
   empty.append(
-    el('h1', '', 'Bring in your first series'),
+    el('h1', '', 'Nhập bộ phim đầu tiên'),
     el(
       'p',
       '',
-      'Choose a series folder. Museta reads _series.txt for the style, cast and voices, every ep01-….txt as an episode, and photos in characters/ as the cast faces.',
+      'Chọn một thư mục bộ phim. Museta đọc _series.txt để lấy phong cách, nhân vật và giọng đọc, coi mỗi file ep01-….txt là một tập, và dùng ảnh trong characters/ làm khuôn mặt nhân vật.',
     ),
   );
-  const button = el('button', 'primary', 'Import series folder');
+  const button = el('button', 'primary', 'Nhập thư mục bộ phim');
   button.type = 'button';
   button.onclick = () => $('#studioFolderInput').click();
   empty.appendChild(button);
@@ -474,7 +467,7 @@ export function renderStudio() {
   const titles = el('div', 'studio-titles');
   titles.append(
     el('h1', '', series.name),
-    el('p', '', `${series.episodes.length} episodes from the “${series.folder}” folder`),
+    el('p', '', `${series.episodes.length} tập từ thư mục “${series.folder}”`),
   );
   const actions = el('div', 'studio-actions');
   const remaining = unfinished(series);
@@ -482,24 +475,24 @@ export function renderStudio() {
     'button',
     'run-all',
     remaining.length === series.episodes.length
-      ? 'Queue all episodes'
-      : `Queue ${remaining.length} remaining`,
+      ? 'Xếp hàng cả bộ'
+      : `Xếp hàng ${remaining.length} tập còn lại`,
   );
   queueAll.type = 'button';
   queueAll.disabled = !remaining.length;
   queueAll.onclick = () => enqueue(remaining);
   actions.appendChild(queueAll);
-  const refresh = el('button', 'ghost', 'Update from folder');
+  const refresh = el('button', 'ghost', 'Cập nhật từ thư mục');
   refresh.type = 'button';
-  refresh.title = 'Choose the same folder again to load edited scripts and photos';
+  refresh.title = 'Chọn lại đúng thư mục này để tải kịch bản và ảnh đã sửa';
   refresh.onclick = () => $('#studioFolderInput').click();
-  const remove = el('button', 'ghost', 'Remove');
+  const remove = el('button', 'ghost', 'Xoá');
   remove.type = 'button';
   remove.onclick = () => removeSeries(series);
   actions.append(refresh, remove);
   header.append(titles, actions);
   const list = el('ol', 'episode-list');
-  list.setAttribute('aria-label', 'Episodes');
+  list.setAttribute('aria-label', 'Các tập');
   list.append(...series.episodes.map(episode => episodeRow(series, episode)));
   main.replaceChildren(header, castStrip(series), seriesNotes(series), list);
 }
@@ -553,7 +546,7 @@ export async function initStudio() {
   } catch {}
   setView(view);
   await loadLibrary().catch(error =>
-    setRunStatus(`Could not open the Studio library: ${error?.message || error}`, 'error'),
+    setRunStatus(`Không mở được thư viện Studio: ${error?.message || error}`, 'error'),
   );
   $('#studioQueueAllBtn').onclick = () => enqueue(studio.series.flatMap(unfinished));
   setInterval(() => refreshJobs().catch(() => {}), 3000);

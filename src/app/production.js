@@ -18,23 +18,23 @@ import { downloadOutput, playOutput, setView } from './studio.js';
 const REFRESH_MS = 2000;
 const ALERT_REASONS = new Set(['credits', 'signed-out', 'tts-key', 'breaker']);
 const GROUPS = [
-  { key: 'active', title: 'Running', statuses: ['running', 'exporting'] },
-  { key: 'review', title: 'Ready to review', statuses: ['review'] },
-  { key: 'queued', title: 'Waiting', statuses: ['queued'] },
-  { key: 'failed', title: 'Needs attention', statuses: ['failed'] },
-  { key: 'done', title: 'Approved', statuses: ['done'] },
+  { key: 'active', title: 'Đang chạy', statuses: ['running', 'exporting'] },
+  { key: 'review', title: 'Chờ duyệt', statuses: ['review'] },
+  { key: 'queued', title: 'Đang chờ', statuses: ['queued'] },
+  { key: 'failed', title: 'Cần xử lý', statuses: ['failed'] },
+  { key: 'done', title: 'Đã duyệt', statuses: ['done'] },
 ];
 const KIND_TEXT = {
-  credits: 'Out of credits',
-  'signed-out': 'Signed out',
-  'tts-key': 'Voice API key',
-  bridge: 'Muse page',
-  timeout: 'Timed out',
-  refused: 'Muse refused a scene',
-  script: 'Script problem',
-  export: 'MP4 export',
-  stopped: 'Stopped',
-  unknown: 'Error',
+  credits: 'Hết credit',
+  'signed-out': 'Đã đăng xuất',
+  'tts-key': 'API key giọng đọc',
+  bridge: 'Trang Muse',
+  timeout: 'Quá thời gian chờ',
+  refused: 'Muse từ chối một cảnh',
+  script: 'Lỗi kịch bản',
+  export: 'Xuất MP4',
+  stopped: 'Đã dừng',
+  unknown: 'Lỗi',
 };
 const production = {
   jobs: [],
@@ -46,10 +46,9 @@ const production = {
 };
 
 const appUrl = () => chrome.runtime.getURL('app.html');
-const plural = (count, word) => `${count} ${word}${count === 1 ? '' : 's'}`;
 const formatMinutes = ms => {
   const minutes = Math.max(1, Math.round(ms / 60_000));
-  return minutes < 60 ? `${minutes} min` : `${Math.floor(minutes / 60)} h ${minutes % 60} min`;
+  return minutes < 60 ? `${minutes} phút` : `${Math.floor(minutes / 60)} giờ ${minutes % 60} phút`;
 };
 
 function button(label, className, onClick, title = '') {
@@ -107,7 +106,7 @@ async function closeWorkers() {
   if (
     production.jobs.some(job => ['running', 'exporting'].includes(job.status)) &&
     !window.confirm(
-      'Episodes are still running. Close the workers anyway? They continue later from their last finished step.',
+      'Vẫn còn tập đang chạy. Vẫn đóng worker? Các tập này sẽ chạy tiếp sau từ bước cuối cùng đã xong.',
     )
   )
     return;
@@ -151,8 +150,7 @@ async function approve(job) {
 }
 
 async function redo(job) {
-  if (!window.confirm(`Throw away this version of “${job.title}” and produce it again from the start?`))
-    return;
+  if (!window.confirm(`Bỏ phiên bản này của “${job.title}” và làm lại từ đầu?`)) return;
   await deleteMediaWithPrefix(jobMediaPrefix(job.id)).catch(() => {});
   if (job.outputKey) await deleteOutput(job.outputKey).catch(() => {});
   const last = Math.max(0, ...production.jobs.map(item => item.order || 0));
@@ -175,7 +173,7 @@ const retry = job =>
   updateJob(job.id, { status: 'queued', attempts: 0, notBefore: 0, error: '', errorKind: '' }).then(refresh);
 
 async function remove(job) {
-  if (!window.confirm(`Remove “${job.title}” from the queue?`)) return;
+  if (!window.confirm(`Xoá “${job.title}” khỏi hàng đợi?`)) return;
   await deleteJob(job.id);
   await deleteMediaWithPrefix(jobMediaPrefix(job.id)).catch(() => {});
   await refresh();
@@ -191,7 +189,7 @@ async function move(items, index, step) {
 }
 
 async function openInCanvas(job) {
-  if (!job.checkpoint) return setRunStatus('This episode has no saved progress yet.', 'warn');
+  if (!job.checkpoint) return setRunStatus('Tập này chưa có tiến độ nào được lưu.', 'warn');
   if (await loadWorkflowObject(structuredClone(job.checkpoint), { label: job.title })) setView('canvas');
 }
 
@@ -209,28 +207,28 @@ async function clearApproved(items) {
 
 function summaryText(summary) {
   const parts = [
-    `${summary.running} running`,
-    `${summary.queued} waiting`,
-    `${summary.review} to review`,
-    plural(summary.done, 'approved episode'),
+    `${summary.running} đang chạy`,
+    `${summary.queued} đang chờ`,
+    `${summary.review} chờ duyệt`,
+    `${summary.done} tập đã duyệt`,
   ];
-  if (summary.failed) parts.push(`${summary.failed} need${summary.failed === 1 ? 's' : ''} attention`);
-  const eta = summary.etaMs ? ` About ${formatMinutes(summary.etaMs)} left.` : '';
+  if (summary.failed) parts.push(`${summary.failed} cần xử lý`);
+  const eta = summary.etaMs ? ` Còn khoảng ${formatMinutes(summary.etaMs)}.` : '';
   return `${parts.join(', ')}.${eta}`;
 }
 
 function jobDetail(job, control) {
-  const progress = job.progress?.total ? `step ${job.progress.done} of ${job.progress.total}` : 'starting';
-  const elapsed = job.startedAt ? `, ${formatMinutes(Date.now() - job.startedAt)} so far` : '';
+  const progress = job.progress?.total ? `bước ${job.progress.done}/${job.progress.total}` : 'đang bắt đầu';
+  const elapsed = job.startedAt ? `, đã chạy ${formatMinutes(Date.now() - job.startedAt)}` : '';
   if (job.status === 'running')
     return `Worker ${workerLabel(job.workerId)}, ${progress}${job.progress?.current ? `: ${job.progress.current}` : ''}${elapsed}`;
-  if (job.status === 'exporting') return `Worker ${workerLabel(job.workerId)}, exporting the MP4`;
+  if (job.status === 'exporting') return `Worker ${workerLabel(job.workerId)}, đang xuất MP4`;
   if (job.status === 'queued' && job.notBefore > Date.now())
-    return `Retry ${job.attempts + 1} of ${control.maxAttempts} at ${new Date(job.notBefore).toLocaleTimeString([], { timeStyle: 'short' })}`;
+    return `Thử lại lần ${job.attempts + 1}/${control.maxAttempts} lúc ${new Date(job.notBefore).toLocaleTimeString([], { timeStyle: 'short' })}`;
   if (job.status === 'queued')
-    return job.attempts ? 'Continues from its last finished step' : 'Waiting for a worker';
-  if (job.status === 'failed') return `Stopped after ${plural(job.attempts, 'attempt')}`;
-  return `Took ${formatMinutes(job.runMs || 0)} over ${plural(job.attempts, 'attempt')}`;
+    return job.attempts ? 'Sẽ chạy tiếp từ bước cuối cùng đã xong' : 'Đang chờ worker';
+  if (job.status === 'failed') return `Đã dừng sau ${job.attempts} lần thử`;
+  return `Mất ${formatMinutes(job.runMs || 0)} qua ${job.attempts} lần thử`;
 }
 
 function jobRow(job, key, items, index, control) {
@@ -238,41 +236,41 @@ function jobRow(job, key, items, index, control) {
   const main = el('div', 'job-main');
   main.append(el('h3', 'job-title', job.title), el('p', 'job-detail', jobDetail(job, control)));
   if (job.error && ['failed', 'queued'].includes(job.status))
-    main.appendChild(el('p', 'job-error', `${KIND_TEXT[job.errorKind] || 'Error'}: ${job.error}`));
+    main.appendChild(el('p', 'job-error', `${KIND_TEXT[job.errorKind] || 'Lỗi'}: ${job.error}`));
   const actions = el('div', 'job-actions');
   if (key === 'review' || key === 'done')
     actions.append(
-      button('Play', 'ghost', () => playOutput(job.outputKey, job.title)),
-      button('Download', 'ghost', () => downloadOutput(job.outputKey, job.fileName)),
+      button('Phát', 'ghost', () => playOutput(job.outputKey, job.title)),
+      button('Tải xuống', 'ghost', () => downloadOutput(job.outputKey, job.fileName)),
     );
   if (key === 'review' || key === 'failed')
-    actions.append(button('Open in canvas', 'ghost', () => openInCanvas(job), 'Fix single scenes by hand'));
+    actions.append(button('Mở trong Canvas', 'ghost', () => openInCanvas(job), 'Sửa tay từng cảnh'));
   if (key === 'review')
     actions.append(
-      button('Redo', 'ghost', () => redo(job), 'Throw this version away and produce the episode again'),
-      button('Approve', 'primary', () => approve(job)),
+      button('Làm lại', 'ghost', () => redo(job), 'Bỏ phiên bản này và làm lại tập từ đầu'),
+      button('Duyệt', 'primary', () => approve(job)),
     );
   if (key === 'failed')
-    actions.append(button('Retry', 'primary', () => retry(job), 'Continue from the last finished step'));
+    actions.append(button('Thử lại', 'primary', () => retry(job), 'Chạy tiếp từ bước cuối cùng đã xong'));
   if (key === 'queued') {
-    const up = button('↑', 'ghost', () => move(items, index, -1), 'Run earlier');
-    const down = button('↓', 'ghost', () => move(items, index, 1), 'Run later');
+    const up = button('↑', 'ghost', () => move(items, index, -1), 'Chạy sớm hơn');
+    const down = button('↓', 'ghost', () => move(items, index, 1), 'Chạy sau');
     up.disabled = index === 0;
     down.disabled = index === items.length - 1;
-    up.setAttribute('aria-label', 'Run earlier');
-    down.setAttribute('aria-label', 'Run later');
+    up.setAttribute('aria-label', 'Chạy sớm hơn');
+    down.setAttribute('aria-label', 'Chạy sau');
     actions.append(up, down);
   }
   if (key === 'active' && isStale(job, control))
     actions.append(
       button(
-        'Requeue',
+        'Xếp hàng lại',
         'primary',
         () => requeue(job).then(refresh),
-        'The worker stopped responding; put this episode back in the queue',
+        'Worker không còn phản hồi; đưa tập này trở lại hàng đợi',
       ),
     );
-  if (key === 'queued' || key === 'failed') actions.append(button('Remove', 'ghost', () => remove(job)));
+  if (key === 'queued' || key === 'failed') actions.append(button('Xoá', 'ghost', () => remove(job)));
   row.append(main, actions);
   return row;
 }
@@ -283,12 +281,12 @@ function groupSection(group, items, control) {
   head.append(el('h2', '', `${group.title} (${items.length})`));
   if (group.key === 'done')
     head.append(
-      button('Download all', 'ghost', () => downloadApproved(items)),
+      button('Tải tất cả', 'ghost', () => downloadApproved(items)),
       button(
-        'Clear list',
+        'Dọn danh sách',
         'ghost',
         () => clearApproved(items),
-        'Remove approved episodes from this list; their MP4s stay in the Studio',
+        'Bỏ các tập đã duyệt khỏi danh sách này; MP4 của chúng vẫn còn trong Studio',
       ),
     );
   const list = el('ol', 'job-list');
@@ -301,7 +299,7 @@ function settingsPanel(control) {
   const details = el('details', 'production-settings');
   details.open = production.settingsOpen;
   details.ontoggle = () => (production.settingsOpen = details.open);
-  details.append(el('summary', '', 'Queue settings'));
+  details.append(el('summary', '', 'Cài đặt hàng đợi'));
   const clamp = (min, max) => value => Math.max(min, Math.min(max, Math.round(Number(value) || min)));
   const field = (label, key, attrs, parse) => {
     const wrap = el('label', 'production-field');
@@ -313,15 +311,15 @@ function settingsPanel(control) {
     return wrap;
   };
   details.append(
-    field('Workers', 'workers', { type: 'number', min: 1, max: 4 }, clamp(1, 4)),
-    field('Attempts per episode', 'maxAttempts', { type: 'number', min: 1, max: 5 }, clamp(1, 5)),
+    field('Số worker', 'workers', { type: 'number', min: 1, max: 4 }, clamp(1, 4)),
+    field('Số lần thử mỗi tập', 'maxAttempts', { type: 'number', min: 1, max: 5 }, clamp(1, 5)),
     field(
-      'Pause between Muse requests, in seconds',
+      'Nghỉ giữa các lượt gửi Muse (giây)',
       'cooldownSec',
       { type: 'number', min: 0, max: 120 },
       clamp(0, 120),
     ),
-    field('New chat URL', 'museHomeUrl', { type: 'url' }, value =>
+    field('URL chat mới', 'museHomeUrl', { type: 'url' }, value =>
       /^https:\/\/(?:[a-z0-9-]+\.)*muse\.ai\//i.test(value) ? value : 'https://muse.ai/',
     ),
   );
@@ -330,7 +328,7 @@ function settingsPanel(control) {
 
 function workerStrip(control) {
   const strip = el('ul', 'worker-strip');
-  strip.setAttribute('aria-label', 'Workers');
+  strip.setAttribute('aria-label', 'Danh sách worker');
   const count = Math.max(control.workers, production.workers.length);
   for (let id = 1; id <= count; id++) {
     const live = production.workers.find(item => item.id === String(id));
@@ -343,14 +341,14 @@ function workerStrip(control) {
       `worker-chip ${!live ? 'is-off' : stale ? 'is-stale' : job ? 'is-busy' : 'is-idle'}`,
     );
     const text = !live
-      ? 'Closed'
+      ? 'Đã đóng'
       : stale
-        ? 'Not responding'
+        ? 'Không phản hồi'
         : job
           ? job.title
           : control.paused
-            ? 'Paused'
-            : 'Waiting for an episode';
+            ? 'Đã tạm dừng'
+            : 'Đang chờ tập';
     item.append(
       el('span', 'status-dot'),
       el('strong', '', `Worker ${id}`),
@@ -366,29 +364,29 @@ function render(summary) {
     control = production.control;
   const header = el('header', 'production-header');
   const titles = el('div', 'production-titles');
-  titles.append(el('h1', '', 'Production'), el('p', '', summaryText(summary)));
+  titles.append(el('h1', '', 'Sản xuất'), el('p', '', summaryText(summary)));
   const actions = el('div', 'production-actions');
   if (control.paused)
     actions.append(
       button(
-        control.reason ? 'Resume' : 'Start',
+        control.reason ? 'Tiếp tục' : 'Bắt đầu',
         'primary',
         startQueue,
-        'Open the worker windows and produce queued episodes',
+        'Mở các cửa sổ worker và sản xuất các tập đang xếp hàng',
       ),
     );
   else
     actions.append(
-      button('Pause', 'ghost', pauseQueue, 'Finish the episodes that are running, then stop taking new ones'),
+      button('Tạm dừng', 'ghost', pauseQueue, 'Làm xong các tập đang chạy rồi ngừng nhận tập mới'),
       button(
-        'Stop now',
+        'Dừng ngay',
         'danger',
         stopQueue,
-        'Stop running episodes now; they continue from their last finished step',
+        'Dừng ngay các tập đang chạy; chúng sẽ chạy tiếp từ bước cuối cùng đã xong',
       ),
     );
   actions.append(
-    button('Close workers', 'ghost', closeWorkers, 'Close the worker tabs and their Muse windows'),
+    button('Đóng worker', 'ghost', closeWorkers, 'Đóng các tab worker và cửa sổ Muse của chúng'),
   );
   header.append(titles, actions);
   const parts = [header];
@@ -410,13 +408,13 @@ function render(summary) {
   if (!production.jobs.length) {
     const empty = el('div', 'studio-empty');
     empty.append(
-      el('h2', '', 'Nothing in the queue yet'),
+      el('h2', '', 'Hàng đợi đang trống'),
       el(
         'p',
         '',
-        'Queue episodes from the Studio. They run here one per worker, and finished MP4s wait for your review.',
+        'Xếp hàng các tập từ Studio. Các tập chạy ở đây, mỗi worker một tập, và MP4 làm xong sẽ chờ bạn duyệt.',
       ),
-      button('Go to Studio', 'primary', () => setView('studio')),
+      button('Đến Studio', 'primary', () => setView('studio')),
     );
     parts.push(empty);
   }
@@ -465,6 +463,6 @@ export function initProduction() {
   });
   setInterval(() => refresh().catch(() => {}), REFRESH_MS);
   refresh().catch(error =>
-    setRunStatus(`Could not read the production queue: ${error?.message || error}`, 'error'),
+    setRunStatus(`Không đọc được hàng đợi sản xuất: ${error?.message || error}`, 'error'),
   );
 }

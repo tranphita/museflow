@@ -17,7 +17,7 @@ function mediaDb() {
       const request = indexedDB.open(MEDIA_DB_NAME, 1);
       request.onupgradeneeded = () => request.result.createObjectStore(MEDIA_STORE);
       request.onsuccess = () => resolve(request.result);
-      request.onerror = () => reject(request.error || new Error('Could not open local media storage.'));
+      request.onerror = () => reject(request.error || new Error('Không mở được kho media trên máy.'));
     });
   return mediaDbPromise;
 }
@@ -26,7 +26,7 @@ function transactionDone(tx, failure) {
   return new Promise((resolve, reject) => {
     tx.oncomplete = resolve;
     tx.onerror = () => reject(tx.error || new Error(failure));
-    tx.onabort = () => reject(tx.error || new Error('Media storage transaction was cancelled.'));
+    tx.onabort = () => reject(tx.error || new Error('Thao tác với kho media đã bị huỷ.'));
   });
 }
 
@@ -34,7 +34,7 @@ export async function putMedia(key, blob) {
   const db = await mediaDb();
   const tx = db.transaction(MEDIA_STORE, 'readwrite');
   tx.objectStore(MEDIA_STORE).put(blob, key);
-  return transactionDone(tx, 'Could not save a media file locally.');
+  return transactionDone(tx, 'Không lưu được file media vào máy.');
 }
 
 export async function getMedia(key) {
@@ -42,7 +42,7 @@ export async function getMedia(key) {
   return new Promise((resolve, reject) => {
     const request = db.transaction(MEDIA_STORE, 'readonly').objectStore(MEDIA_STORE).get(key);
     request.onsuccess = () => resolve(request.result || null);
-    request.onerror = () => reject(request.error || new Error('Could not read a saved media file.'));
+    request.onerror = () => reject(request.error || new Error('Không đọc được file media đã lưu.'));
   });
 }
 
@@ -57,7 +57,7 @@ export async function pruneMedia(keepKeys) {
   if (!stale.length) return 0;
   const tx = db.transaction(MEDIA_STORE, 'readwrite');
   for (const key of stale) tx.objectStore(MEDIA_STORE).delete(key);
-  await transactionDone(tx, 'Could not clean up unused media.');
+  await transactionDone(tx, 'Không dọn được media không còn dùng.');
   return stale.length;
 }
 
@@ -72,7 +72,7 @@ export async function deleteMediaWithPrefix(prefix) {
   if (!matching.length) return 0;
   const tx = db.transaction(MEDIA_STORE, 'readwrite');
   for (const key of matching) tx.objectStore(MEDIA_STORE).delete(key);
-  await transactionDone(tx, 'Could not delete episode media.');
+  await transactionDone(tx, 'Không xoá được media của tập.');
   return matching.length;
 }
 
@@ -85,7 +85,7 @@ export async function dehydrateMediaUrl(url, key) {
   if (!url || storedPrefix(url) || !/^(?:data:|blob:)/i.test(url)) return url;
   const response = await fetch(url);
   const blob = await response.blob();
-  if (!blob.size) throw new Error('A saved image or video is empty.');
+  if (!blob.size) throw new Error('Một ảnh hoặc video đã lưu bị rỗng.');
   await putMedia(key, blob);
   return idbMediaPrefix + encodeURIComponent(key);
 }

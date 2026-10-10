@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="vi">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
@@ -10,29 +10,29 @@
 <body>
   <header class="toolbar">
     <div class="brand"><img class="brand-logo" src="icons/museta.svg" alt="" /><strong class="brand-name">Museta</strong><span id="brandVersion" class="brand-version"></span></div>
-    <nav class="view-switch" role="tablist" aria-label="Choose a view">
+    <nav class="view-switch" role="tablist" aria-label="Chọn chế độ xem">
       <button type="button" role="tab" data-view="studio" aria-selected="true">Studio</button>
-      <button type="button" role="tab" data-view="production" aria-selected="false">Production</button>
+      <button type="button" role="tab" data-view="production" aria-selected="false">Sản xuất</button>
       <button type="button" role="tab" data-view="canvas" aria-selected="false">Canvas</button>
     </nav>
-    <div class="toolbar-tools canvas-only" aria-label="Build the workflow">
-      <button id="scriptImportBtn" type="button">Script to nodes</button>
+    <div class="toolbar-tools canvas-only" aria-label="Dựng workflow">
+      <button id="scriptImportBtn" type="button">Kịch bản → node</button>
       <div class="add-node">
-        <button id="addNodeBtn" type="button" aria-haspopup="menu" aria-expanded="false">＋ Add node</button>
+        <button id="addNodeBtn" type="button" aria-haspopup="menu" aria-expanded="false">＋ Thêm node</button>
         <div id="addNodeMenu" class="add-node-menu hidden" role="menu">
-          <p class="menu-caption">Text</p>
+          <p class="menu-caption">Văn bản</p>
           <button data-add="prompt" role="menuitem">Prompt</button>
           <button data-add="negativePrompt" role="menuitem">Negative prompt</button>
           <button data-add="textAppend" role="menuitem">Text append</button>
           <button data-add="textConcat" role="menuitem">Text merge</button>
-          <button data-add="text" role="menuitem">Text note</button>
-          <p class="menu-caption">Images</p>
+          <button data-add="text" role="menuitem">Ghi chú</button>
+          <p class="menu-caption">Hình ảnh</p>
           <button data-add="imageInput" role="menuitem">Image input</button>
           <button data-add="references" role="menuitem">References</button>
           <button data-add="generateImage" role="menuitem">Generate image</button>
           <button data-add="imageResize" role="menuitem">Image resize</button>
           <button data-add="preview" role="menuitem">Preview</button>
-          <p class="menu-caption">Video and sound</p>
+          <p class="menu-caption">Video và âm thanh</p>
           <button data-add="generateVideo" role="menuitem">Generate video</button>
           <button data-add="voiceover" role="menuitem">Voiceover</button>
           <button data-add="timeline" role="menuitem">Timeline</button>
@@ -41,43 +41,43 @@
     </div>
     <div class="toolbar-actions">
       <div class="toolbar-group canvas-only">
-        <button id="saveBtn" type="button">Save</button>
-        <button id="workflowExportBtn" type="button" title="Download this workflow as a JSON file">Export file</button>
-        <button id="workflowImportBtn" type="button" title="Open a saved Museta workflow file">Open file</button>
+        <button id="saveBtn" type="button">Lưu</button>
+        <button id="workflowExportBtn" type="button" title="Tải workflow này xuống dưới dạng file JSON">Xuất file</button>
+        <button id="workflowImportBtn" type="button" title="Mở file workflow Museta đã lưu">Mở file</button>
         <input id="workflowFileInput" type="file" accept=".json,application/json" hidden />
-        <button id="resetBtn" type="button" class="danger">Reset</button>
+        <button id="resetBtn" type="button" class="danger">Đặt lại</button>
       </div>
-      <button id="settingsBtn" type="button">Settings</button>
-      <button id="runBtn" type="button" class="primary canvas-only" title="Run every node in the workflow in dependency order">▶ Run workflow</button>
-      <button id="buyCoffeeBtn" class="buy-coffee-btn" type="button" title="Support bynne2602, the original MuseFlow author, via VietQR" aria-label="Buy the original author a coffee">☕</button>
+      <button id="settingsBtn" type="button">Cài đặt</button>
+      <button id="runBtn" type="button" class="primary canvas-only" title="Chạy mọi node trong workflow theo thứ tự phụ thuộc">▶ Chạy workflow</button>
+      <button id="buyCoffeeBtn" class="buy-coffee-btn" type="button" title="Ủng hộ bynne2602, tác giả MuseFlow gốc, qua VietQR" aria-label="Mời tác giả gốc một ly cà phê">☕</button>
     </div>
   </header>
 
   <div class="statusbar">
-    <span id="museStatus">● Checking muse.ai...</span>
-    <span id="backendStatus">Generation: Muse.ai browser session</span>
+    <span id="museStatus">● Đang kiểm tra muse.ai...</span>
+    <span id="backendStatus">Tạo nội dung: phiên Muse.ai trên trình duyệt</span>
     <span id="runStatus"></span>
   </div>
   <div id="workerBanner" class="worker-banner" role="status" hidden></div>
 
-  <main id="studio" class="studio" aria-label="Series studio">
+  <main id="studio" class="studio" aria-label="Studio bộ phim">
     <aside class="studio-sidebar">
       <div class="studio-sidebar-head">
-        <h2>Series</h2>
-        <button id="studioImportBtn" type="button" class="ghost">Import folder</button>
+        <h2>Bộ phim</h2>
+        <button id="studioImportBtn" type="button" class="ghost">Nhập thư mục</button>
       </div>
       <input id="studioFolderInput" type="file" webkitdirectory multiple hidden />
       <ul id="studioSeriesList" class="series-list"></ul>
-      <button id="studioQueueAllBtn" type="button" class="ghost studio-queue-all" title="Queue every unfinished episode, alternating between series">Queue every series</button>
+      <button id="studioQueueAllBtn" type="button" class="ghost studio-queue-all" title="Xếp hàng mọi tập chưa xong, xen kẽ giữa các bộ">Xếp hàng mọi bộ</button>
     </aside>
     <section id="studioMain" class="studio-main" aria-live="polite"></section>
   </main>
 
-  <main id="production" class="production" aria-label="Production queue" aria-live="polite"></main>
+  <main id="production" class="production" aria-label="Hàng đợi sản xuất" aria-live="polite"></main>
 
   <div id="studioPlayerModal" class="modal-backdrop hidden">
     <section class="modal studio-player" role="dialog" aria-modal="true" aria-labelledby="studioPlayerTitle">
-      <header class="studio-player-head"><h2 id="studioPlayerTitle">Episode</h2><button id="studioPlayerClose" type="button" aria-label="Close player">×</button></header>
+      <header class="studio-player-head"><h2 id="studioPlayerTitle">Tập</h2><button id="studioPlayerClose" type="button" aria-label="Đóng trình phát">×</button></header>
       <video id="studioPlayer" controls playsinline></video>
     </section>
   </div>
@@ -85,32 +85,32 @@
   <main id="viewport">
     <svg id="edges"></svg>
     <div id="canvas"></div>
-    <div id="canvasTools" class="canvas-tools" aria-label="Canvas controls">
-      <button id="handTool" type="button" title="Hand tool (H) · Hold Space to pan · Alt-drag to copy · Ctrl+Z to undo · G group · T Text note">✋</button>
-      <button id="groupTool" type="button" title="Draw a group region (G)">▱</button>
-      <button id="zoomOut" type="button" title="Zoom out">−</button>
+    <div id="canvasTools" class="canvas-tools" aria-label="Điều khiển canvas">
+      <button id="handTool" type="button" title="Công cụ bàn tay (H) · Giữ Space để pan · Alt-kéo để sao chép · Ctrl+Z để hoàn tác · G nhóm · T ghi chú">✋</button>
+      <button id="groupTool" type="button" title="Vẽ vùng nhóm (G)">▱</button>
+      <button id="zoomOut" type="button" title="Thu nhỏ">−</button>
       <span id="zoomLevel">100%</span>
-      <button id="zoomIn" type="button" title="Zoom in">＋</button>
-      <button id="fitCanvas" type="button" title="Fit all nodes">Fit</button>
+      <button id="zoomIn" type="button" title="Phóng to">＋</button>
+      <button id="fitCanvas" type="button" title="Hiện vừa mọi node">Vừa khung</button>
     </div>
   </main>
-  <section id="timelineDock" class="timeline-dock collapsed" aria-label="Video timeline">
-    <div class="timeline-dock-header"><div class="timeline-heading"><strong>Timeline</strong><span id="timelineClipCount">0 clips</span><small>Arrange scenes · drag clips to reorder</small></div><div class="timeline-dock-actions"><button id="timelineImportAllBtn" type="button" title="Add every Generate Video node to the timeline">＋ Import all videos</button><div class="timeline-output-picker"><button id="timelineAddVideoBtn" type="button" title="Add a video output">＋ Add clip</button><div id="timelineOutputMenu" class="timeline-output-menu hidden"></div></div><div class="timeline-music"><button id="timelineMusicBtn" type="button" title="Add background music to the timeline export">♪ Music</button><input id="timelineMusicInput" type="file" accept="audio/*" hidden /><span id="timelineMusicControls" class="timeline-music-controls hidden"><span id="timelineMusicName"></span><input id="timelineMusicVolume" type="range" min="0" max="1" step="0.05" title="Music volume" aria-label="Music volume" /><button id="timelineMusicRemove" type="button" title="Remove background music" aria-label="Remove background music">×</button></span></div><label class="timeline-transition" title="Transition between clips in MP4 export">⇄ <select id="timelineTransition" aria-label="Transition between clips"><option value="cut">Cut</option><option value="fade">Crossfade</option><option value="fadeblack">Fade through black</option><option value="dissolve">Dissolve</option><option value="smoothleft">Slide left</option></select><input id="timelineTransitionDuration" type="number" min="0.1" max="2" step="0.1" aria-label="Transition length in seconds" title="Transition length (seconds)" /></label><button id="timelinePlayBtn" type="button" title="Preview sequence">▶ Preview</button><select id="timelineExportFormat" title="Choose export format"><option value="webm">WebM</option><option value="mp4">MP4 (H.264)</option></select><button id="timelineExportBtn" type="button" title="Export the full stitched timeline video">⇩ Export</button><button id="timelineExportStopBtn" class="timeline-export-stop hidden" type="button" title="Stop timeline export">■ Stop</button><button id="timelineToggleBtn" type="button" aria-expanded="false" title="Show timeline">▲</button></div></div>
-    <div id="timelineDropZone" class="timeline-drop-zone">Drag a Generate Video node or video clip here</div>
+  <section id="timelineDock" class="timeline-dock collapsed" aria-label="Timeline video">
+    <div class="timeline-dock-header"><div class="timeline-heading"><strong>Timeline</strong><span id="timelineClipCount">0 clip</span><small>Sắp xếp cảnh · kéo clip để đổi thứ tự</small></div><div class="timeline-dock-actions"><button id="timelineImportAllBtn" type="button" title="Thêm mọi node Generate Video vào timeline">＋ Nhập mọi video</button><div class="timeline-output-picker"><button id="timelineAddVideoBtn" type="button" title="Thêm một video đầu ra">＋ Thêm clip</button><div id="timelineOutputMenu" class="timeline-output-menu hidden"></div></div><div class="timeline-music"><button id="timelineMusicBtn" type="button" title="Thêm nhạc nền khi xuất timeline">♪ Nhạc</button><input id="timelineMusicInput" type="file" accept="audio/*" hidden /><span id="timelineMusicControls" class="timeline-music-controls hidden"><span id="timelineMusicName"></span><input id="timelineMusicVolume" type="range" min="0" max="1" step="0.05" title="Âm lượng nhạc" aria-label="Âm lượng nhạc" /><button id="timelineMusicRemove" type="button" title="Xoá nhạc nền" aria-label="Xoá nhạc nền">×</button></span></div><label class="timeline-transition" title="Chuyển cảnh giữa các clip khi xuất MP4">⇄ <select id="timelineTransition" aria-label="Chuyển cảnh giữa các clip"><option value="cut">Cắt thẳng</option><option value="fade">Mờ chéo</option><option value="fadeblack">Mờ qua nền đen</option><option value="dissolve">Hoà tan</option><option value="smoothleft">Trượt sang trái</option></select><input id="timelineTransitionDuration" type="number" min="0.1" max="2" step="0.1" aria-label="Độ dài chuyển cảnh tính bằng giây" title="Độ dài chuyển cảnh (giây)" /></label><button id="timelinePlayBtn" type="button" title="Xem trước cả chuỗi">▶ Xem trước</button><select id="timelineExportFormat" title="Chọn định dạng xuất"><option value="webm">WebM</option><option value="mp4">MP4 (H.264)</option></select><button id="timelineExportBtn" type="button" title="Xuất toàn bộ video timeline đã ghép">⇩ Xuất</button><button id="timelineExportStopBtn" class="timeline-export-stop hidden" type="button" title="Dừng xuất timeline">■ Dừng</button><button id="timelineToggleBtn" type="button" aria-expanded="false" title="Hiện timeline">▲</button></div></div>
+    <div id="timelineDropZone" class="timeline-drop-zone">Kéo node Generate Video hoặc clip video vào đây</div>
     <div class="timeline-dock-content"><div id="timelineTrack" class="timeline-dock-track"></div></div>
   </section>
 
-  <aside id="timelinePreviewPanel" class="timeline-preview-panel hidden" aria-label="Timeline video preview">
-    <header><strong>Timeline Preview</strong><button id="closeTimelinePreview" type="button" aria-label="Close preview">×</button></header>
+  <aside id="timelinePreviewPanel" class="timeline-preview-panel hidden" aria-label="Xem trước video timeline">
+    <header><strong>Xem trước timeline</strong><button id="closeTimelinePreview" type="button" aria-label="Đóng xem trước">×</button></header>
     <div class="timeline-preview-stage"><video id="timelinePlayer" class="is-active" controls playsinline preload="auto"></video><video id="timelinePlayerNext" playsinline preload="auto"></video></div>
-    <div class="timeline-preview-caption">Scene playback</div>
+    <div class="timeline-preview-caption">Phát cảnh</div>
   </aside>
 
-  <aside id="runPanel" class="run-panel hidden" aria-label="Workflow run progress" aria-live="polite">
+  <aside id="runPanel" class="run-panel hidden" aria-label="Tiến độ chạy workflow" aria-live="polite">
     <header>
-      <strong id="runPanelSummary">Workflow run</strong>
-      <label class="run-panel-follow" title="Move the canvas to the node that is running"><input id="runPanelFollow" type="checkbox" checked /> Follow</label>
-      <button id="runPanelClose" type="button" aria-label="Hide run progress">×</button>
+      <strong id="runPanelSummary">Lượt chạy workflow</strong>
+      <label class="run-panel-follow" title="Di chuyển canvas tới node đang chạy"><input id="runPanelFollow" type="checkbox" checked /> Theo dõi</label>
+      <button id="runPanelClose" type="button" aria-label="Ẩn tiến độ chạy">×</button>
     </header>
     <div class="run-panel-progress"><div id="runPanelBar"></div></div>
     <div id="runPanelMessage" class="run-panel-message"></div>
@@ -118,10 +118,10 @@
   </aside>
 
   <div id="canvasMenu" class="canvas-menu hidden" role="menu">
-    <div class="menu-caption">Add node</div>
+    <div class="menu-caption">Thêm node</div>
     <button data-context-action="add:prompt" role="menuitem">＋ Prompt</button>
     <button data-context-action="add:negativePrompt" role="menuitem">＋ Negative Prompt</button>
-    <button data-context-action="add:text" role="menuitem">＋ Text note</button>
+    <button data-context-action="add:text" role="menuitem">＋ Ghi chú</button>
     <button data-context-action="add:textAppend" role="menuitem">＋ Text Append</button>
     <button data-context-action="add:textConcat" role="menuitem">＋ Text Merge</button>
     <button data-context-action="add:imageInput" role="menuitem">＋ Image Input</button>
@@ -133,68 +133,68 @@
     <button data-context-action="add:imageResize" role="menuitem">＋ Image Resize</button>
     <button data-context-action="add:preview" role="menuitem">＋ Preview</button>
     <div class="menu-divider"></div>
-    <button data-context-action="save" role="menuitem">Save workflow</button>
-    <button data-context-action="run" role="menuitem">▶ Run workflow</button>
-    <button data-context-action="arrange" role="menuitem">Arrange nodes</button>
+    <button data-context-action="save" role="menuitem">Lưu workflow</button>
+    <button data-context-action="run" role="menuitem">▶ Chạy workflow</button>
+    <button data-context-action="arrange" role="menuitem">Sắp xếp node</button>
     <div class="menu-divider"></div>
-    <button data-context-action="delete-selected" role="menuitem">Delete selected node</button>
-    <button data-context-action="disconnect-all" role="menuitem">Remove all connections</button>
+    <button data-context-action="delete-selected" role="menuitem">Xoá node đã chọn</button>
+    <button data-context-action="disconnect-all" role="menuitem">Xoá mọi kết nối</button>
   </div>
 
   <div id="settingsModal" class="modal-backdrop hidden">
     <section class="modal">
-      <h2>Muse.ai session</h2>
-      <p>Museta uses your signed-in Muse.ai browser tab directly. Keep the Muse chat tab open while a workflow runs.</p>
-      <div class="connection-check"><button id="testMuseBtn" type="button">Check Muse session</button><span id="connectionStatus" role="status"></span></div>
-      <ul id="museDiagnostics" class="muse-diagnostics hidden" aria-label="Muse page checks"></ul>
-      <h2>Running workflows</h2>
+      <h2>Phiên Muse.ai</h2>
+      <p>Museta dùng trực tiếp tab Muse.ai mà bạn đã đăng nhập trên trình duyệt. Hãy giữ tab chat Muse mở trong lúc workflow chạy.</p>
+      <div class="connection-check"><button id="testMuseBtn" type="button">Kiểm tra phiên Muse</button><span id="connectionStatus" role="status"></span></div>
+      <ul id="museDiagnostics" class="muse-diagnostics hidden" aria-label="Kết quả kiểm tra trang Muse"></ul>
+      <h2>Chạy workflow</h2>
       <div class="settings-options">
-        <label for="autoRetrySetting">Retry a failed generation automatically
-          <select id="autoRetrySetting"><option value="0">Off</option><option value="1">1 time</option><option value="2">2 times</option></select>
+        <label for="autoRetrySetting">Tự động thử lại khi tạo bị lỗi
+          <select id="autoRetrySetting"><option value="0">Tắt</option><option value="1">1 lần</option><option value="2">2 lần</option></select>
         </label>
-        <p>Each automatic retry submits the prompt to Muse again and may use extra credits.</p>
-        <label><input id="continueOnErrorSetting" type="checkbox" /> Keep running other nodes when one node fails</label>
-        <p>Nodes that depend on a failed node are skipped.</p>
-        <label for="museTabsSetting">Muse tabs used at the same time
-          <select id="museTabsSetting"><option value="1">1 tab</option><option value="2">2 tabs</option><option value="3">3 tabs</option></select>
+        <p>Mỗi lần tự động thử lại sẽ gửi prompt cho Muse lần nữa và có thể tốn thêm credit.</p>
+        <label><input id="continueOnErrorSetting" type="checkbox" /> Vẫn chạy các node khác khi một node bị lỗi</label>
+        <p>Các node phụ thuộc vào node bị lỗi sẽ được bỏ qua.</p>
+        <label for="museTabsSetting">Số tab Muse dùng cùng lúc
+          <select id="museTabsSetting"><option value="1">1 tab</option><option value="2">2 tab</option><option value="3">3 tab</option></select>
         </label>
-        <p>Open that many Muse chat tabs, each on its own chat. Images and voices then generate in parallel; videos chained with end-frame continuity still run one after another.</p>
+        <p>Mở đúng số tab chat Muse đó, mỗi tab một cuộc chat riêng. Khi đó ảnh và giọng đọc được tạo song song; các video nối tiếp nhau bằng khung hình cuối vẫn chạy lần lượt.</p>
       </div>
-      <h2>Voiceover (tvoiceai)</h2>
+      <h2>Lồng tiếng (tvoiceai)</h2>
       <div class="settings-options">
         <label for="ttsApiKeySetting">API key
           <input id="ttsApiKeySetting" type="password" autocomplete="off" spellcheck="false" placeholder="sk_tvoice_…" />
         </label>
-        <p id="ttsApiKeyStatus">The key is stored only in this browser and is never included in saved or exported workflows.</p>
+        <p id="ttsApiKeyStatus">API key chỉ được lưu trong trình duyệt này và không bao giờ nằm trong workflow đã lưu hay đã xuất.</p>
       </div>
       <div class="modal-actions">
-        <button id="closeSettingsBtn">Cancel</button>
-        <button id="saveSettingsBtn" class="primary">Save</button>
+        <button id="closeSettingsBtn">Huỷ</button>
+        <button id="saveSettingsBtn" class="primary">Lưu</button>
       </div>
     </section>
   </div>
 
   <div id="donationModal" class="modal-backdrop hidden">
     <section class="modal donation-modal" role="dialog" aria-modal="true" aria-labelledby="donationModalTitle">
-      <header class="donation-header"><div><h2 id="donationModalTitle">Buy me a coffee</h2><p>Ủng hộ bynne2602, tác giả MuseFlow gốc, qua VietQR</p></div><button id="closeDonationBtn" type="button" aria-label="Close">×</button></header>
-      <img id="donationQrImage" class="donation-qr" src="https://img.vietqr.io/image/VCB-0331000500621-compact2.png?addInfo=BUY%20ME%20A%20COFFEE&amp;accountName=NGUYEN%20TAN%20THANH" alt="VietQR for Nguyen Tan Thanh at Vietcombank" />
-      <div id="donationQrFallback" class="donation-qr-fallback hidden">QR preview could not be loaded. Open the VietQR image directly below.</div>
+      <header class="donation-header"><div><h2 id="donationModalTitle">Mời một ly cà phê</h2><p>Ủng hộ bynne2602, tác giả MuseFlow gốc, qua VietQR</p></div><button id="closeDonationBtn" type="button" aria-label="Đóng">×</button></header>
+      <img id="donationQrImage" class="donation-qr" src="https://img.vietqr.io/image/VCB-0331000500621-compact2.png?addInfo=BUY%20ME%20A%20COFFEE&amp;accountName=NGUYEN%20TAN%20THANH" alt="Mã VietQR của Nguyen Tan Thanh tại Vietcombank" />
+      <div id="donationQrFallback" class="donation-qr-fallback hidden">Không tải được ảnh QR. Hãy mở trực tiếp ảnh VietQR ở liên kết bên dưới.</div>
       <div class="donation-details"><span>Vietcombank</span><strong>0331000500621</strong><span>NGUYEN TAN THANH</span></div>
-      <a class="donation-open-link" href="https://img.vietqr.io/image/VCB-0331000500621-compact2.png?addInfo=BUY%20ME%20A%20COFFEE&amp;accountName=NGUYEN%20TAN%20THANH" target="_blank" rel="noopener noreferrer">Open VietQR in a new tab</a>
+      <a class="donation-open-link" href="https://img.vietqr.io/image/VCB-0331000500621-compact2.png?addInfo=BUY%20ME%20A%20COFFEE&amp;accountName=NGUYEN%20TAN%20THANH" target="_blank" rel="noopener noreferrer">Mở VietQR trong tab mới</a>
       <a class="donation-bmac-link" href="https://buymeacoffee.com/bynne2602i" target="_blank" rel="noopener noreferrer">Buy Me a Coffee ↗</a>
     </section>
   </div>
 
   <div id="scriptModal" class="modal-backdrop hidden">
     <section class="modal script-modal" role="dialog" aria-modal="true" aria-labelledby="scriptModalTitle">
-      <h2 id="scriptModalTitle">Build nodes from a scene script</h2>
-      <p>Paste scenes with “CẢNH”, “Prompt ảnh”, “Prompt video” and optional “Audio”. Museta will create and connect each scene, then order video clips on the Timeline.</p>
-      <label for="scriptInput">Script</label>
-      <textarea id="scriptInput" placeholder="CẢNH 1 (0:00–0:07): Scene title&#10;&#10;Prompt ảnh: ...&#10;&#10;Prompt video: ...&#10;Audio: ..."></textarea>
+      <h2 id="scriptModalTitle">Tạo node từ kịch bản cảnh</h2>
+      <p>Dán các cảnh có “CẢNH”, “Prompt ảnh”, “Prompt video” và “Audio” (không bắt buộc). Museta sẽ tạo và nối từng cảnh, rồi xếp các clip video theo thứ tự trên Timeline.</p>
+      <label for="scriptInput">Kịch bản</label>
+      <textarea id="scriptInput" placeholder="CẢNH 1 (0:00–0:07): Tên cảnh&#10;&#10;Prompt ảnh: ...&#10;&#10;Prompt video: ...&#10;Audio: ..."></textarea>
       <div id="scriptImportStatus" role="status"></div>
       <div class="modal-actions">
-        <button id="cancelScriptImport" type="button">Cancel</button>
-        <button id="buildScriptNodes" type="button" class="primary">Create scene nodes</button>
+        <button id="cancelScriptImport" type="button">Huỷ</button>
+        <button id="buildScriptNodes" type="button" class="primary">Tạo node cảnh</button>
       </div>
     </section>
   </div>

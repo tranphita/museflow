@@ -71,12 +71,12 @@ export function checkEpisode(script) {
   const add = (level, scene, message) => issues.push({ level, scene: scene?.number ?? null, message });
   const scenes = parseSceneScript(script);
   if (!scenes.length)
-    add('error', null, 'No scenes found. Start each scene with “CẢNH 1 (0:00–0:08): Title”.');
+    add('error', null, 'Không tìm thấy cảnh nào. Hãy bắt đầu mỗi cảnh bằng “CẢNH 1 (0:00–0:08): Tiêu đề”.');
   for (const scene of scenes) {
     const declared = scene.characterNames;
     for (const name of declared)
       if (!castSet.has(norm(name)))
-        add('error', scene, `“${name}” is listed in Nhân vật but is not in the series cast.`);
+        add('error', scene, `“${name}” có trong dòng Nhân vật nhưng không thuộc danh sách nhân vật của bộ.`);
     const inScene = new Set(sceneCastNames(scene, cast).map(norm));
     const prompts = `${scene.imagePrompt}\n${scene.videoPrompt}`;
     if (declared.length)
@@ -85,12 +85,12 @@ export function checkEpisode(script) {
           add(
             'warn',
             scene,
-            `${name} appears in the prompt but not in Nhân vật, so Muse gets no reference photos of ${name} for this scene.`,
+            `${name} xuất hiện trong prompt nhưng không có trong dòng Nhân vật, nên Muse không nhận được ảnh tham chiếu của ${name} cho cảnh này.`,
           );
     const lines = parseVoiceLines(scene.voiceText, cast);
     for (const line of lines)
       if (line.speaker && declared.length && !inScene.has(norm(line.speaker)))
-        add('error', scene, `${line.speaker} speaks but is not in this scene's Nhân vật line.`);
+        add('error', scene, `${line.speaker} có lời thoại nhưng không có trong dòng Nhân vật của cảnh này.`);
     if (lines.length) {
       const speech =
         lines.reduce((sum, line) => sum + estimateSpeechSeconds(line.text), 0) +
@@ -100,14 +100,14 @@ export function checkEpisode(script) {
         add(
           'warn',
           scene,
-          `Dialogue needs about ${speech.toFixed(1)} s but the scene is ${scene.seconds} s; the clip will be stretched by holding the last frame.`,
+          `Lời thoại cần khoảng ${speech.toFixed(1)} giây nhưng cảnh chỉ dài ${scene.seconds} giây; clip sẽ được kéo dài bằng cách giữ khung hình cuối.`,
         );
     }
     if (scene.seconds > MAX_MUSE_SECONDS)
       add(
         'warn',
         scene,
-        `Scene is ${scene.seconds} s; Muse makes clips of up to ${MAX_MUSE_SECONDS} s, so split it in two.`,
+        `Cảnh dài ${scene.seconds} giây; Muse chỉ làm clip tối đa ${MAX_MUSE_SECONDS} giây, hãy tách cảnh này làm hai.`,
       );
     const sceneRules = rulesFor(
       rules,
@@ -121,14 +121,14 @@ export function checkEpisode(script) {
         for (const clause of prompts.split(/[.;,\n]/)) {
           if (!norm(clause).includes(name) || new RegExp(NEGATION.source, 'iu').test(clause)) continue;
           const hit = keywords(clause).find(word => banned.includes(word));
-          if (hit) add('error', scene, `“${clause.trim()}” breaks the rule “${owner}: ${rule}”.`);
+          if (hit) add('error', scene, `“${clause.trim()}” vi phạm luật “${owner}: ${rule}”.`);
         }
       }
     }
     for (const match of prompts.matchAll(NEGATION)) {
       const removed = keywords(match[1]);
       const broken = sceneRules.find(rule => keywords(rule).some(word => removed.includes(word)));
-      if (broken) add('error', scene, `“${match[0].trim()}” contradicts the rule “${broken}”.`);
+      if (broken) add('error', scene, `“${match[0].trim()}” mâu thuẫn với luật “${broken}”.`);
     }
   }
   return issues;
@@ -143,20 +143,20 @@ export function checkSeries(bible, { photoNames = [] } = {}) {
     issues.push({
       level: 'warn',
       scene: null,
-      message: 'No NHÂN VẬT list, so characters cannot be locked across episodes.',
+      message: 'Chưa có danh sách NHÂN VẬT, nên không thể giữ nhân vật nhất quán giữa các tập.',
     });
   for (const name of cast) {
     if (!rules.byName[norm(name)]?.length)
       issues.push({
         level: 'info',
         scene: null,
-        message: `${name} has no LUẬT line. Add the details that must never change (glasses, hairstyle, accessories).`,
+        message: `${name} chưa có dòng LUẬT. Hãy thêm những chi tiết không được thay đổi (kính, kiểu tóc, phụ kiện).`,
       });
     if (photoNames.length && !photos.has(norm(name)))
       issues.push({
         level: 'info',
         scene: null,
-        message: `${name} has no photo in characters/, so Muse invents the face.`,
+        message: `${name} chưa có ảnh trong characters/, nên Muse sẽ tự nghĩ ra khuôn mặt.`,
       });
   }
   return issues;

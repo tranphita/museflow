@@ -5,7 +5,7 @@ export function loadImage(url) {
   return new Promise((resolve, reject) => {
     const image = new Image();
     image.onload = () => resolve(image);
-    image.onerror = () => reject(new Error('Could not load the connected image for resizing.'));
+    image.onerror = () => reject(new Error('Không tải được ảnh đã nối để đổi kích thước.'));
     image.src = url;
   });
 }
@@ -94,7 +94,7 @@ export function extractVideoEndFrame(url) {
         frame.getContext('2d').drawImage(video, 0, 0, width, height);
         const dataUrl = frame.toDataURL('image/png');
         clearTimeout(timer);
-        done({ id: uid('endframe'), kind: 'image', url: dataUrl, name: 'Video end frame', width, height });
+        done({ id: uid('endframe'), kind: 'image', url: dataUrl, name: 'Khung cuối video', width, height });
       } catch {
         clearTimeout(timer);
         done(null);
@@ -132,7 +132,7 @@ export function blobAsDataUrl(blob) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = () => resolve(String(reader.result || ''));
-    reader.onerror = () => reject(reader.error || new Error('Could not package workflow media.'));
+    reader.onerror = () => reject(reader.error || new Error('Không đóng gói được media của workflow.'));
     reader.readAsDataURL(blob);
   });
 }

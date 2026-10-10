@@ -1,49 +1,49 @@
 export const nodeDefs = {
-  prompt: { title: 'Prompt', outputs: [{ id: 'text', label: 'text', type: 'text' }] },
+  prompt: { title: 'Prompt', outputs: [{ id: 'text', label: 'văn bản', type: 'text' }] },
   negativePrompt: {
     title: 'Negative Prompt',
     outputs: [{ id: 'text', label: 'negative', type: 'negative' }],
   },
   textAppend: {
     title: 'Text Append',
-    inputs: [{ id: 'text', label: 'text', type: 'text' }],
-    outputs: [{ id: 'text', label: 'text', type: 'text' }],
+    inputs: [{ id: 'text', label: 'văn bản', type: 'text' }],
+    outputs: [{ id: 'text', label: 'văn bản', type: 'text' }],
   },
   textConcat: {
     title: 'Text Merge',
-    inputs: [{ id: 'text', label: 'text', type: 'text' }],
-    outputs: [{ id: 'text', label: 'text', type: 'text' }],
+    inputs: [{ id: 'text', label: 'văn bản', type: 'text' }],
+    outputs: [{ id: 'text', label: 'văn bản', type: 'text' }],
   },
-  imageInput: { title: 'Image Input', outputs: [{ id: 'image', label: 'image', type: 'image' }] },
+  imageInput: { title: 'Image Input', outputs: [{ id: 'image', label: 'ảnh', type: 'image' }] },
   references: {
     title: 'References',
     inputs: Array.from({ length: 8 }, (_, i) => ({
       id: `reference${i + 1}`,
-      label: `image ${i + 1}`,
+      label: `ảnh ${i + 1}`,
       type: 'image',
     })),
-    outputs: [{ id: 'image', label: 'images', type: 'image' }],
+    outputs: [{ id: 'image', label: 'ảnh', type: 'image' }],
   },
   generateImage: {
     title: 'Generate Image',
     inputs: [
       { id: 'prompt', label: 'prompt', type: 'text' },
       { id: 'negative', label: 'negative', type: 'negative' },
-      { id: 'reference', label: 'reference', type: 'image' },
+      { id: 'reference', label: 'tham chiếu', type: 'image' },
     ],
-    outputs: [{ id: 'image', label: 'image', type: 'image' }],
+    outputs: [{ id: 'image', label: 'ảnh', type: 'image' }],
   },
   generateVideo: {
     title: 'Generate Video',
     inputs: [
       { id: 'prompt', label: 'prompt', type: 'text' },
       { id: 'negative', label: 'negative', type: 'negative' },
-      { id: 'reference', label: 'reference', type: 'image' },
-      { id: 'voice', label: 'voice', type: 'audio' },
+      { id: 'reference', label: 'tham chiếu', type: 'image' },
+      { id: 'voice', label: 'giọng đọc', type: 'audio' },
     ],
     outputs: [
       { id: 'video', label: 'video', type: 'video' },
-      { id: 'endFrame', label: 'end frame', type: 'image' },
+      { id: 'endFrame', label: 'khung cuối', type: 'image' },
     ],
   },
   timeline: {
@@ -57,13 +57,13 @@ export const nodeDefs = {
   },
   voiceover: {
     title: 'Voiceover',
-    inputs: [{ id: 'text', label: 'text', type: 'text' }],
-    outputs: [{ id: 'audio', label: 'voice', type: 'audio' }],
+    inputs: [{ id: 'text', label: 'văn bản', type: 'text' }],
+    outputs: [{ id: 'audio', label: 'giọng đọc', type: 'audio' }],
   },
   imageResize: {
     title: 'Image Resize',
-    inputs: [{ id: 'image', label: 'image', type: 'image' }],
-    outputs: [{ id: 'image', label: 'image', type: 'image' }],
+    inputs: [{ id: 'image', label: 'ảnh', type: 'image' }],
+    outputs: [{ id: 'image', label: 'ảnh', type: 'image' }],
   },
   preview: { title: 'Preview', inputs: [{ id: 'media', label: 'media', type: 'media' }] },
 };

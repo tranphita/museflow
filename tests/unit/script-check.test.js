@@ -61,9 +61,9 @@ test('long dialogue and scenes over ten seconds are warned', () => {
       '0:00–0:04',
     ),
   );
-  assert.match(long[0].message, /Dialogue needs about/);
+  assert.match(long[0].message, /Lời thoại cần khoảng/);
   const tooLong = checkEpisode(scene('Nhân vật: Hảo\nPrompt video: x', '0:00–0:14'));
-  assert.match(tooLong[0].message, /up to 10 s/);
+  assert.match(tooLong[0].message, /tối đa 10 giây/);
   assert.ok(estimateSpeechSeconds('I really like it') > 1.4);
 });
 
@@ -71,7 +71,7 @@ test('series checks point out missing rules and photos', () => {
   const notes = checkSeries('NHÂN VẬT:\n- A: x\n- B: y\n\nLUẬT:\n- A: luôn cười', { photoNames: ['A'] });
   assert.deepEqual(
     notes.map(note => note.message.slice(0, 20)),
-    ['B has no LUẬT line. ', 'B has no photo in ch'],
+    ['B chưa có dòng LUẬT.', 'B chưa có ảnh trong '],
   );
 });
 

@@ -45,7 +45,7 @@ test('the generated workflow survives import normalization and runs characters f
 });
 
 test('a script without scenes is rejected', () => {
-  assert.throws(() => workflowFromScript('NHÂN VẬT:\n- A: b'), /No scenes found/);
+  assert.throws(() => workflowFromScript('NHÂN VẬT:\n- A: b'), /Không tìm thấy cảnh/);
 });
 
 test('saved character images replace generated character references', () => {
@@ -92,6 +92,8 @@ test('an AVOID line becomes one negative prompt shared by every generator', () =
   assert.equal(negatives.length, 1);
   assert.equal(negatives[0].data.text, 'mặt mập, nọng cằm');
   const generators = workflow.nodes.filter(node => ['generateImage', 'generateVideo'].includes(node.type));
-  const linked = workflow.edges.filter(edge => edge.source === negatives[0].id && edge.targetPort === 'negative');
+  const linked = workflow.edges.filter(
+    edge => edge.source === negatives[0].id && edge.targetPort === 'negative',
+  );
   assert.equal(linked.length, generators.length);
 });

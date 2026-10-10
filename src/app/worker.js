@@ -29,13 +29,13 @@ import {
 } from './library-store.js';
 
 const CHECKPOINT_DELAY_MS = 5000;
-const LOST_LEASE = 'Another worker took over this episode.';
+const LOST_LEASE = 'Một worker khác đã nhận tập này.';
 const worker = { id: '', owner: '', museTabId: 0 };
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
 const kindError = (message, kind) => Object.assign(new Error(message), { kind });
 
 function banner(text) {
-  $('#workerBanner').textContent = `Worker ${worker.id}: ${text}. Keep this tab and its Muse window open.`;
+  $('#workerBanner').textContent = `Worker ${worker.id}: ${text}. Giữ tab này và cửa sổ Muse của nó luôn mở.`;
 }
 
 function abortRun() {
@@ -98,7 +98,7 @@ async function openEpisode(job, control) {
     workflow = workflowFromScript(job.script, { characterImages: series?.characters || {} });
   }
   if (!(await loadWorkflowObject(workflow, { label: job.title })))
-    throw kindError('Could not open this episode.', 'script');
+    throw kindError('Không mở được tập này.', 'script');
   const shared = await readSavedSettings();
   state.settings = {
     ...state.settings,
@@ -149,7 +149,7 @@ async function runJob(job, control) {
     },
     Math.min(HEARTBEAT_MS, control.leaseMs / 3),
   );
-  banner(`running ${job.title}`);
+  banner(`đang chạy ${job.title}`);
   try {
     await ensureMuseTab(control);
     await prepareMuseTab(worker.museTabId, control.museHomeUrl);
@@ -165,14 +165,14 @@ async function runJob(job, control) {
     const failure = runFailure(state.run, runStatus.textContent);
     if (failure) throw kindError(failure.message, failure.kind);
     await owned(updateJob(job.id, { status: 'exporting', heartbeatAt: Date.now() }, { owner: worker.owner }));
-    banner(`exporting ${job.title}`);
+    banner(`đang xuất ${job.title}`);
     lastProgressAt = Date.now();
     const exported = await navigator.locks.request('museta-ffmpeg', { signal: phase.signal }, () =>
       exportTimelineVideo({ format: 'mp4', download: false }),
     );
-    if (stopReason) throw kindError('The MP4 export was stopped.', 'stopped');
+    if (stopReason) throw kindError('Đã dừng xuất MP4.', 'stopped');
     if (!exported || !state.timelineExportUrl)
-      throw kindError('The episode ran but the MP4 could not be exported.', 'export');
+      throw kindError('Tập đã chạy xong nhưng không xuất được MP4.', 'export');
     const blob = await (await fetch(state.timelineExportUrl)).blob();
     const endedAt = Date.now();
     await owned(
@@ -198,7 +198,7 @@ async function runJob(job, control) {
           : error?.kind || classifyError(error?.message || String(error));
     const message =
       stopReason === 'watchdog'
-        ? `No progress for ${WATCHDOG_MS / 60_000} minutes, so the watchdog stopped the run.`
+        ? `Không có tiến triển trong ${WATCHDOG_MS / 60_000} phút nên watchdog đã dừng lượt chạy.`
         : error?.message || String(error);
     if (['bridge', 'timeout'].includes(kind)) kind = refineKind(kind, await museSession());
     const endedAt = Date.now();
@@ -233,18 +233,21 @@ export async function initWorker(params) {
   for (;;) {
     const control = await getQueueControl().catch(() => null);
     if (!control || control.paused) {
-      banner(control ? 'the queue is paused' : 'waiting for the library');
+      banner(control ? 'hàng đợi đang tạm dừng' : 'đang chờ thư viện');
       await sleep(control?.pollMs || 10_000);
       continue;
     }
     const job = await claimJob(worker.owner, Date.now()).catch(() => null);
     if (!job) {
-      banner('waiting for episodes');
+      banner('đang chờ tập mới');
       await sleep(control.pollMs);
       continue;
     }
     await runJob(job, control).catch(error =>
-      setRunStatus(`Worker ${worker.id} could not record ${job.title}: ${error?.message || error}`, 'error'),
+      setRunStatus(
+        `Worker ${worker.id} không ghi được kết quả của ${job.title}: ${error?.message || error}`,
+        'error',
+      ),
     );
     // A fresh page frees the decoded media and undo history the finished episode left in memory.
     location.reload();

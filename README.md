@@ -28,19 +28,21 @@ The screenshots and demo video show the original MuseFlow interface; Museta's la
 
 ## Features
 
+The interface is in Vietnamese; technical terms such as workflow, node, prompt, timeline and worker stay in English. Button names below are quoted as they appear in the app.
+
 - **Visual node canvas:** add, move, connect, multi-select, and arrange nodes. Hold **Alt** while dragging to copy nodes with their incoming connections; **Ctrl+Z** undoes the last canvas edit. Press **G** and drag to draw a group region; press **T** to add a text note. Pan, zoom, and use the context menu for node actions.
 - **Prompt tools:** prompts, negative prompts, Text Append, and Text Merge (several text sources joined in connection order with a custom separator).
 - **Image workflows:** image inputs, up to 8 reference images through a References node, image generation, resizing, and previews.
-- **Video workflows:** video clips with optional end-frame continuity from the previous timeline clip, and **↻ Again** to regenerate with stronger prompt adherence.
+- **Video workflows:** video clips with optional end-frame continuity from the previous timeline clip, and **↻ Làm lại** to regenerate with stronger prompt adherence.
 - **Output versions:** every Generate Image and Generate Video node keeps its last 8 results. Click a thumbnail under the node to switch back to an earlier version; the chosen version is kept (🔒) when you run the whole workflow.
-- **Faster runs:** voiceovers generate alongside Muse, and **Settings → Muse tabs used at the same time** (1–3) spreads image and video requests over several Muse chat tabs. Videos chained with end-frame continuity still run in order.
+- **Faster runs:** voiceovers generate alongside Muse, and **Cài đặt → Số tab Muse dùng cùng lúc** (1–3) spreads image and video requests over several Muse chat tabs. Videos chained with end-frame continuity still run in order.
 - **Production queue:** queue episodes from any number of series and let worker tabs produce them overnight, each with its own Muse window. Unfinished episodes continue from their last finished step after a crash or restart.
 - **Run progress:** a panel lists every step with its state, timing and failure reason; the running node pulses and the canvas follows it.
-- **Reliable runs:** optionally retry a failed generation automatically, and keep running the rest of the workflow when one node fails (nodes that depend on it are skipped). Both options are in **Settings**.
+- **Reliable runs:** optionally retry a failed generation automatically, and keep running the rest of the workflow when one node fails (nodes that depend on it are skipped). Both options are in **Cài đặt**.
 - **Timeline:** reorder clips, set durations, scrub and preview the sequence, add **background music** with a volume control, pick a **transition** between clips, and export WebM or MP4 (H.264). MP4 is assembled locally with the bundled FFmpeg engine.
-- **Voiceover (TTS):** a Voiceover node reads text with a [tvoiceai](https://tvoiceai.com) voice; connect it to a Generate Video node's **voice** input and MP4 export mixes the narration into that clip (clip audio is lowered underneath, and the clip is extended if the line is longer). Scene scripts can use a `Lời thoại:` line per scene and a `GIỌNG ĐỌC:` voice id for the whole series. Paste your API key in **Settings → Voiceover**; it stays in this browser and is never saved into workflows.
-- **Script → Nodes:** turn a scene script into connected image/video nodes and an ordered timeline.
-- **Workflow files:** **Save workflow** downloads a JSON file with media embedded where possible; **Import workflow** restores it. Files saved by MuseFlow 0.5 still import.
+- **Voiceover (TTS):** a Voiceover node reads text with a [tvoiceai](https://tvoiceai.com) voice; connect it to a Generate Video node's **giọng đọc** input and MP4 export mixes the narration into that clip (clip audio is lowered underneath, and the clip is extended if the line is longer). Scene scripts can use a `Lời thoại:` line per scene and a `GIỌNG ĐỌC:` voice id for the whole series. Paste your API key in **Cài đặt → Lồng tiếng**; it stays in this browser and is never saved into workflows.
+- **Kịch bản → node:** turn a scene script into connected image/video nodes and an ordered timeline.
+- **Workflow files:** **Xuất file** downloads a JSON file with media embedded where possible; **Mở file** restores it. Files saved by MuseFlow 0.5 still import.
 - **Autosave:** the current workflow and its media are stored in the extension's browser storage. Workflows saved by MuseFlow are migrated automatically on first launch.
 
 ## Requirements
@@ -69,22 +71,22 @@ Replace the files with the new version, select **Reload** on the extensions page
 1. Add a **Prompt** node and type your prompt.
 2. Add a **Generate Image** or **Generate Video** node.
 3. Drag the prompt's output to the generator's prompt input. Connect references if needed.
-4. Click **Run Image** / **Run Video** on the node, or **Run workflow** in the toolbar.
-5. Connect results to a **Preview** node. For video, add clips to the **Timeline**, arrange them, optionally add **♪ Music**, then preview or export.
+4. Click **▶ Chạy ảnh** / **▶ Chạy video** on the node, or **Chạy workflow** in the toolbar.
+5. Connect results to a **Xem trước** node. For video, add clips to the **Timeline**, arrange them, optionally add **♪ Nhạc**, then preview or export.
 
-For a scene script, use **Script → Nodes**. Scene headings look like `CẢNH 1 (0:00–0:07): Scene title`, followed by `Prompt ảnh`, `Prompt video`, and an optional `Audio` field.
+For a scene script, use **Kịch bản → node**. Scene headings look like `CẢNH 1 (0:00–0:07): Scene title`, followed by `Prompt ảnh`, `Prompt video`, and an optional `Audio` field.
 
 ## Studio
 
-The **Studio** tab lists your series and their episodes. Use **Import folder** to pick a series folder (`_series.txt`, `epXX.txt` episodes and a `characters/` folder); Museta builds each episode's workflow in the browser. Every episode row shows its scenes, length and dialogue lines, its status and last run, and has **Queue**, **Open in canvas** and, once an MP4 exists, **Play** and **Download MP4**. **Queue all episodes** adds the unfinished episodes of a series, and **Queue every series** in the sidebar adds them from every series, alternating between series. Choose the folder again with **Update from folder** after editing scripts.
+The **Studio** tab lists your series and their episodes. Use **Nhập thư mục** to pick a series folder (`_series.txt`, `epXX.txt` episodes and a `characters/` folder); Museta builds each episode's workflow in the browser. Every episode row shows its scenes, length and dialogue lines, its status and last run, and has **Xếp hàng**, **Mở trong Canvas** and, once an MP4 exists, **Phát** and **Tải MP4**. **Xếp hàng cả bộ** adds the unfinished episodes of a series, and **Xếp hàng mọi bộ** in the sidebar adds them from every series, alternating between series. Choose the folder again with **Cập nhật từ thư mục** after editing scripts.
 
 ## Production queue
 
 1. Queue episodes in the Studio.
-2. Open **Production**, check **Queue settings** (Workers, Attempts per episode, Pause between Muse requests, New chat URL), then press **Start**. Each worker opens one Muse window and one worker tab. Sign in to Muse in each window the first time and keep them open. Leave the Muse windows visible on screen, not minimized or fully covered by another window: Chrome slows down pages in hidden windows.
+2. Open **Sản xuất**, check **Cài đặt hàng đợi** (Số worker, Số lần thử mỗi tập, Nghỉ giữa các lượt gửi Muse, URL chat mới), then press **Bắt đầu**. Each worker opens one Muse window and one worker tab. Sign in to Muse in each window the first time and keep them open. Leave the Muse windows visible on screen, not minimized or fully covered by another window: Chrome slows down pages in hidden windows.
 3. Leave Chrome running. The computer stays awake while the queue has work, and each episode starts in a fresh Muse chat. MP4 exports run one at a time.
-4. Review in the morning: **Play**, then **Approve** (the episode is marked Done in the Studio), **Redo** (produce it again from the start) or **Open in canvas** to fix single scenes. **Download all** saves the approved MP4s.
-5. The queue pauses by itself when Muse runs out of credits, a worker window is signed out or closed, the tvoiceai key is missing or rejected, or three episodes in a row cannot reach Muse. Fix the cause and press **Resume**: unfinished episodes continue from their last finished step. Other failures retry after 1, 5 and 15 minutes; an episode that keeps failing, or that Muse refuses, moves to **Needs attention** with the reason.
+4. Review in the morning: **Phát**, then **Duyệt** (the episode is marked **Xong** in the Studio), **Làm lại** (produce it again from the start) or **Mở trong Canvas** to fix single scenes. **Tải tất cả** saves the approved MP4s.
+5. The queue pauses by itself when Muse runs out of credits, a worker window is signed out or closed, the tvoiceai key is missing or rejected, or three episodes in a row cannot reach Muse. Fix the cause and press **Tiếp tục**: unfinished episodes continue from their last finished step. Other failures retry after 1, 5 and 15 minutes; an episode that keeps failing, or that Muse refuses, moves to **Cần xử lý** with the reason.
 
 ## Consistency rules
 
@@ -92,7 +94,7 @@ Add a `LUẬT:` block to `_series.txt` with one line per character (and `Chung` 
 
 ## Short films with consistent characters
 
-Add a cast to your scene script and use **Script → Nodes** (see the [sample script](docs/sample-film-script.txt)):
+Add a cast to your scene script and use **Kịch bản → node** (see the [sample script](docs/sample-film-script.txt)):
 
 ```
 PHONG CÁCH: live-action, photorealistic, natural light, no animation, no 3D
@@ -109,9 +111,9 @@ Prompt video: ...
 
 Museta then creates a character reference sheet for each character and connects it to every scene that features them (from the scene's `Nhân vật:` line, or from names mentioned in its prompts). Each scene prompt gets the character descriptions, the film style, and a **CHARACTER LOCK** instruction. Later clips use end-frame continuity and are asked to end on a steady frame that leads into the next shot, and the timeline defaults to a 0.5 s crossfade. Change the transition (Cut, Crossfade, Fade through black, Dissolve, Slide left) and its length with the **⇄** control in the timeline dock; transitions are applied in MP4 export.
 
-To get a file for **Import workflow** instead of pasting the script, run `npm run script-to-workflow -- my-script.txt` to write `my-script.workflow.json` (example: [docs/sample-film.workflow.json](docs/sample-film.workflow.json)).
+To get a file for **Mở file** instead of pasting the script, run `npm run script-to-workflow -- my-script.txt` to write `my-script.workflow.json` (example: [docs/sample-film.workflow.json](docs/sample-film.workflow.json)).
 
-Tip: run the character nodes first, pick the best version from the **Versions** strip (or tick **🔒 Keep this result**), then run the whole workflow. Kept nodes are skipped by Run workflow; their own Run button still regenerates them.
+Tip: run the character nodes first, pick the best version from the **Phiên bản** strip (or tick **🔒 Giữ kết quả này**), then run the whole workflow. Kept nodes are skipped by Run workflow; their own Run button still regenerates them.
 
 ## Series with recurring characters
 
@@ -124,7 +126,7 @@ Drag the Museta tab into its own window, then press **Windows + Left Arrow** on 
 ## Troubleshooting
 
 - **Muse session is unavailable:** sign in to Muse.ai, keep its chat page open, then reload Museta and the Muse.ai tab.
-- **"Muse page changed" in the status bar:** Muse updated its interface. Open **Settings → Check Muse session** to see which part of the page Museta can no longer find. All page hooks live in [`bridge/muse-ui.js`](bridge/muse-ui.js), so a fix is usually a one-line selector change there.
+- **"Muse page changed" in the status bar:** Muse updated its interface. Open **Cài đặt → Kiểm tra phiên Muse** to see which part of the page Museta can no longer find. All page hooks live in [`bridge/muse-ui.js`](bridge/muse-ui.js), so a fix is usually a one-line selector change there.
 - **Muse declines a scene:** Museta detects refusals (including Vietnamese replies) and retries that scene once with a close, safe alternative prompt. Muse.ai still decides whether the result can be generated.
 - **Timeline export fails:** reload the extension and try again. MP4 uses the bundled FFmpeg; WebM uses the browser's `MediaRecorder`.
 - **Output differs from requested settings:** Muse.ai controls the generated media and may not always honor the requested ratio, audio, or video options.

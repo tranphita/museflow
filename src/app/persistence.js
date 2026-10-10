@@ -60,7 +60,7 @@ export function scheduleAutoSave() {
   autoSaveTimer = setTimeout(() => {
     queueWorkflowSave().catch(error => {
       if (runStatus.className !== 'error')
-        setRunStatus(`Auto-save failed: ${error?.message || String(error)}`, 'error');
+        setRunStatus(`Không tự lưu được: ${error?.message || String(error)}`, 'error');
     });
   }, 650);
 }
@@ -69,9 +69,9 @@ export async function saveState() {
   clearTimeout(autoSaveTimer);
   try {
     await queueWorkflowSave();
-    setRunStatus('Saved.', 'ok');
+    setRunStatus('Đã lưu.', 'ok');
   } catch (error) {
-    setRunStatus(`Could not save workflow: ${error?.message || String(error)}`, 'error');
+    setRunStatus(`Không lưu được workflow: ${error?.message || String(error)}`, 'error');
   }
 }
 
@@ -117,12 +117,12 @@ export async function exportWorkflowFile() {
     setTimeout(() => URL.revokeObjectURL(url), 5000);
     setRunStatus(
       externalMedia
-        ? `Workflow saved; ${externalMedia} media URL(s) could not be embedded and may require the original Muse session.`
-        : 'Workflow saved with media included.',
+        ? `Đã lưu workflow; ${externalMedia} URL media không nhúng được và có thể cần phiên Muse ban đầu mới mở được.`
+        : 'Đã lưu workflow kèm media.',
       'ok',
     );
   } catch (error) {
-    setRunStatus(`Could not save workflow file: ${error?.message || String(error)}`, 'error');
+    setRunStatus(`Không lưu được file workflow: ${error?.message || String(error)}`, 'error');
   } finally {
     button.disabled = false;
   }
@@ -133,34 +133,33 @@ export function parseWorkflowFile(text) {
   const isWrapped = [WORKFLOW_FORMAT, ...LEGACY_WORKFLOW_FORMATS].includes(parsed?.format);
   const workflow = isWrapped ? parsed.workflow : parsed;
   if (!workflow || !Array.isArray(workflow.nodes) || !Array.isArray(workflow.edges))
-    throw new Error(`This file does not contain a valid ${APP_NAME} workflow.`);
+    throw new Error(`File này không chứa workflow ${APP_NAME} hợp lệ.`);
   return workflow;
 }
 
 export async function importWorkflowFile(file, { confirm = true } = {}) {
   if (!file) return false;
   if (state.isRunning) {
-    setRunStatus('Stop the running workflow before importing another one.', 'warn');
+    setRunStatus('Hãy dừng workflow đang chạy trước khi nhập workflow khác.', 'warn');
     return false;
   }
   let workflow;
   try {
     workflow = parseWorkflowFile(await file.text());
   } catch (error) {
-    setRunStatus(`Could not import workflow: ${error?.message || String(error)}`, 'error');
+    setRunStatus(`Không nhập được workflow: ${error?.message || String(error)}`, 'error');
     return false;
   }
-  if (confirm && !window.confirm('Importing this workflow will replace the current canvas. Continue?'))
-    return false;
+  if (confirm && !window.confirm('Nhập workflow này sẽ thay thế canvas hiện tại. Tiếp tục?')) return false;
   return loadWorkflowObject(workflow, { label: file.name });
 }
 
 export async function loadWorkflowObject(workflow, { label = 'workflow' } = {}) {
   if (state.isRunning) {
-    setRunStatus('Stop the running workflow before opening another one.', 'warn');
+    setRunStatus('Hãy dừng workflow đang chạy trước khi mở workflow khác.', 'warn');
     return false;
   }
-  createUndoSnapshot('Import workflow', { preserveRuntime: false });
+  createUndoSnapshot('Nhập workflow', { preserveRuntime: false });
   const previous = {
     nodes: state.nodes,
     edges: state.edges,
@@ -183,7 +182,7 @@ export async function loadWorkflowObject(workflow, { label = 'workflow' } = {}) 
     render();
     syncTimelineDock();
     await queueWorkflowSave();
-    setRunStatus(`Workflow imported: ${label}`, 'ok');
+    setRunStatus(`Đã nhập workflow: ${label}`, 'ok');
     return true;
   } catch (error) {
     state.nodes = previous.nodes;
@@ -192,7 +191,7 @@ export async function loadWorkflowObject(workflow, { label = 'workflow' } = {}) 
     state.notes = previous.notes || [];
     state.settings = previous.settings;
     render();
-    setRunStatus(`Could not import workflow: ${error?.message || String(error)}`, 'error');
+    setRunStatus(`Không nhập được workflow: ${error?.message || String(error)}`, 'error');
     return false;
   }
 }
@@ -243,7 +242,7 @@ export async function loadState() {
     state.groups = [];
     state.notes = [];
     state.settings = normalizeSettings();
-    setRunStatus(`Could not load saved workflow: ${error.message}`, 'error');
+    setRunStatus(`Không tải được workflow đã lưu: ${error.message}`, 'error');
   }
   normalizeSavedGraph();
   syncSettingsUI();
@@ -254,16 +253,16 @@ export async function loadState() {
     await queueWorkflowSave();
     if (legacyKey) {
       await chrome.storage.local.remove(legacyKey);
-      setRunStatus(`Workflow migrated from ${legacyKey} to ${APP_NAME}.`, 'ok');
+      setRunStatus(`Đã chuyển workflow từ ${legacyKey} sang ${APP_NAME}.`, 'ok');
     }
   } catch (error) {
-    setRunStatus(`Workflow is open, but media migration failed: ${error?.message || String(error)}`, 'warn');
+    setRunStatus(`Workflow đã mở, nhưng không chuyển được media: ${error?.message || String(error)}`, 'warn');
   }
 }
 
 export async function resetState() {
   if (state.isRunning) return;
-  createUndoSnapshot('Reset workflow', { preserveRuntime: false });
+  createUndoSnapshot('Đặt lại workflow', { preserveRuntime: false });
   const s = starter();
   state.nodes = s.nodes;
   state.edges = s.edges;
@@ -288,7 +287,7 @@ export function normalizeSettings(settings) {
 
 export function syncSettingsUI() {
   state.settings = normalizeSettings(state.settings);
-  backendStatus.textContent = `Muse session · ${APP_NAME} v${APP_VERSION}`;
+  backendStatus.textContent = `Phiên Muse · ${APP_NAME} v${APP_VERSION}`;
   const retry = $('#autoRetrySetting'),
     continueOnError = $('#continueOnErrorSetting');
   if (retry) retry.value = String(state.settings.autoRetry);
