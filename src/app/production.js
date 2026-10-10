@@ -1,5 +1,6 @@
 import { PAUSE_REASONS, nextAttempt, queueSummary, workerLabel } from '../core/jobs.js';
 import { jobMediaPrefix } from '../core/checkpoint.js';
+import { workerChatUrl } from '../core/worker-tabs.js';
 import { $, el, setRunStatus } from './dom.js';
 import { deleteMediaWithPrefix } from './media-store.js';
 import { loadWorkflowObject } from './persistence.js';
@@ -72,7 +73,7 @@ async function workerTabs() {
 
 async function openWorker(id, control) {
   const museWindow = await chrome.windows.create({
-    url: control.museHomeUrl,
+    url: workerChatUrl(control.museHomeUrl),
     focused: false,
     width: 560,
     height: 820,
@@ -319,9 +320,7 @@ function settingsPanel(control) {
       { type: 'number', min: 0, max: 120 },
       clamp(0, 120),
     ),
-    field('URL chat mới', 'museHomeUrl', { type: 'url' }, value =>
-      /^https:\/\/(?:[a-z0-9-]+\.)*muse\.ai\//i.test(value) ? value : 'https://muse.ai/',
-    ),
+    field('URL chat mới', 'museHomeUrl', { type: 'url' }, workerChatUrl),
   );
   return details;
 }

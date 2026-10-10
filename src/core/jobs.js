@@ -1,4 +1,5 @@
 import { NO_RETRY_KINDS, PAUSE_KINDS, classifyError, worstKind } from './job-errors.js';
+import { NEW_SIDE_CHAT_URL } from './worker-tabs.js';
 
 export const QUEUE_CONTROL_ID = 'queue-control';
 export const LEASE_MS = 5 * 60_000;
@@ -36,7 +37,7 @@ export function defaultControl() {
     cooldownSec: 0,
     leaseMs: LEASE_MS,
     pollMs: 10_000,
-    museHomeUrl: 'https://muse.ai/',
+    museHomeUrl: NEW_SIDE_CHAT_URL,
   };
 }
 

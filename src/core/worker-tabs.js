@@ -1,3 +1,5 @@
+export const NEW_SIDE_CHAT_URL = 'https://muse.ai/thread/new';
+
 export function isMuseUrl(url) {
   try {
     const { protocol, hostname } = new URL(url);
@@ -20,4 +22,10 @@ export function pinnedMuseTabIds(tabs, appUrl) {
 export function selectableMuseTabs(museTabs, { pinnedId = null, pinnedIds = new Set() } = {}) {
   if (pinnedId) return museTabs.filter(tab => tab.id === pinnedId);
   return museTabs.filter(tab => !pinnedIds.has(tab.id));
+}
+
+// Muse.ai has one main chat per account at "/", so workers sharing it would type into the same conversation.
+export function workerChatUrl(url) {
+  if (!isMuseUrl(url)) return NEW_SIDE_CHAT_URL;
+  return new URL(url).pathname.replace(/\/+$/, '') ? url : NEW_SIDE_CHAT_URL;
 }

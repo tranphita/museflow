@@ -1,6 +1,12 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { isMuseUrl, pinnedMuseTabIds, selectableMuseTabs } from '../../src/core/worker-tabs.js';
+import {
+  NEW_SIDE_CHAT_URL,
+  isMuseUrl,
+  pinnedMuseTabIds,
+  selectableMuseTabs,
+  workerChatUrl,
+} from '../../src/core/worker-tabs.js';
 
 test('only muse.ai pages count as Muse tabs', () => {
   assert.equal(isMuseUrl('https://muse.ai/chat'), true);
@@ -27,4 +33,14 @@ test('the main tab skips pinned Muse tabs and a worker only uses its own', () =>
   assert.deepEqual(selectableMuseTabs(muse, { pinnedIds: new Set([7, 8]) }), [{ id: 9 }]);
   assert.deepEqual(selectableMuseTabs(muse, { pinnedId: 8, pinnedIds: new Set([7, 8]) }), [{ id: 8 }]);
   assert.deepEqual(selectableMuseTabs(muse, {}), muse);
+});
+
+test('workers open a fresh side chat instead of the shared Muse main chat', () => {
+  assert.equal(workerChatUrl('https://muse.ai/'), NEW_SIDE_CHAT_URL);
+  assert.equal(workerChatUrl('https://muse.ai'), NEW_SIDE_CHAT_URL);
+  assert.equal(workerChatUrl('https://www.muse.ai/?ref=x'), NEW_SIDE_CHAT_URL);
+  assert.equal(workerChatUrl('https://evil.com/thread/new'), NEW_SIDE_CHAT_URL);
+  assert.equal(workerChatUrl(undefined), NEW_SIDE_CHAT_URL);
+  assert.equal(workerChatUrl('https://muse.ai/thread/new'), 'https://muse.ai/thread/new');
+  assert.equal(workerChatUrl('https://muse.ai/thread/abc'), 'https://muse.ai/thread/abc');
 });

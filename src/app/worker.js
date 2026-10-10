@@ -11,7 +11,7 @@ import {
   runFailure,
 } from '../core/jobs.js';
 import { jobMediaPrefix, lockFinishedSteps } from '../core/checkpoint.js';
-import { isMuseUrl } from '../core/worker-tabs.js';
+import { isMuseUrl, workerChatUrl } from '../core/worker-tabs.js';
 import { $, runStatus, setRunStatus } from './dom.js';
 import { dehydrateNodeMedia } from './media-store.js';
 import { MESSAGE, museTabMessage, prepareMuseTab } from './muse-client.js';
@@ -70,7 +70,7 @@ async function ensureMuseTab(control) {
   const tab = await chrome.tabs.get(worker.museTabId).catch(() => null);
   if (tab && isMuseUrl(tab.url || tab.pendingUrl)) return;
   const museWindow = await chrome.windows.create({
-    url: control.museHomeUrl,
+    url: workerChatUrl(control.museHomeUrl),
     focused: false,
     width: 560,
     height: 820,
@@ -155,7 +155,7 @@ async function runJob(job, control) {
   banner(`đang chạy ${job.title}`);
   try {
     await ensureMuseTab(control);
-    await prepareMuseTab(worker.museTabId, control.museHomeUrl);
+    await prepareMuseTab(worker.museTabId, workerChatUrl(control.museHomeUrl));
     await openEpisode(job, control);
     lastProgressAt = Date.now();
     state.run = null;
