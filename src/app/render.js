@@ -15,7 +15,7 @@ import { executeGenerationNode, runSingleNode, runVoiceoverNode, voiceoverText }
 
 export function renderNode(n) {
   const el = document.createElement('section');
-  el.className = `node ${['generateImage', 'generateVideo'].includes(n.type) ? 'generate' : ''} ${n.type === 'timeline' ? 'timeline-node' : ''} ${state.selectedNodeIds.includes(n.id) || state.selectedNodeId === n.id ? 'selected' : ''}`;
+  el.className = `node ${['generateImage', 'generateVideo'].includes(n.type) ? 'generate' : ''} ${n.type === 'timeline' ? 'timeline-node' : ''} ${state.selectedNodeIds.includes(n.id) || state.selectedNodeId === n.id ? 'selected' : ''} ${n.data.status === 'running' ? 'is-running' : ''}`;
   el.dataset.id = n.id;
   el.style.left = `${n.x}px`;
   el.style.top = `${n.y}px`;

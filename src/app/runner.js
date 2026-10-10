@@ -14,6 +14,7 @@ import {
   normalizeSavedGraph,
 } from '../core/graph.js';
 import { synthesizeSpeech, getTtsApiKey } from './tts-client.js';
+import { startRun, markStep, finishRun, showRunPanel, stepLabel } from './run-panel.js';
 import { buildMusePrompt, buildRefusalRetryPrompt, isRatioMismatch } from '../core/prompts.js';
 import { recordGeneration } from '../core/history.js';
 import { APP_NAME, APP_VERSION } from './app-info.js';
@@ -156,12 +157,20 @@ export async function runVoiceoverNode(nodeId) {
   state.isRunning = true;
   const controller = new AbortController();
   state.generationAbortController = controller;
+  startRun([node.id], { single: true });
+  showRunPanel();
+  markStep(node.id, 'running');
   try {
     await runVoiceover(node, controller.signal);
+    markStep(node.id, 'done');
+    finishRun('done');
     await saveAfterRun();
     setRunStatus('Voiceover created.', 'ok');
   } catch (error) {
-    if (!isAbort(error, controller.signal)) setRunStatus(error?.message || String(error), 'error');
+    const stopped = isAbort(error, controller.signal);
+    markStep(node.id, stopped ? 'stopped' : 'error', error?.message || String(error));
+    finishRun(stopped ? 'stopped' : 'error', error?.message || String(error));
+    if (!stopped) setRunStatus(error?.message || String(error), 'error');
   } finally {
     state.isRunning = false;
     state.generationAbortController = null;
@@ -289,12 +298,13 @@ async function generateNode(node, { again, signal, progressLabel }) {
   }
 }
 
-function hasFailedUpstream(nodeId, failed) {
-  if (state.edges.some(edge => edge.target === nodeId && failed.has(edge.source))) return true;
+function failedUpstream(nodeId, failed) {
+  const direct = state.edges.find(edge => edge.target === nodeId && failed.has(edge.source));
+  if (direct) return direct.source;
   const node = nodeById(nodeId);
   const previous =
     node?.type === 'generateVideo' && node.data?.continuity ? timelinePredecessor(nodeId) : null;
-  return Boolean(previous && failed.has(previous.id));
+  return previous && failed.has(previous.id) ? previous.id : null;
 }
 
 async function saveAfterRun() {
@@ -332,6 +342,7 @@ export async function execute(targetId = null, { again = false } = {}) {
   );
   const continueOnError = !targetId && Boolean(state.settings?.continueOnError);
   const failures = [];
+  let runStarted = false;
   try {
     if (targetId) validateTargetPrompt(targetId);
     const order = targetId
@@ -346,6 +357,12 @@ export async function execute(targetId = null, { again = false } = {}) {
     });
     if (voicesToCreate && !(await ensureTtsApiKey()))
       throw new Error('Paste your tvoiceai API key in Settings → Voiceover, press Save, then run again.');
+    startRun(
+      order.filter(id => producesMedia(nodeById(id)) || nodeById(id)?.type === 'imageResize'),
+      { single: Boolean(targetId) },
+    );
+    showRunPanel();
+    runStarted = true;
     for (const n of state.nodes) {
       if (n.type === 'imageInput' && n.data.localDataUrl)
         n.data.asset = {
@@ -365,18 +382,23 @@ export async function execute(targetId = null, { again = false } = {}) {
       if (!targetId && producesMedia(n) && n.data.locked && n.data.asset?.url) {
         if (isGenerator(n)) generationStep++;
         publishToPreviews(n);
+        markStep(id, 'kept');
         continue;
       }
-      if (continueOnError && hasFailedUpstream(id, failed)) {
+      const blocker = continueOnError ? failedUpstream(id, failed) : null;
+      if (blocker) {
         failed.add(id);
+        const reason = `Skipped: it needs “${stepLabel(nodeById(blocker))}”, which did not finish.`;
         if (isGenerator(n)) {
           generationStep++;
           n.data.status = 'error';
-          n.data.error = 'Skipped because an upstream node failed.';
+          n.data.error = reason;
           render();
         }
+        markStep(id, 'skipped', reason);
         continue;
       }
+      markStep(id, 'running');
       try {
         if (n.type === 'imageResize') await runImageResize(n);
         else if (n.type === 'voiceover') await runVoiceover(n, signal);
@@ -388,12 +410,20 @@ export async function execute(targetId = null, { again = false } = {}) {
             progressLabel: targetId ? 'Selected node' : `Generation ${generationStep}/${totalGenerations}`,
           });
         }
+        markStep(id, 'done');
       } catch (error) {
+        markStep(id, isAbort(error, signal) ? 'stopped' : 'error', error?.message || String(error));
         if (isAbort(error, signal) || !continueOnError) throw error;
         failed.add(id);
         failures.push({ node: n, message: error?.message || String(error) });
       }
     }
+    finishRun(
+      'done',
+      failures.length
+        ? `${failures.length} step${failures.length === 1 ? '' : 's'} failed; nodes that depended on them were skipped.`
+        : '',
+    );
     try {
       await saveAfterRun();
       if (failures.length)
@@ -416,6 +446,7 @@ export async function execute(targetId = null, { again = false } = {}) {
         active.data.error = 'Generation stopped by user.';
         render();
       }
+      if (runStarted) finishRun('stopped', 'Stopped by you.');
       try {
         await saveAfterRun();
       } catch {}
@@ -428,6 +459,7 @@ export async function execute(targetId = null, { again = false } = {}) {
       render();
     }
     const message = err?.message || String(err);
+    if (runStarted) finishRun('error', message);
     setRunStatus(
       /failed to fetch/i.test(message)
         ? `Muse connection failed. Reload ${APP_NAME} ${APP_VERSION}, then check the Muse session.`

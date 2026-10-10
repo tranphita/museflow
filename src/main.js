@@ -1,5 +1,6 @@
+import { initRunPanel } from './app/run-panel.js';
 import { getTtsApiKey, setTtsApiKey } from './app/tts-client.js';
-import { APP_NAME, APP_VERSION } from './app/app-info.js';
+import { APP_VERSION } from './app/app-info.js';
 import { state } from './core/state.js';
 import { parseSceneScript } from './core/scene-script.js';
 import { $, canvas, edgesSvg, setRunStatus } from './app/dom.js';
@@ -347,7 +348,7 @@ chrome.tabs.onCreated.addListener(tab => {
 });
 
 $('#brandVersion').textContent = APP_VERSION;
-document.title = `${APP_NAME} ${APP_VERSION}`;
+initRunPanel();
 loadState();
 detectMuse();
 applyCanvasTransform();

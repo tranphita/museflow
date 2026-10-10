@@ -68,6 +68,17 @@
     <div class="timeline-preview-caption">Scene playback</div>
   </aside>
 
+  <aside id="runPanel" class="run-panel hidden" aria-label="Workflow run progress" aria-live="polite">
+    <header>
+      <strong id="runPanelSummary">Workflow run</strong>
+      <label class="run-panel-follow" title="Move the canvas to the node that is running"><input id="runPanelFollow" type="checkbox" checked /> Follow</label>
+      <button id="runPanelClose" type="button" aria-label="Hide run progress">×</button>
+    </header>
+    <div class="run-panel-progress"><div id="runPanelBar"></div></div>
+    <div id="runPanelMessage" class="run-panel-message"></div>
+    <ol id="runPanelSteps" class="run-panel-steps"></ol>
+  </aside>
+
   <div id="canvasMenu" class="canvas-menu hidden" role="menu">
     <div class="menu-caption">Add node</div>
     <button data-context-action="add:prompt" role="menuitem">＋ Prompt</button>
