@@ -38,6 +38,25 @@ Thêm dòng `TÊN BỘ:` vào `_series.txt` và `TIÊU ĐỀ:` ở đầu mỗi 
 4. **Chạy cả bộ một lần:** bấm **Batch** → **Add workflow files** → chọn tất cả file trong `workflows/` → **Start queue**. Museta chạy từng tập và lưu `epXX-....mp4` vào thư mục Downloads. Muốn nhanh hơn: mở 2–3 tab chat Muse mới và chọn số tab tương ứng trong **Settings**.
 5. **Làm từng tập.** Import workflow của tập, bấm **▶ Run workflow**, kiểm tra timeline, thêm **♪ Music** nếu muốn, rồi **⇩ Export** MP4.
 
+## Luật giữ nhất quán (LUẬT)
+
+Viết những chi tiết **không bao giờ được đổi** vào `_series.txt`, mỗi nhân vật một dòng, các luật cách nhau bằng dấu `;`:
+
+```
+LUẬT:
+- Phi Ta: luôn đeo kính gọng vuông màu đen trong mọi cảnh; không để râu
+- Hảo: không đeo kính, kể cả kính râm; luôn đeo bông tai ngọc trai nhỏ
+- Chung: không chữ, logo, phụ đề hay watermark trên hình
+```
+
+Luật của nhân vật được gửi kèm mọi cảnh có người đó (mục **CONTINUITY RULES** ngay sau khoá nhận diện); dòng `Chung` áp dụng cho mọi cảnh. Studio tự kiểm tra từng tập trước khi chạy và báo:
+
+- cảnh viết ngược luật (ví dụ "tháo kính" khi luật là "luôn đeo kính", hoặc "Hảo đeo kính râm" khi luật là "không đeo kính");
+- người có thoại hoặc được nhắc trong prompt nhưng thiếu ở dòng `Nhân vật` (Muse sẽ không có ảnh của người đó);
+- lời thoại dài hơn thời lượng cảnh, cảnh dài quá 10 giây.
+
+Tập có lỗi hiện nhãn đỏ; bấm vào để xem từng lỗi theo cảnh. `npm run series` cũng in các lỗi này.
+
 ## Dùng chính bạn (và người thân) làm nhân vật
 
 1. Trong `_series.txt`, đặt tên nhân vật theo tên thật và mô tả ngoại hình, trang phục muốn giữ cố định, ví dụ:

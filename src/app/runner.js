@@ -236,6 +236,7 @@ async function generateNode(node, { again, signal, progressLabel, tabId }) {
       again: isVideo && again,
       characterNames: referenceImages.map(item => item.character),
       nextShot: isVideo ? node.data.nextShot || '' : '',
+      continuityRules: node.data.continuityRules || [],
     });
     const retries = Math.max(0, Math.min(2, Number(state.settings?.autoRetry) || 0));
     let reply;

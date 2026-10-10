@@ -1,4 +1,5 @@
 import { uid, makeNode, isGenerator, DEFAULT_VOICE_ID } from './node-defs.js';
+import { parseRules, rulesFor } from './script-check.js';
 import {
   parseSceneScript,
   parseCharacters,
@@ -35,6 +36,7 @@ export function buildSceneGraph(script, { baseY = 40, characterImages = {} } = {
   const scenes = parseSceneScript(script),
     characters = parseCharacters(script),
     filmStyle = parseFilmStyle(script),
+    rules = parseRules(script),
     voices = parseVoices(script),
     voiceLines = scenes.map(scene =>
       parseVoiceLines(
@@ -80,6 +82,7 @@ export function buildSceneGraph(script, { baseY = 40, characterImages = {} } = {
       status: 'idle',
       sceneLabel: label,
       characterName: character.name,
+      continuityRules: rulesFor(rules, [character.name]),
     };
     nodes.push(prompt, image);
     edges.push(edge(prompt.id, 'text', image.id, 'prompt'));
@@ -93,6 +96,10 @@ export function buildSceneGraph(script, { baseY = 40, characterImages = {} } = {
       y = scenesY + Math.floor(index / 4) * rowHeight,
       label = `Scene ${scene.number}${scene.title ? `: ${scene.title}` : ''}`,
       sceneCast = charactersForScene(scene, cast),
+      sceneRules = rulesFor(
+        rules,
+        sceneCast.map(character => character.name),
+      ),
       promptText = text => [text, castNote(sceneCast), styleNote].filter(Boolean).join('\n\n');
     const connectCast = target => {
       for (const character of sceneCast)
@@ -103,7 +110,13 @@ export function buildSceneGraph(script, { baseY = 40, characterImages = {} } = {
       const prompt = makeNode('prompt', x, y);
       prompt.data = { text: promptText(scene.imagePrompt), sceneLabel: label };
       imageNode = makeNode('generateImage', x + 330, y);
-      imageNode.data = { model: 'muse-image', size: scene.size, status: 'idle', sceneLabel: label };
+      imageNode.data = {
+        model: 'muse-image',
+        size: scene.size,
+        status: 'idle',
+        sceneLabel: label,
+        continuityRules: sceneRules,
+      };
       nodes.push(prompt, imageNode);
       edges.push(edge(prompt.id, 'text', imageNode.id, 'prompt'));
       connectCast(imageNode);
@@ -120,6 +133,7 @@ export function buildSceneGraph(script, { baseY = 40, characterImages = {} } = {
         nextShot: nextShotHint(scenes[index + 1]),
         status: 'idle',
         sceneLabel: label,
+        continuityRules: sceneRules,
       };
       nodes.push(prompt, videoNode);
       edges.push(edge(prompt.id, 'text', videoNode.id, 'prompt'));

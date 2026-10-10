@@ -40,6 +40,6 @@ Nhân vật: Hảo, Phi Ta
 Prompt ảnh: Hai vợ chồng tựa vai nhau bên lan can sân thượng, phía sau là thành phố về đêm lung linh ánh đèn, nhìn vào ống kính
 Prompt video: Hai người tựa vai nhau bên lan can, ánh đèn thành phố lấp lánh phía sau, cùng nhìn vào ống kính mỉm cười. Máy quay lùi chậm ra toàn cảnh.
 Lời thoại:
-- Hảo: Ba câu hôm nay: Happy anniversary. You mean the world to me. Thank you for being mine.
+- Hảo: Câu hôm nay: You mean the world to me.
 - Phi Ta: Lưu lại để nói với người thương nha!
 Audio: nhạc nền lãng mạn kết thúc, không có lời nói

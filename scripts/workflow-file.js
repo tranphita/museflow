@@ -5,7 +5,6 @@ import { SERIES_BIBLE, IMAGE_TYPES, characterNameFromFile } from '../src/core/se
 
 export { characterNameFromFile };
 
-
 export function readCharacterImages(folder) {
   const dir = join(folder, 'characters');
   if (!existsSync(dir)) return {};

@@ -78,6 +78,10 @@ For a scene script, use **Script → Nodes**. Scene headings look like `CẢNH 1
 
 The **Studio** tab lists your series and their episodes. Use **Import folder** to pick a series folder (`_series.txt`, `epXX.txt` episodes and a `characters/` folder); Museta builds each episode's workflow in the browser. Every episode row shows its scenes, length and dialogue lines, its status and last run, and has **Run**, **Open in canvas** and, after a run, **Play** and **Download MP4**. **Run all episodes** runs the remaining episodes in order while a scene-by-scene strip shows progress. Choose the folder again with **Update from folder** after editing scripts.
 
+## Consistency rules
+
+Add a `LUẬT:` block to `_series.txt` with one line per character (and `Chung` for every scene), rules separated by `;` — for example `- Phi Ta: always wears black square glasses; no beard`. Each scene prompt carries the rules for the people in it as a **CONTINUITY RULES** section. The Studio checks every episode before you run it and flags scenes that contradict a rule (removing a must-keep item or adding a banned one), speakers or named characters missing from the scene's `Nhân vật` line, dialogue longer than its scene, and scenes over 10 seconds.
+
 ## Short films with consistent characters
 
 Add a cast to your scene script and use **Script → Nodes** (see the [sample script](docs/sample-film-script.txt)):

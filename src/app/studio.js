@@ -9,6 +9,7 @@ import {
   isEpisodeFile,
   parseSeriesName,
 } from '../core/series.js';
+import { checkEpisode, checkSeries } from '../core/script-check.js';
 import { $, setRunStatus } from './dom.js';
 import { blobAsDataUrl } from './media.js';
 import { importWorkflowFile } from './persistence.js';
@@ -367,6 +368,43 @@ function castStrip(series) {
   return strip;
 }
 
+function issueToggle(row, issues) {
+  const errors = issues.filter(issue => issue.level === 'error').length;
+  const toggle = el(
+    'button',
+    `check-toggle ${errors ? 'has-errors' : 'has-warnings'}`,
+    errors
+      ? `${errors} problem${errors === 1 ? '' : 's'}`
+      : `${issues.length} note${issues.length === 1 ? '' : 's'}`,
+  );
+  toggle.type = 'button';
+  toggle.setAttribute('aria-expanded', 'false');
+  toggle.onclick = () => {
+    const open = row.classList.toggle('show-checks');
+    toggle.setAttribute('aria-expanded', String(open));
+  };
+  return toggle;
+}
+
+function issueList(issues) {
+  const list = el('ul', 'check-list');
+  for (const issue of issues) {
+    const item = el('li', `check-${issue.level}`);
+    if (issue.scene) item.appendChild(el('strong', '', `Scene ${issue.scene}`));
+    item.appendChild(el('span', '', issue.message));
+    list.appendChild(item);
+  }
+  return list;
+}
+
+function seriesNotes(series) {
+  const notes = checkSeries(series.bible, { photoNames: Object.keys(series.characters) });
+  if (!notes.length) return document.createDocumentFragment();
+  const box = el('div', 'series-notes');
+  box.append(el('p', '', 'Before you run this series'), issueList(notes));
+  return box;
+}
+
 function episodeRow(series, episode) {
   const isRunning = studio.running?.episodeId === episode.id && studio.running?.seriesId === series.id;
   const row = el('li', `episode-row status-${episode.status}${isRunning ? ' is-running' : ''}`);
@@ -379,7 +417,12 @@ function episodeRow(series, episode) {
     el('span', '', formatDuration(episode.seconds)),
     el('span', '', `${episode.lines} lines`),
   );
+  const issues = checkEpisode(episodeScript(series.bible, episode.text));
+  const blocking = issues.filter(issue => issue.level === 'error');
+  if (issues.length) facts.appendChild(issueToggle(row, issues));
+  else facts.appendChild(el('span', 'check-ok', 'Script checks passed'));
   main.appendChild(facts);
+  if (issues.length) main.appendChild(issueList(issues));
   if (isRunning) {
     main.append(filmStrip(), el('p', 'episode-live', 'Starting…'));
   } else if (episode.error && ['failed', 'stopped'].includes(episode.status))
@@ -415,7 +458,17 @@ function episodeRow(series, episode) {
   );
   run.type = 'button';
   run.disabled = Boolean(studio.running) && !isRunning;
-  run.onclick = () => (isRunning ? stopStudio() : runEpisodes(series, [episode]));
+  run.onclick = () => {
+    if (isRunning) return stopStudio();
+    if (
+      blocking.length &&
+      !window.confirm(
+        `Episode ${episode.number} has ${blocking.length} script problem${blocking.length === 1 ? '' : 's'} that will likely make Muse get it wrong. Run anyway?`,
+      )
+    )
+      return;
+    runEpisodes(series, [episode]);
+  };
   actions.append(open, run);
   row.append(number, main, status, actions);
   return row;
@@ -505,7 +558,7 @@ export function renderStudio() {
   const list = el('ol', 'episode-list');
   list.setAttribute('aria-label', 'Episodes');
   list.append(...series.episodes.map(episode => episodeRow(series, episode)));
-  main.replaceChildren(header, castStrip(series), list);
+  main.replaceChildren(header, castStrip(series), seriesNotes(series), list);
   renderRunningRow();
 }
 

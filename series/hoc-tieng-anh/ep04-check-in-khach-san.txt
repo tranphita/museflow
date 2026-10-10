@@ -2,7 +2,7 @@ TIÊU ĐỀ: Check-in khách sạn
 
 CẢNH 1 (0:00–0:08): Hook — "I have room!"
 Nhân vật: Hảo, Phi Ta
-Prompt ảnh: Sảnh khách sạn sang trọng, hai vợ chồng kéo vali tới quầy lễ tân, Phi Ta tự tin chống tay lên quầy, Hảo đứng sau đeo kính râm trên đầu
+Prompt ảnh: Sảnh khách sạn sang trọng, hai vợ chồng kéo vali tới quầy lễ tân, Phi Ta tự tin chống tay lên quầy, Hảo đứng phía sau kéo vali
 Prompt video: Phi Ta kéo vali tới quầy lễ tân, chống tay lên quầy nói đầy tự tin. Hảo đứng phía sau, đưa tay lên trán lắc đầu cười. Máy quay trung cảnh từ phía quầy lễ tân.
 Lời thoại:
 - Phi Ta: Hello! I have room! Name Phi Ta!
@@ -14,7 +14,7 @@ Nhân vật: Hảo, Phi Ta
 Prompt ảnh: Hảo đứng cạnh chồng ở quầy lễ tân, nhẹ nhàng nhắc bài, Phi Ta nghiêng đầu lắng nghe
 Prompt video: Hảo ghé sát nhắc chồng từng chữ, tay làm động tác nhịp. Phi Ta gật đầu, hít một hơi rồi nói lại chậm rãi. Máy quay cận trung.
 Lời thoại:
-- Hảo: Nói: Hi, I have a reservation under the name Phi Ta.
+- Hảo: Nói: I have a reservation under the name Phi Ta.
 - Phi Ta: Hi, I have a reservation under the name Phi Ta.
 Audio: nhạc nền khách sạn nhẹ, không có lời nói
 

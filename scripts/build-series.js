@@ -1,6 +1,7 @@
 import { mkdirSync, readdirSync, writeFileSync } from 'node:fs';
 import { basename, join } from 'node:path';
-import { buildWorkflowFile } from './workflow-file.js';
+import { buildWorkflowFile, readEpisodeScript } from './workflow-file.js';
+import { checkEpisode } from '../src/core/script-check.js';
 
 const folders = process.argv.slice(2);
 if (!folders.length) {
@@ -24,5 +25,7 @@ for (const folder of folders) {
     const output = join(outDir, `${basename(episode, '.txt')}.workflow.json`);
     writeFileSync(output, `${JSON.stringify(file, null, 2)}\n`);
     console.log(`${output}: ${summary}`);
+    for (const issue of checkEpisode(readEpisodeScript(join(folder, episode))))
+      console.log(`  ${issue.level === 'error' ? '✗' : '!'} scene ${issue.scene ?? '-'}: ${issue.message}`);
   }
 }

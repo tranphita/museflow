@@ -29,13 +29,16 @@ export function buildMusePrompt({
   again = false,
   characterNames = [],
   nextShot = '',
+  continuityRules = [],
 }) {
   const plural = referenceCount === 1 ? '' : 's';
   const characterLock = characterLockInstruction(characterNames, { continuityFrame });
+  const rules = continuityRulesInstruction(continuityRules);
   if (mediaType === 'video') {
     const sections = [
       `Create a ${size} aspect ratio video clip, ${duration} seconds long. ${sizeInstruction(size)}`,
       characterLock,
+      rules,
       AUDIO_REQUIRED,
       continuityFrame && CONTINUITY_LOCK,
       referenceCount &&
@@ -50,6 +53,7 @@ export function buildMusePrompt({
   }
   const sections = [
     characterLock,
+    rules,
     prompt,
     referenceCount &&
       `Use the attached reference image${plural} as visual guidance; follow the prompt while preserving relevant subject details.`,
@@ -87,6 +91,15 @@ export function characterLockInstruction(names, { continuityFrame = false } = {}
   ]
     .filter(Boolean)
     .join('\n');
+}
+
+export function continuityRulesInstruction(rules) {
+  const unique = [...new Set(rules.map(rule => rule.trim()).filter(Boolean))];
+  if (!unique.length) return '';
+  return [
+    'CONTINUITY RULES — must hold in every frame of this shot, no exceptions:',
+    ...unique.map(rule => `- ${rule}`),
+  ].join('\n');
 }
 
 export function buildRefusalRetryPrompt(prompt) {

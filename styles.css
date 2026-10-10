@@ -3261,3 +3261,66 @@ body[data-view='studio'] .toolbar-actions {
   letter-spacing: normal;
   font-weight: 600;
 }
+.check-ok {
+  color: #5fbf8a;
+}
+.studio button.check-toggle {
+  padding: 1px 8px;
+  font-size: 11px;
+  font-weight: 600;
+  border-radius: 999px;
+}
+.studio button.check-toggle.has-errors {
+  background: #3a1d24;
+  border-color: #6b2c38;
+  color: #ffb3b3;
+}
+.studio button.check-toggle.has-warnings {
+  background: #352d17;
+  border-color: #5d4b1e;
+  color: #f2d48a;
+}
+.check-list {
+  display: none;
+  list-style: none;
+  margin: 10px 0 0;
+  padding: 0;
+  max-width: 76ch;
+  font-size: 12px;
+  line-height: 1.45;
+}
+.show-checks .check-list,
+.series-notes .check-list {
+  display: grid;
+  gap: 6px;
+}
+.check-list li {
+  display: flex;
+  gap: 8px;
+  padding-left: 10px;
+  border-left: 2px solid #3a3f50;
+  color: #c9cbd3;
+}
+.check-list strong {
+  white-space: nowrap;
+  color: #eceef4;
+}
+.check-list .check-error {
+  border-left-color: var(--studio-bad);
+}
+.check-list .check-warn {
+  border-left-color: var(--studio-warn);
+}
+.series-notes {
+  margin: -8px 0 22px;
+  padding: 12px 14px;
+  background: var(--studio-panel);
+  border: 1px solid var(--studio-line);
+  border-radius: 10px;
+}
+.series-notes p {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--studio-muted);
+}
