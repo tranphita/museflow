@@ -7,7 +7,7 @@ Prompt video: Mia chạy lăng xăng quanh phòng, lật gối, nhìn quanh và 
 Lời thoại:
 - Mia: Oh no! Bag… shoes… where?! | Thôi chết! Cặp… giày… đâu rồi?!
 - Mommy: Slow down, Mia. Ask me nicely. | Từ từ nào Mia. Hỏi mẹ cho rõ nhé.
-Audio: chỉ tiếng môi trường nhẹ, tiếng bước chân chạy, không lời thoại, không nhạc
+Audio: chỉ tiếng môi trường nhẹ, tiếng bước chân chạy, tiếng động tự nhiên theo hành động như bước chân và đồ vật, không giọng người, không tiếng cảm thán, không nhạc
 
 CẢNH 2 (0:07–0:14): Mẹ dạy mẫu câu
 Nhân vật: Mommy, Mia
@@ -17,7 +17,7 @@ Lời thoại:
 - Mommy: Say: *Where is my bag?* | Con nói: *Cặp của con đâu rồi ạ?*
 - Mia: *Where is my bag?* | *Cặp của con đâu rồi ạ?*
 - Mommy: Under your bed! | Dưới gầm giường kìa!
-Audio: chỉ tiếng môi trường nhẹ, không lời thoại, không nhạc
+Audio: chỉ tiếng môi trường nhẹ, tiếng động tự nhiên theo hành động như bước chân và đồ vật, không giọng người, không tiếng cảm thán, không nhạc
 
 CẢNH 3 (0:14–0:21): Luyện 1 — hộp bút
 Nhân vật: Mommy, Mia
@@ -26,7 +26,7 @@ Prompt video: Mia khoác ba lô lên vai, quay sang hỏi mẹ. Mommy chỉ vào
 Lời thoại:
 - Mia: *Where is my* pencil case? | Hộp bút *của con đâu rồi ạ?*
 - Mommy: It's on your desk. | Ở trên bàn học đó con.
-Audio: chỉ tiếng môi trường nhẹ, tiếng khoá kéo ba lô, không lời thoại, không nhạc
+Audio: chỉ tiếng môi trường nhẹ, tiếng khoá kéo ba lô, tiếng động tự nhiên theo hành động như bước chân và đồ vật, không giọng người, không tiếng cảm thán, không nhạc
 
 CẢNH 4 (0:21–0:28): Luyện 2 — đôi giày
 Nhân vật: Mommy, Mia
@@ -35,7 +35,7 @@ Prompt video: Mia nhìn kệ giày rồi hỏi mẹ. Mommy giơ đôi sneaker l�
 Lời thoại:
 - Mia: *Where are my* shoes? | Giày *của con đâu rồi ạ?*
 - Mommy: Good! Two things? Say *where are*. | Giỏi! Hai món thì nói *where are* nhé.
-Audio: chỉ tiếng môi trường nhẹ, không lời thoại, không nhạc
+Audio: chỉ tiếng môi trường nhẹ, tiếng động tự nhiên theo hành động như bước chân và đồ vật, không giọng người, không tiếng cảm thán, không nhạc
 
 CẢNH 5 (0:28–0:35): Twist — cái ôm đâu rồi
 Nhân vật: Mommy, Mia
@@ -44,7 +44,7 @@ Prompt video: Mia dang tay, nghiêng đầu hỏi tinh nghịch. Mommy bật cư
 Lời thoại:
 - Mia: And… *where is my* hug? | Còn… *cái ôm của con đâu ạ?*
 - Mommy: Right here! | Ngay đây nè!
-Audio: chỉ tiếng môi trường nhẹ, không lời thoại, không nhạc
+Audio: chỉ tiếng môi trường nhẹ, tiếng động tự nhiên theo hành động như bước chân và đồ vật, không giọng người, không tiếng cảm thán, không nhạc
 
 CẢNH 6 (0:35–0:42): Ôn lại
 Nhân vật: Mommy, Mia
@@ -53,7 +53,7 @@ Prompt video: Mommy nhìn vào ống kính, giơ một ngón tay khi nói câu �
 Lời thoại:
 - Mommy: One thing: *Where is my…?* | Một món: *… của con đâu rồi?*
 - Mommy: Many things: *Where are my…?* | Nhiều món: *… của con đâu rồi?*
-Audio: chỉ tiếng môi trường nhẹ, không lời thoại, không nhạc
+Audio: chỉ tiếng môi trường nhẹ, tiếng động tự nhiên theo hành động như bước chân và đồ vật, không giọng người, không tiếng cảm thán, không nhạc
 
 CẢNH 7 (0:42–0:50): Đến lượt bạn
 Nhân vật: Mommy, Mia
@@ -61,4 +61,4 @@ Prompt ảnh: Mia đeo ba lô vàng đứng ở cửa nhìn vào ống kính cư
 Prompt video: Mia nhìn vào ống kính, nói chậm và rõ rồi chờ đợi với nụ cười khích lệ. Mommy vẫy tay, Mia vẫy tay chào rồi bước ra cửa đi học. Máy quay lùi nhẹ ra trung cảnh.
 Lời thoại:
 - Mia: Your turn! Say it with me: *Where is my bag?* | Đến lượt bạn! Nói cùng Mia nhé: *Cặp của tớ đâu rồi?*
-Audio: chỉ tiếng môi trường nhẹ, không lời thoại, không nhạc
+Audio: chỉ tiếng môi trường nhẹ, tiếng động tự nhiên theo hành động như bước chân và đồ vật, không giọng người, không tiếng cảm thán, không nhạc

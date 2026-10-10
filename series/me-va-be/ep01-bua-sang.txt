@@ -7,7 +7,7 @@ Prompt video: Mia gõ nhẹ chiếc cốc rỗng xuống bàn và gọi to đầ
 Lời thoại:
 - Mia: Mommy! Milk! Give me milk! | Mẹ ơi! Sữa! Đưa con sữa!
 - Mommy: Hmm… is that a nice way to ask? | Hừm… hỏi vậy đã lịch sự chưa con?
-Audio: chỉ tiếng môi trường nhẹ trong bếp, tiếng cốc chạm bàn, không lời thoại, không nhạc
+Audio: chỉ tiếng môi trường nhẹ trong bếp, tiếng cốc chạm bàn, tiếng động tự nhiên theo hành động như bước chân và đồ vật, không giọng người, không tiếng cảm thán, không nhạc
 
 CẢNH 2 (0:07–0:14): Mẹ dạy mẫu câu
 Nhân vật: Mommy, Mia
@@ -16,7 +16,7 @@ Prompt video: Mommy giơ ngón tay, nói chậm rõ từng chữ. Mia nghiêng �
 Lời thoại:
 - Mommy: Try this: *Can I have some milk, please?* | Con thử nói: *Con uống sữa được không ạ?*
 - Mia: *Can I have some milk, please?* | *Con uống sữa được không ạ?*
-Audio: chỉ tiếng môi trường nhẹ trong bếp, không lời thoại, không nhạc
+Audio: chỉ tiếng môi trường nhẹ trong bếp, tiếng động tự nhiên theo hành động như bước chân và đồ vật, không giọng người, không tiếng cảm thán, không nhạc
 
 CẢNH 3 (0:14–0:21): Luyện 1 — bánh kếp
 Nhân vật: Mommy, Mia
@@ -25,7 +25,7 @@ Prompt video: Mia chắp tay, mắt long lanh hỏi xin bánh. Mommy cười tư
 Lời thoại:
 - Mia: *Can I have some* pancakes, *please*? | *Con ăn* bánh kếp *được không ạ*?
 - Mommy: Of course! Here you are. | Tất nhiên rồi! Của con đây.
-Audio: chỉ tiếng môi trường nhẹ, tiếng bánh xèo xèo trên chảo, không lời thoại, không nhạc
+Audio: chỉ tiếng môi trường nhẹ, tiếng bánh xèo xèo trên chảo, tiếng động tự nhiên theo hành động như bước chân và đồ vật, không giọng người, không tiếng cảm thán, không nhạc
 
 CẢNH 4 (0:21–0:28): Luyện 2 — dâu tây
 Nhân vật: Mommy, Mia
@@ -34,7 +34,7 @@ Prompt video: Mia chỉ vào bát dâu tây và hỏi thật lễ phép. Mommy �
 Lời thoại:
 - Mia: *Can I have some* strawberries, *please*? | *Con ăn* dâu tây *được không ạ*?
 - Mommy: Sure, sweetie! | Được chứ, con yêu!
-Audio: chỉ tiếng môi trường nhẹ, tiếng thìa chạm đĩa, không lời thoại, không nhạc
+Audio: chỉ tiếng môi trường nhẹ, tiếng thìa chạm đĩa, tiếng động tự nhiên theo hành động như bước chân và đồ vật, không giọng người, không tiếng cảm thán, không nhạc
 
 CẢNH 5 (0:28–0:35): Twist — xin cà phê
 Nhân vật: Mommy, Mia
@@ -43,7 +43,7 @@ Prompt video: Mia nheo mắt tinh nghịch, chỉ vào tách cà phê của mẹ
 Lời thoại:
 - Mia: *Can I have some* coffee, *please*? | *Con uống* cà phê *được không ạ*?
 - Mommy: Nice try! No coffee for kids. | Hay lắm! Nhưng trẻ con không uống cà phê đâu.
-Audio: chỉ tiếng môi trường nhẹ, không lời thoại, không nhạc
+Audio: chỉ tiếng môi trường nhẹ, tiếng động tự nhiên theo hành động như bước chân và đồ vật, không giọng người, không tiếng cảm thán, không nhạc
 
 CẢNH 6 (0:35–0:42): Ôn lại
 Nhân vật: Mommy, Mia
@@ -51,7 +51,7 @@ Prompt ảnh: Mommy và Mia ngồi cạnh nhau ở bàn ăn, Mommy nhìn thẳng
 Prompt video: Mommy quay về phía ống kính, nói chậm rãi và thân thiện. Mia uống một ngụm sữa, để lại vệt sữa trên môi rồi cười. Máy quay trung cảnh hai người, đứng yên.
 Lời thoại:
 - Mommy: Today's phrase: *Can I have some…, please?* | Mẫu câu hôm nay: *Con xin… được không ạ?*
-Audio: chỉ tiếng môi trường nhẹ, không lời thoại, không nhạc
+Audio: chỉ tiếng môi trường nhẹ, tiếng động tự nhiên theo hành động như bước chân và đồ vật, không giọng người, không tiếng cảm thán, không nhạc
 
 CẢNH 7 (0:42–0:50): Đến lượt bạn
 Nhân vật: Mommy, Mia
@@ -59,4 +59,4 @@ Prompt ảnh: Mia giơ cốc sữa về phía ống kính, cười rạng rỡ, 
 Prompt video: Mia nhìn vào ống kính, nói chậm và rõ, rồi chờ đợi với nụ cười khích lệ. Mommy gật đầu cổ vũ, hai mẹ con vẫy tay chào. Máy quay lùi nhẹ ra trung cảnh.
 Lời thoại:
 - Mia: Your turn! Say it with me: *Can I have some milk, please?* | Đến lượt bạn! Nói cùng Mia nhé: *Con uống sữa được không ạ?*
-Audio: chỉ tiếng môi trường nhẹ, không lời thoại, không nhạc
+Audio: chỉ tiếng môi trường nhẹ, tiếng động tự nhiên theo hành động như bước chân và đồ vật, không giọng người, không tiếng cảm thán, không nhạc

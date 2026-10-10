@@ -217,13 +217,15 @@ export function setTimelineSubtitles(enabled) {
 }
 
 export function syncTimelineClipAudio(node = ensureDockTimeline()) {
-  $('#timelineMuteClips').checked = node.data.clipAudio === 'mute';
+  $('#timelineClipAudio').value = ['mute', 'duck'].includes(node.data.clipAudio)
+    ? node.data.clipAudio
+    : 'keep';
 }
 
-export function setTimelineClipAudio(muted) {
+export function setTimelineClipAudio(mode) {
   const node = ensureDockTimeline();
-  createUndoSnapshot(muted ? 'Tắt tiếng clip' : 'Bật tiếng clip', { preserveRuntime: false });
-  node.data.clipAudio = muted ? 'mute' : 'keep';
+  createUndoSnapshot('Đổi âm thanh gốc của clip', { preserveRuntime: false });
+  node.data.clipAudio = ['mute', 'duck'].includes(mode) ? mode : 'keep';
   syncTimelineClipAudio(node);
   scheduleAutoSave();
 }

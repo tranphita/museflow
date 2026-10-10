@@ -15,6 +15,15 @@ test('the series can mute every clip sound', () => {
   assert.equal(parseClipAudio(`TÊN BỘ: x${scene}\nÂM THANH CLIP: tắt`), 'keep');
 });
 
+test('the series can silence clip sound only while someone speaks', () => {
+  assert.equal(parseClipAudio('ÂM THANH CLIP: tắt khi nói'), 'duck');
+  assert.equal(parseClipAudio('CLIP AUDIO: duck'), 'duck');
+  const timeline = workflowFromScript(`ÂM THANH CLIP: tắt khi nói${scene}`).nodes.find(
+    node => node.type === 'timeline',
+  );
+  assert.equal(timeline.data.clipAudio, 'duck');
+});
+
 test('the series names its background music and volume', () => {
   assert.deepEqual(parseMusic('NHẠC NỀN: nhac-nen.mp3\nÂM LƯỢNG NHẠC: 20%'), {
     file: 'nhac-nen.mp3',
@@ -60,12 +69,12 @@ const clip = (overrides = {}) => ({
 
 test('muted clips use silence instead of their own sound', () => {
   const clips = [clip({ voices: [{ path: '/voice_000_0.bin', offset: 0.2 }] }), clip()];
-  assert.equal(canJoinWithoutReencode([clip(), clip()], { muteClipAudio: true }), false);
+  assert.equal(canJoinWithoutReencode([clip(), clip()], { clipAudio: 'mute' }), false);
   const args = buildEncodeArgs({
     clipInfo: clips,
     inputPaths: ['/0', '/1'],
     silentInput: '/s.wav',
-    muteClipAudio: true,
+    clipAudio: 'mute',
   });
   const inputs = args.flatMap((value, index) => (value === '-i' ? [args[index + 1]] : []));
   assert.deepEqual(inputs, ['/0', '/1', '/s.wav', '/s.wav', '/voice_000_0.bin']);
@@ -73,6 +82,31 @@ test('muted clips use silence instead of their own sound', () => {
   assert.doesNotMatch(filter, /\[0:a:0\]|\[1:a:0\]/);
   assert.match(filter, /\[2:a:0\][^;]*\[bed0\]/);
   assert.match(filter, /\[3:a:0\][^;]*\[a1\]/);
+});
+
+test('ducked clips keep their sound but go silent around each spoken line', () => {
+  const clips = [
+    clip({
+      voices: [
+        { path: '/voice_000_0.bin', offset: 0.2, duration: 2 },
+        { path: '/voice_000_1.bin', offset: 2.55, duration: 1.5 },
+      ],
+    }),
+    clip(),
+  ];
+  const args = buildEncodeArgs({
+    clipInfo: clips,
+    inputPaths: ['/0', '/1'],
+    silentInput: '/s.wav',
+    clipAudio: 'duck',
+  });
+  const filter = args[args.indexOf('-filter_complex') + 1];
+  assert.match(
+    filter,
+    /\[0:a:0\][^;]*,volume=volume='if\(between\(t,0\.100,2\.350\)\+between\(t,2\.450,4\.200\),0,1\)':eval=frame\[bed0\]/,
+  );
+  assert.match(filter, /\[1:a:0\][^;]*atrim=duration=6\.000\[a1\]/);
+  assert.equal(canJoinWithoutReencode([clip(), clip()], { clipAudio: 'duck' }), true);
 });
 
 test('the series warns when its music file is missing', () => {

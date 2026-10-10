@@ -7,7 +7,7 @@ Prompt video: Mia cúi mặt, bĩu môi ôm gối. Mommy nghiêng người hỏi
 Lời thoại:
 - Mommy: What's wrong, sweetie? | Sao thế con yêu?
 - Mia: I… don't know how to say it. | Con… không biết nói sao nữa.
-Audio: chỉ tiếng môi trường phòng ngủ yên tĩnh, tiếng dế rất nhỏ, không lời thoại, không nhạc
+Audio: chỉ tiếng môi trường phòng ngủ yên tĩnh, tiếng dế rất nhỏ, tiếng động tự nhiên theo hành động như bước chân và đồ vật, không giọng người, không tiếng cảm thán, không nhạc
 
 CẢNH 2 (0:07–0:14): Mẹ dạy mẫu câu
 Nhân vật: Mommy, Mia
@@ -16,7 +16,7 @@ Prompt video: Mommy nói chậm rõ từng chữ, làm mặt buồn rồi mặt 
 Lời thoại:
 - Mommy: Try: *I feel* sad, or *I feel* tired. | Con thử nói: *Con thấy* buồn, hoặc *con thấy* mệt.
 - Mia: *I feel* sad. | *Con thấy* buồn.
-Audio: chỉ tiếng môi trường phòng ngủ yên tĩnh, không lời thoại, không nhạc
+Audio: chỉ tiếng môi trường phòng ngủ yên tĩnh, tiếng động tự nhiên theo hành động như bước chân và đồ vật, không giọng người, không tiếng cảm thán, không nhạc
 
 CẢNH 3 (0:14–0:21): Luyện 1 — mất thỏ bông
 Nhân vật: Mommy, Mia
@@ -25,7 +25,7 @@ Prompt video: Mia chỉ vào chiếc gối trống, giải thích với giọng 
 Lời thoại:
 - Mia: *I feel* sad. My bunny Lulu is lost. | *Con thấy* buồn. Thỏ bông Lulu bị lạc rồi.
 - Mommy: Oh no! Let's find her. | Ôi! Mình cùng tìm nhé.
-Audio: chỉ tiếng môi trường phòng ngủ yên tĩnh, tiếng chăn sột soạt, không lời thoại, không nhạc
+Audio: chỉ tiếng môi trường phòng ngủ yên tĩnh, tiếng chăn sột soạt, tiếng động tự nhiên theo hành động như bước chân và đồ vật, không giọng người, không tiếng cảm thán, không nhạc
 
 CẢNH 4 (0:21–0:28): Luyện 2 — tìm thấy Lulu
 Nhân vật: Mommy, Mia
@@ -33,7 +33,7 @@ Prompt ảnh: Mommy giơ con thỏ bông màu hồng nhạt tai dài vừa tìm 
 Prompt video: Mommy lôi con thỏ bông hồng từ dưới gối ra. Mia reo lên, ôm thỏ bông vào lòng rồi ôm cổ mẹ. Máy quay đẩy nhẹ vào gương mặt rạng rỡ của Mia.
 Lời thoại:
 - Mia: *I feel* happy! Thank you, Mommy! | *Con thấy* vui quá! Con cảm ơn mẹ!
-Audio: chỉ tiếng môi trường phòng ngủ yên tĩnh, không lời thoại, không nhạc
+Audio: chỉ tiếng môi trường phòng ngủ yên tĩnh, tiếng động tự nhiên theo hành động như bước chân và đồ vật, không giọng người, không tiếng cảm thán, không nhạc
 
 CẢNH 5 (0:28–0:35): Twist — mẹ ngáp to
 Nhân vật: Mommy, Mia
@@ -42,7 +42,7 @@ Prompt video: Mommy ngáp một cái thật dài. Mia chỉ vào mẹ, hỏi tin
 Lời thoại:
 - Mia: Mommy, do you *feel* sleepy? | Mẹ ơi, mẹ *thấy* buồn ngủ hả?
 - Mommy: Yes! *I feel* very sleepy! | Ừ! *Mẹ thấy* buồn ngủ lắm!
-Audio: chỉ tiếng môi trường phòng ngủ yên tĩnh, không lời thoại, không nhạc
+Audio: chỉ tiếng môi trường phòng ngủ yên tĩnh, tiếng động tự nhiên theo hành động như bước chân và đồ vật, không giọng người, không tiếng cảm thán, không nhạc
 
 CẢNH 6 (0:35–0:42): Ôn lại
 Nhân vật: Mommy, Mia
@@ -50,7 +50,7 @@ Prompt ảnh: Mia mặc bộ đồ ngủ xanh mint in hình ngôi sao nằm tron
 Prompt video: Mommy kéo chăn đắp cho Mia rồi quay về phía ống kính, nói chậm rãi và nhẹ nhàng. Mia mỉm cười, mắt lim dim. Máy quay trung cảnh, đứng yên.
 Lời thoại:
 - Mommy: Today's phrase: *I feel…* happy, sad, tired. | Mẫu câu hôm nay: *Con thấy…* vui, buồn, mệt.
-Audio: chỉ tiếng môi trường phòng ngủ yên tĩnh, không lời thoại, không nhạc
+Audio: chỉ tiếng môi trường phòng ngủ yên tĩnh, tiếng động tự nhiên theo hành động như bước chân và đồ vật, không giọng người, không tiếng cảm thán, không nhạc
 
 CẢNH 7 (0:42–0:50): Đến lượt bạn
 Nhân vật: Mommy, Mia
@@ -59,4 +59,4 @@ Prompt video: Mia nhìn vào ống kính, thì thầm chậm và rõ rồi chờ
 Lời thoại:
 - Mia: Your turn! How do you *feel* today? | Đến lượt bạn! Hôm nay bạn *thấy* thế nào?
 - Mia: Good night! | Chúc ngủ ngon!
-Audio: chỉ tiếng môi trường phòng ngủ yên tĩnh, không lời thoại, không nhạc
+Audio: chỉ tiếng môi trường phòng ngủ yên tĩnh, tiếng động tự nhiên theo hành động như bước chân và đồ vật, không giọng người, không tiếng cảm thán, không nhạc

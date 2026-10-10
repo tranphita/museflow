@@ -188,7 +188,7 @@ export function workflowFromScript(script, { characterImages = {}, music = null 
       durations: Object.fromEntries(graph.videos.map(video => [video.node.id, video.seconds])),
       ...(graph.videos.length > 1 ? { transition: { ...DEFAULT_FILM_TRANSITION } } : {}),
       ...(parseSubtitleMode(script) === 'bilingual' ? { subtitles: 'bilingual' } : {}),
-      ...(parseClipAudio(script) === 'mute' ? { clipAudio: 'mute' } : {}),
+      ...(parseClipAudio(script) !== 'keep' ? { clipAudio: parseClipAudio(script) } : {}),
       ...(music?.url
         ? {
             music: {

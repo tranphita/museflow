@@ -105,19 +105,26 @@ Lời thoại:
 
 Hình do Muse tạo vẫn không được có chữ (giữ luật `Chung: không chữ, phụ đề…`); phụ đề chỉ do bước xuất thêm vào.
 
-## Chỉ giữ lồng tiếng và nhạc nền
+## Âm thanh gốc của clip và nhạc nền
 
-Muse thường tự tạo âm thanh trong clip (tiếng "woa…", tiếng nói lẫn, nhạc). Để video cuối chỉ có giọng TTS và nhạc nền, thêm vào `_series.txt`:
+Muse tự tạo âm thanh trong clip: tiếng động (bước chân, cốc chén), nhưng đôi khi cả giọng người ("woa…") hoặc nhạc. Chọn cách xử lý bằng dòng `ÂM THANH CLIP:` trong `_series.txt`:
+
+| Giá trị | Khi xuất MP4 |
+| --- | --- |
+| *(không ghi)* | Giữ tiếng clip; trong cảnh có lời thoại TTS, tiếng clip được hạ còn 35% suốt cả clip |
+| `tắt khi nói` | Giữ nguyên tiếng clip, chỉ tắt hẳn trong đúng lúc mỗi câu TTS được đọc (trước 0,1 giây, sau 0,15 giây) |
+| `tắt` | Bỏ toàn bộ tiếng clip, chỉ còn lồng tiếng và nhạc nền |
+
+Ô **🔈 Tiếng clip** trên Timeline đổi chế độ này cho workflow đang mở. Bộ `me-va-be` dùng `tắt khi nói` và ghi ở mọi dòng `Audio:` "không giọng người, không tiếng cảm thán" để Muse chỉ làm tiếng động. Muse vẫn có thể tự chèn giọng ngoài lúc có thoại; khi đó bấm **Làm lại** cảnh đó hoặc dùng `tắt`.
+
+Nhạc nền chung cho mọi tập:
 
 ```
-ÂM THANH CLIP: tắt
 NHẠC NỀN: nhac-nen.mp3
 ÂM LƯỢNG NHẠC: 20%
 ```
 
-- `ÂM THANH CLIP: tắt` bỏ toàn bộ âm thanh gốc của mọi clip khi xuất MP4 (ô **Tắt tiếng clip** trên Timeline làm việc tương tự cho workflow đang mở).
-- `NHẠC NỀN:` là tên file nhạc đặt ngay trong thư mục bộ phim (mp3, m4a, aac, wav, ogg). Studio, worker Sản xuất và `npm run series` tự gắn nhạc này vào mọi tập, nhạc lặp lại và tắt dần ở cuối. `ÂM LƯỢNG NHẠC` nhận `20%` hoặc `0.2`, mặc định 25%.
-- File nhạc không được commit (`.gitignore` đã chặn). Chỉ dùng nhạc bạn có quyền sử dụng.
+`NHẠC NỀN:` là tên file nhạc đặt ngay trong thư mục bộ phim (mp3, m4a, aac, wav, ogg). Studio, worker Sản xuất và `npm run series` tự gắn nhạc này vào mọi tập, nhạc lặp lại và tắt dần ở cuối. `ÂM LƯỢNG NHẠC` nhận `20%` hoặc `0.2`, mặc định 25%. File nhạc không được commit (`.gitignore` đã chặn); chỉ dùng nhạc bạn có quyền sử dụng.
 
 ## Thêm tập mới
 

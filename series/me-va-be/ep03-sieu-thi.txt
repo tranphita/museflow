@@ -7,7 +7,7 @@ Prompt video: Mia giơ hộp bánh quy lên, lắp bắp hỏi mẹ, tay xoay xo
 Lời thoại:
 - Mia: Mommy, this… money… how? | Mẹ ơi, cái này… tiền… sao ạ?
 - Mommy: Let me help you ask! | Để mẹ chỉ con cách hỏi nhé!
-Audio: chỉ tiếng môi trường siêu thị nhẹ, tiếng bánh xe đẩy, không lời thoại, không nhạc
+Audio: chỉ tiếng môi trường siêu thị nhẹ, tiếng bánh xe đẩy, tiếng động tự nhiên theo hành động như bước chân và đồ vật, không giọng người, không tiếng cảm thán, không nhạc
 
 CẢNH 2 (0:07–0:14): Mẹ dạy mẫu câu
 Nhân vật: Mommy, Mia
@@ -16,7 +16,7 @@ Prompt video: Mommy chỉ vào hộp bánh, nói chậm rõ từng chữ. Mia nh
 Lời thoại:
 - Mommy: Say: *How much is this?* | Con nói: *Cái này bao nhiêu tiền?*
 - Mia: *How much is this?* | *Cái này bao nhiêu tiền?*
-Audio: chỉ tiếng môi trường siêu thị nhẹ, không lời thoại, không nhạc
+Audio: chỉ tiếng môi trường siêu thị nhẹ, tiếng động tự nhiên theo hành động như bước chân và đồ vật, không giọng người, không tiếng cảm thán, không nhạc
 
 CẢNH 3 (0:14–0:21): Luyện 1 — quả dưa hấu
 Nhân vật: Mommy, Mia
@@ -25,7 +25,7 @@ Prompt video: Mia ôm quả dưa hấu nặng trĩu, hỏi mẹ. Mommy nhìn t�
 Lời thoại:
 - Mia: *How much is this* watermelon? | Quả dưa hấu này *bao nhiêu tiền ạ?*
 - Mommy: It's fifty thousand dong. | Năm mươi nghìn đồng con ạ.
-Audio: chỉ tiếng môi trường siêu thị nhẹ, không lời thoại, không nhạc
+Audio: chỉ tiếng môi trường siêu thị nhẹ, tiếng động tự nhiên theo hành động như bước chân và đồ vật, không giọng người, không tiếng cảm thán, không nhạc
 
 CẢNH 4 (0:21–0:28): Luyện 2 — những quả táo
 Nhân vật: Mommy, Mia
@@ -34,7 +34,7 @@ Prompt video: Mia giơ hai quả táo lên hỏi. Mommy giơ hai ngón tay, khen
 Lời thoại:
 - Mia: *How much are these* apples? | Mấy quả táo này *bao nhiêu tiền ạ?*
 - Mommy: Great! Many things? *How much are these?* | Giỏi! Nhiều món thì nói *how much are these?*
-Audio: chỉ tiếng môi trường siêu thị nhẹ, không lời thoại, không nhạc
+Audio: chỉ tiếng môi trường siêu thị nhẹ, tiếng động tự nhiên theo hành động như bước chân và đồ vật, không giọng người, không tiếng cảm thán, không nhạc
 
 CẢNH 5 (0:28–0:35): Twist — con gấu khổng lồ
 Nhân vật: Mommy, Mia
@@ -43,7 +43,7 @@ Prompt video: Mia ôm con gấu bông khổng lồ, chớp mắt hỏi mẹ. Mom
 Lời thoại:
 - Mia: *How much is this* bear? | Con gấu này *bao nhiêu tiền ạ?*
 - Mommy: Whoa! Too much! Maybe next time. | Ôi! Đắt quá! Để lần sau nhé.
-Audio: chỉ tiếng môi trường siêu thị nhẹ, không lời thoại, không nhạc
+Audio: chỉ tiếng môi trường siêu thị nhẹ, tiếng động tự nhiên theo hành động như bước chân và đồ vật, không giọng người, không tiếng cảm thán, không nhạc
 
 CẢNH 6 (0:35–0:42): Ôn lại
 Nhân vật: Mommy, Mia
@@ -51,7 +51,7 @@ Prompt ảnh: Mommy và Mia đứng cạnh xe đẩy đầy trái cây, Mommy nh
 Prompt video: Mommy quay về phía ống kính, nói chậm rãi và thân thiện. Mia giơ hộp bánh quy lên minh hoạ. Máy quay trung cảnh, đứng yên.
 Lời thoại:
 - Mommy: Today's phrase: *How much is this?* | Mẫu câu hôm nay: *Cái này bao nhiêu tiền?*
-Audio: chỉ tiếng môi trường siêu thị nhẹ, không lời thoại, không nhạc
+Audio: chỉ tiếng môi trường siêu thị nhẹ, tiếng động tự nhiên theo hành động như bước chân và đồ vật, không giọng người, không tiếng cảm thán, không nhạc
 
 CẢNH 7 (0:42–0:50): Đến lượt bạn
 Nhân vật: Mommy, Mia
@@ -59,4 +59,4 @@ Prompt ảnh: Mia giơ quả táo đỏ về phía ống kính cười rạng r�
 Prompt video: Mia nhìn vào ống kính, nói chậm và rõ rồi chờ đợi với nụ cười khích lệ. Mommy giơ ngón cái cổ vũ, hai mẹ con vẫy tay chào. Máy quay lùi nhẹ ra trung cảnh.
 Lời thoại:
 - Mia: Your turn! Say it with me: *How much is this?* | Đến lượt bạn! Nói cùng Mia nhé: *Cái này bao nhiêu tiền?*
-Audio: chỉ tiếng môi trường siêu thị nhẹ, không lời thoại, không nhạc
+Audio: chỉ tiếng môi trường siêu thị nhẹ, tiếng động tự nhiên theo hành động như bước chân và đồ vật, không giọng người, không tiếng cảm thán, không nhạc

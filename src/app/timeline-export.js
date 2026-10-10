@@ -200,13 +200,13 @@ export async function exportTimelineMp4WithFFmpeg(
     if (voiced) setRunStatus(`Đang trộn ${voiced} đoạn lồng tiếng vào timeline…`, 'warn');
     const music = await loadTimelineMusic(ffmpeg, node, signal);
     const subtitles = await loadSubtitles(ffmpeg, node, clipInfo, signal);
-    const muteClipAudio = node.data.clipAudio === 'mute';
+    const clipAudio = ['mute', 'duck'].includes(node.data.clipAudio) ? node.data.clipAudio : 'keep';
     if (subtitles) setRunStatus(`Đang gắn ${subtitles.count} câu phụ đề song ngữ vào video…`, 'warn');
     if (
       canJoinWithoutReencode(clipInfo, {
         hasMusic: Boolean(music),
         hasSubtitles: Boolean(subtitles),
-        muteClipAudio,
+        clipAudio,
         transition: node.data.transition,
       })
     ) {
@@ -221,7 +221,7 @@ export async function exportTimelineMp4WithFFmpeg(
       if (exitCode !== 0) throw failure(exitCode);
     } else {
       const silentInput = '/timeline-silence.wav';
-      if (muteClipAudio || clipInfo.some(item => !item.hasAudio))
+      if (clipAudio === 'mute' || clipInfo.some(item => !item.hasAudio))
         await ffmpeg.writeFile(silentInput, createSilentWav(), { signal });
       const args = buildEncodeArgs({
         clipInfo,
@@ -230,7 +230,7 @@ export async function exportTimelineMp4WithFFmpeg(
         music,
         transition: node.data.transition,
         subtitles,
-        muteClipAudio,
+        clipAudio,
       });
       button.textContent = 'Đang mã hoá MP4…';
       setRunStatus(

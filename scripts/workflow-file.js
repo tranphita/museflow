@@ -68,6 +68,7 @@ function summarize(workflow) {
     generated.length && `new character references: ${generated.join(', ')}`,
     timeline?.data.music && `music: ${timeline.data.music.name}`,
     timeline?.data.clipAudio === 'mute' && 'clip audio muted',
+    timeline?.data.clipAudio === 'duck' && 'clip audio silenced during dialogue',
   ]
     .filter(Boolean)
     .join(' · ');

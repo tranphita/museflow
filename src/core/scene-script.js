@@ -112,6 +112,7 @@ export function parseVoiceLines(voiceText, speakerNames = []) {
 export function parseClipAudio(text) {
   const value =
     /^\s*(?:ÂM\s+THANH\s+CLIP|CLIP\s+AUDIO)\s*:\s*(.+?)\s*$/im.exec(scriptPreamble(text))?.[1] || '';
+  if (/khi\s+nói|duck/i.test(value)) return 'duck';
   return /^(?:tắt|câm|off|mute)/i.test(value) ? 'mute' : 'keep';
 }
 

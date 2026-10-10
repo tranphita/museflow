@@ -45,12 +45,12 @@ export function timelineLength(durations, transition) {
 
 export function canJoinWithoutReencode(
   clipInfo,
-  { hasMusic = false, transition = null, hasSubtitles = false, muteClipAudio = false } = {},
+  { hasMusic = false, transition = null, hasSubtitles = false, clipAudio = 'keep' } = {},
 ) {
   if (
     hasMusic ||
     hasSubtitles ||
-    muteClipAudio ||
+    clipAudio === 'mute' ||
     !clipInfo.length ||
     clipInfo.some(item => item.voices?.length)
   )
@@ -109,6 +109,19 @@ export function outputFrameSize(clipInfo, maxEdge = 1280) {
   };
 }
 
+const DUCK_LEAD_SECONDS = 0.1;
+const DUCK_TAIL_SECONDS = 0.15;
+
+function duckUnderVoices(voices = []) {
+  const windows = voices
+    .map(
+      ({ offset, duration }) =>
+        `between(t,${Math.max(0, offset - DUCK_LEAD_SECONDS).toFixed(3)},${(offset + duration + DUCK_TAIL_SECONDS).toFixed(3)})`,
+    )
+    .join('+');
+  return `volume=volume='if(${windows},0,1)':eval=frame`;
+}
+
 export function buildEncodeArgs({
   clipInfo,
   inputPaths,
@@ -116,10 +129,10 @@ export function buildEncodeArgs({
   music = null,
   transition = null,
   subtitles = null,
-  muteClipAudio = false,
+  clipAudio = 'keep',
 }) {
   const { width, height } = outputFrameSize(clipInfo);
-  const usesClipAudio = item => item.hasAudio && !muteClipAudio;
+  const usesClipAudio = item => item.hasAudio && clipAudio !== 'mute';
   const durations = clipInfo.map(item => item.duration);
   const blend = normalizeTransition(transition, durations);
   const args = [];
@@ -138,7 +151,7 @@ export function buildEncodeArgs({
       index,
       item.voices.map(voice => {
         args.push('-i', voice.path);
-        return { input: nextInput++, offset: voice.offset };
+        return { input: nextInput++, offset: voice.offset, duration: Number(voice.duration) || 0 };
       }),
     );
   });
@@ -153,8 +166,10 @@ export function buildEncodeArgs({
       `[${index}:v:0]setpts=PTS-STARTPTS,scale=${width}:${height}:force_original_aspect_ratio=decrease,pad=${width}:${height}:(ow-iw)/2:(oh-ih)/2:black,fps=24,setsar=1,format=yuv420p,tpad=stop_mode=clone:stop_duration=${duration},trim=duration=${duration},setpts=PTS-STARTPTS${blend.type === 'cut' ? '' : ',settb=AVTB'}[v${index}]`,
     );
     const audioSource = usesClipAudio(item) ? `${index}:a:0` : `${silentIndexes.get(index)}:a:0`;
+    const bedLevel =
+      clipAudio === 'duck' ? duckUnderVoices(voiceInputs.get(index)) : `volume=${CLIP_AUDIO_UNDER_VOICE}`;
     filters.push(
-      `[${audioSource}]aresample=48000,aformat=sample_fmts=fltp:channel_layouts=stereo,asetpts=PTS-STARTPTS,apad=pad_dur=${duration},atrim=duration=${duration}${voiceInputs.has(index) ? `,volume=${CLIP_AUDIO_UNDER_VOICE}[bed${index}]` : `[a${index}]`}`,
+      `[${audioSource}]aresample=48000,aformat=sample_fmts=fltp:channel_layouts=stereo,asetpts=PTS-STARTPTS,apad=pad_dur=${duration},atrim=duration=${duration}${voiceInputs.has(index) ? `,${bedLevel}[bed${index}]` : `[a${index}]`}`,
     );
     const voices = voiceInputs.get(index) || [];
     voices.forEach(({ input, offset }, order) => {

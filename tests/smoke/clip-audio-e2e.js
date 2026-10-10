@@ -42,17 +42,39 @@ async page => {
         await audio.close();
         return URL.createObjectURL(new Blob(chunks, { type: 'video/webm' }));
       };
-      const clip = await recordLoudClip(1500);
+      const silentVoice = seconds => {
+        const rate = 48000,
+          samples = rate * seconds,
+          buffer = new ArrayBuffer(44 + samples * 2),
+          view = new DataView(buffer);
+        const write = (offset, text) => [...text].forEach((c, i) => view.setUint8(offset + i, c.charCodeAt(0)));
+        write(0, 'RIFF');
+        view.setUint32(4, 36 + samples * 2, true);
+        write(8, 'WAVE');
+        write(12, 'fmt ');
+        view.setUint32(16, 16, true);
+        view.setUint16(20, 1, true);
+        view.setUint16(22, 1, true);
+        view.setUint32(24, rate, true);
+        view.setUint32(28, rate * 2, true);
+        view.setUint16(32, 2, true);
+        view.setUint16(34, 16, true);
+        write(36, 'data');
+        view.setUint32(40, samples * 2, true);
+        return URL.createObjectURL(new Blob([buffer], { type: 'audio/wav' }));
+      };
+      const clip = await recordLoudClip(3000);
       const { state } = await import('/src/core/state.js');
       const { render } = await import('/src/app/render.js');
       state.nodes = [
         { id: 'v1', type: 'generateVideo', x: 40, y: 40, data: { size: '9:16', duration: 5, status: 'success', asset: { id: 'a1', kind: 'video', url: clip } } },
-        { id: 'tl', type: 'timeline', x: 0, y: 0, data: { dockOnly: true, clipOrder: ['v1'], durations: { v1: 1.5 }, clipAudio } },
+        { id: 's1', type: 'voiceover', x: 40, y: 400, data: { text: 'Hi', status: 'success', asset: { id: 's1a', kind: 'audio', url: silentVoice(1), duration: 1 } } },
+        { id: 'tl', type: 'timeline', x: 0, y: 0, data: { dockOnly: true, clipOrder: ['v1'], durations: { v1: 2.8 }, clipAudio } },
       ];
-      state.edges = [];
+      state.edges = [{ id: 'e1', source: 's1', sourcePort: 'audio', target: 'v1', targetPort: 'voice' }];
       render();
     }, clipAudio);
-    const checkbox = await page.locator('#timelineMuteClips').isChecked();
+    const selected = await page.locator('#timelineClipAudio').inputValue();
     await page.selectOption('#timelineExportFormat', 'mp4');
     await page.click('#timelineExportBtn');
     await page.waitForFunction(() => /đã xuất|thất bại|đã dừng/i.test(document.querySelector('#runStatus').textContent), null, { timeout: 120000 });
@@ -66,13 +88,19 @@ async page => {
       ffmpeg.on('log', event => logs.push(event.message));
       await ffmpeg.load({ coreURL: chrome.runtime.getURL('vendor/ffmpeg/ffmpeg-core.js'), wasmURL: chrome.runtime.getURL('vendor/ffmpeg/ffmpeg-core.wasm') });
       await ffmpeg.writeFile('/out.mp4', bytes);
-      await ffmpeg.exec(['-i', '/out.mp4', '-af', 'volumedetect', '-vn', '-f', 'null', '-']);
+      const peak = async (start, length) => {
+        logs.length = 0;
+        await ffmpeg.exec(['-ss', String(start), '-t', String(length), '-i', '/out.mp4', '-af', 'volumedetect', '-vn', '-f', 'null', '-']);
+        return logs.find(line => /max_volume/.test(line))?.replace(/.*max_volume:/, '').trim() || null;
+      };
+      const result = { duringSpeech: await peak(0.4, 0.6), afterSpeech: await peak(1.8, 0.8) };
       ffmpeg.terminate();
-      return logs.find(line => /max_volume/.test(line))?.trim() || null;
+      return result;
     });
-    return { clipAudio, checkbox, status, loudness };
+    return { clipAudio, selected, status, loudness };
   };
   const kept = await exportWith('keep');
+  const ducked = await exportWith('duck');
   const muted = await exportWith('mute');
-  return { kept, muted, errors };
+  return { kept, ducked, muted, errors };
 }

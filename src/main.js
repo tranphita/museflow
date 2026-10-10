@@ -106,7 +106,7 @@ $('#timelineMusicRemove').onclick = removeTimelineMusic;
 $('#timelineTransition').onchange = event => setTimelineTransition({ type: event.target.value });
 $('#timelineTransitionDuration').onchange = event => setTimelineTransition({ duration: event.target.value });
 $('#timelineSubtitles').onchange = event => setTimelineSubtitles(event.target.checked);
-$('#timelineMuteClips').onchange = event => setTimelineClipAudio(event.target.checked);
+$('#timelineClipAudio').onchange = event => setTimelineClipAudio(event.target.value);
 // A DOM click handler receives the MouseEvent as its first argument. Keep
 // Keep toolbar workflow execution separate from the per-node generation action.
 $('#runBtn').onclick = onWorkflowRunButtonClick;
