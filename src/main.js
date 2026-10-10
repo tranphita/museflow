@@ -57,6 +57,7 @@ import {
   setTimelineMusic,
   setTimelineMusicVolume,
   removeTimelineMusic,
+  setTimelineTransition,
 } from './app/timeline.js';
 import { exportTimelineVideo, stopTimelineExport } from './app/timeline-export.js';
 import { testMuseSession, detectMuse } from './app/muse-client.js';
@@ -95,6 +96,8 @@ $('#timelineMusicInput').onchange = event => {
 };
 $('#timelineMusicVolume').oninput = event => setTimelineMusicVolume(event.target.value);
 $('#timelineMusicRemove').onclick = removeTimelineMusic;
+$('#timelineTransition').onchange = event => setTimelineTransition({ type: event.target.value });
+$('#timelineTransitionDuration').onchange = event => setTimelineTransition({ duration: event.target.value });
 // A DOM click handler receives the MouseEvent as its first argument. Keep
 // Keep toolbar workflow execution separate from the per-node generation action.
 $('#runBtn').onclick = onWorkflowRunButtonClick;

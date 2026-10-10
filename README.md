@@ -34,7 +34,7 @@ The screenshots and demo video show the original MuseFlow interface; Museta's la
 - **Video workflows:** video clips with optional end-frame continuity from the previous timeline clip, and **↻ Again** to regenerate with stronger prompt adherence.
 - **Output versions:** every Generate Image and Generate Video node keeps its last 8 results. Click a thumbnail under the node to switch back to an earlier version.
 - **Reliable runs:** optionally retry a failed generation automatically, and keep running the rest of the workflow when one node fails (nodes that depend on it are skipped). Both options are in **Settings**.
-- **Timeline:** reorder clips, set durations, scrub and preview the sequence, add **background music** with a volume control, and export WebM or MP4 (H.264). MP4 is assembled locally with the bundled FFmpeg engine.
+- **Timeline:** reorder clips, set durations, scrub and preview the sequence, add **background music** with a volume control, pick a **transition** between clips, and export WebM or MP4 (H.264). MP4 is assembled locally with the bundled FFmpeg engine.
 - **Script → Nodes:** turn a scene script into connected image/video nodes and an ordered timeline.
 - **Workflow files:** **Save workflow** downloads a JSON file with media embedded where possible; **Import workflow** restores it. Files saved by MuseFlow 0.5 still import.
 - **Autosave:** the current workflow and its media are stored in the extension's browser storage. Workflows saved by MuseFlow are migrated automatically on first launch.
@@ -69,6 +69,27 @@ Replace the files with the new version, select **Reload** on the extensions page
 5. Connect results to a **Preview** node. For video, add clips to the **Timeline**, arrange them, optionally add **♪ Music**, then preview or export.
 
 For a scene script, use **Script → Nodes**. Scene headings look like `CẢNH 1 (0:00–0:07): Scene title`, followed by `Prompt ảnh`, `Prompt video`, and an optional `Audio` field.
+
+## Short films with consistent characters
+
+Add a cast to your scene script and use **Script → Nodes** (see the [sample script](docs/sample-film-script.txt)):
+
+```
+PHONG CÁCH: warm 3D animation, golden-hour light
+
+NHÂN VẬT:
+- Linh: 20-year-old woman, short black bob, mustard jacket
+- Mun: black cat, green eyes, red collar
+
+CẢNH 1 (0:00–0:06): Meeting
+Nhân vật: Linh, Mun
+Prompt ảnh: ...
+Prompt video: ...
+```
+
+Museta then creates a character reference sheet for each character and connects it to every scene that features them (from the scene's `Nhân vật:` line, or from names mentioned in its prompts). Each scene prompt gets the character descriptions, the film style, and a **CHARACTER LOCK** instruction. Later clips use end-frame continuity and are asked to end on a steady frame that leads into the next shot, and the timeline defaults to a 0.5 s crossfade. Change the transition (Cut, Crossfade, Fade through black, Dissolve, Slide left) and its length with the **⇄** control in the timeline dock; transitions are applied in MP4 export.
+
+Tip: run the character nodes first, pick the best version from the **Versions** strip, then run the whole workflow.
 
 ## View Museta and Muse.ai side by side
 

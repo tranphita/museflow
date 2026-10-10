@@ -1,8 +1,37 @@
 export const TIMELINE_OUTPUT = '/museta-timeline.mp4';
 const MUSIC_FADE_SECONDS = 1.5;
 
-export function canJoinWithoutReencode(clipInfo, { hasMusic = false } = {}) {
+export const TRANSITIONS = Object.freeze({
+  cut: 'Cut',
+  fade: 'Crossfade',
+  fadeblack: 'Fade through black',
+  dissolve: 'Dissolve',
+  smoothleft: 'Slide left',
+});
+const MAX_TRANSITION_SECONDS = 2;
+
+export function normalizeTransition(transition, durations) {
+  const type = Object.hasOwn(TRANSITIONS, transition?.type) ? transition.type : 'cut';
+  if (type === 'cut' || durations.length < 2) return { type: 'cut', duration: 0 };
+  const limit = Math.min(MAX_TRANSITION_SECONDS, Math.min(...durations) / 2);
+  const duration = Math.max(0.1, Math.min(limit, Number(transition.duration) || 0.5));
+  return { type, duration: Math.round(duration * 100) / 100 };
+}
+
+export function timelineLength(durations, transition) {
+  const total = durations.reduce((sum, value) => sum + value, 0);
+  return total - normalizeTransition(transition, durations).duration * Math.max(0, durations.length - 1);
+}
+
+export function canJoinWithoutReencode(clipInfo, { hasMusic = false, transition = null } = {}) {
   if (hasMusic || !clipInfo.length) return false;
+  if (
+    normalizeTransition(
+      transition,
+      clipInfo.map(item => item.duration),
+    ).type !== 'cut'
+  )
+    return false;
   const first = clipInfo[0];
   return clipInfo.every(
     item =>
@@ -50,8 +79,10 @@ export function outputFrameSize(clipInfo, maxEdge = 1280) {
   };
 }
 
-export function buildEncodeArgs({ clipInfo, inputPaths, silentInput, music = null }) {
+export function buildEncodeArgs({ clipInfo, inputPaths, silentInput, music = null, transition = null }) {
   const { width, height } = outputFrameSize(clipInfo);
+  const durations = clipInfo.map(item => item.duration);
+  const blend = normalizeTransition(transition, durations);
   const args = [];
   inputPaths.forEach(path => args.push('-i', path));
   let nextInput = inputPaths.length;
@@ -69,7 +100,7 @@ export function buildEncodeArgs({ clipInfo, inputPaths, silentInput, music = nul
   clipInfo.forEach((item, index) => {
     const duration = item.duration.toFixed(3);
     filters.push(
-      `[${index}:v:0]setpts=PTS-STARTPTS,scale=${width}:${height}:force_original_aspect_ratio=decrease,pad=${width}:${height}:(ow-iw)/2:(oh-ih)/2:black,fps=24,setsar=1,format=yuv420p,tpad=stop_mode=clone:stop_duration=${duration},trim=duration=${duration},setpts=PTS-STARTPTS[v${index}]`,
+      `[${index}:v:0]setpts=PTS-STARTPTS,scale=${width}:${height}:force_original_aspect_ratio=decrease,pad=${width}:${height}:(ow-iw)/2:(oh-ih)/2:black,fps=24,setsar=1,format=yuv420p,tpad=stop_mode=clone:stop_duration=${duration},trim=duration=${duration},setpts=PTS-STARTPTS${blend.type === 'cut' ? '' : ',settb=AVTB'}[v${index}]`,
     );
     const audioSource = item.hasAudio ? `${index}:a:0` : `${silentIndexes.get(index)}:a:0`;
     filters.push(
@@ -77,11 +108,29 @@ export function buildEncodeArgs({ clipInfo, inputPaths, silentInput, music = nul
     );
     concatInputs.push(`[v${index}][a${index}]`);
   });
-  filters.push(`${concatInputs.join('')}concat=n=${clipInfo.length}:v=1:a=1[outv][clipa]`);
+  if (blend.type === 'cut' || clipInfo.length < 2)
+    filters.push(`${concatInputs.join('')}concat=n=${clipInfo.length}:v=1:a=1[outv][clipa]`);
+  else {
+    let video = '[v0]',
+      audio = '[a0]',
+      offset = 0;
+    for (let index = 1; index < clipInfo.length; index++) {
+      offset += durations[index - 1] - blend.duration;
+      const last = index === clipInfo.length - 1,
+        nextVideo = last ? '[outv]' : `[xv${index}]`,
+        nextAudio = last ? '[clipa]' : `[xa${index}]`;
+      filters.push(
+        `${video}[v${index}]xfade=transition=${blend.type}:duration=${blend.duration}:offset=${offset.toFixed(3)}${nextVideo}`,
+        `${audio}[a${index}]acrossfade=d=${blend.duration}:c1=tri:c2=tri${nextAudio}`,
+      );
+      video = nextVideo;
+      audio = nextAudio;
+    }
+  }
 
   let audioOut = '[clipa]';
   if (music) {
-    const total = clipInfo.reduce((sum, item) => sum + item.duration, 0);
+    const total = timelineLength(durations, transition);
     const volume = Math.max(0, Math.min(1, Number(music.volume ?? 0.35)));
     const fadeStart = Math.max(0, total - MUSIC_FADE_SECONDS);
     filters.push(

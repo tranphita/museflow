@@ -1,7 +1,15 @@
 import { state } from '../core/state.js';
 import { nodeDefs, uid, makeNode } from '../core/node-defs.js';
 import { nodeById, topoOrder, connectReferenceNode, syncReferenceFanOut } from '../core/graph.js';
-import { parseSceneScript } from '../core/scene-script.js';
+import {
+  parseSceneScript,
+  parseCharacters,
+  parseFilmStyle,
+  charactersForScene,
+  characterSheetPrompt,
+  castNote,
+  nextShotHint,
+} from '../core/scene-script.js';
 import { $, setRunStatus } from './dom.js';
 import { saveState } from './persistence.js';
 import { createUndoSnapshot } from './undo.js';
@@ -100,9 +108,43 @@ export function removeSelectedNodes() {
   saveState();
 }
 
+function edge(source, sourcePort, target, targetPort) {
+  return { id: uid('edge'), source, sourcePort, target, targetPort };
+}
+
+function closestVideoDuration(seconds) {
+  return [5, 6, 8, 10].reduce(
+    (best, value) => (Math.abs(value - seconds) < Math.abs(best - seconds) ? value : best),
+    5,
+  );
+}
+
+function createCharacterNodes(characters, baseY) {
+  return characters.map((character, index) => {
+    const x = 80 + index * 650,
+      label = `Character: ${character.name}`;
+    const prompt = makeNode('prompt', x, baseY);
+    prompt.data = { text: characterSheetPrompt(character), sceneLabel: label };
+    const image = makeNode('generateImage', x + 330, baseY);
+    image.data = {
+      model: 'muse-image',
+      size: '3:4',
+      status: 'idle',
+      sceneLabel: label,
+      characterName: character.name,
+    };
+    state.nodes.push(prompt, image);
+    state.edges.push(edge(prompt.id, 'text', image.id, 'prompt'));
+    return { ...character, node: image };
+  });
+}
+
 export function buildSceneNodesFromScript() {
   const status = $('#scriptImportStatus'),
-    scenes = parseSceneScript($('#scriptInput').value);
+    script = $('#scriptInput').value,
+    scenes = parseSceneScript(script),
+    characters = parseCharacters(script),
+    filmStyle = parseFilmStyle(script);
   if (!scenes.length) {
     status.className = 'error';
     status.textContent =
@@ -111,64 +153,51 @@ export function buildSceneNodesFromScript() {
   }
   createUndoSnapshot('Create nodes from script');
   const baseY = Math.max(40, ...state.nodes.filter(node => !node.data?.dockOnly).map(node => node.y + 360)),
+    cast = createCharacterNodes(characters, baseY),
+    scenesY = cast.length ? baseY + 620 : baseY,
     createdVideos = [];
-  let made = 0;
+  let made = cast.length * 2;
+  const styleNote = filmStyle ? `Visual style for the whole film: ${filmStyle}.` : '';
   scenes.forEach((scene, index) => {
     const column = index % 4,
       row = Math.floor(index / 4),
       x = 80 + column * 650,
-      y = baseY + row * 1100,
-      label = `Scene ${scene.number}${scene.title ? `: ${scene.title}` : ''}`;
-    let imageNode = null,
-      videoNode = null;
+      y = scenesY + row * 1100,
+      label = `Scene ${scene.number}${scene.title ? `: ${scene.title}` : ''}`,
+      sceneCast = charactersForScene(scene, cast),
+      promptText = text => [text, castNote(sceneCast), styleNote].filter(Boolean).join('\n\n');
+    const connectCast = target => {
+      for (const character of sceneCast)
+        state.edges.push(edge(character.node.id, 'image', target.id, 'reference'));
+    };
+    let imageNode = null;
     if (scene.imagePrompt) {
       const prompt = makeNode('prompt', x, y);
-      prompt.data = { text: scene.imagePrompt, sceneLabel: label };
-      const image = makeNode('generateImage', x + 330, y);
-      image.data = { model: 'muse-image', size: scene.size, status: 'idle', sceneLabel: label };
-      state.nodes.push(prompt, image);
-      state.edges.push({
-        id: uid('edge'),
-        source: prompt.id,
-        sourcePort: 'text',
-        target: image.id,
-        targetPort: 'prompt',
-      });
-      imageNode = image;
+      prompt.data = { text: promptText(scene.imagePrompt), sceneLabel: label };
+      imageNode = makeNode('generateImage', x + 330, y);
+      imageNode.data = { model: 'muse-image', size: scene.size, status: 'idle', sceneLabel: label };
+      state.nodes.push(prompt, imageNode);
+      state.edges.push(edge(prompt.id, 'text', imageNode.id, 'prompt'));
+      connectCast(imageNode);
       made += 2;
     }
     if (scene.videoPrompt) {
       const prompt = makeNode('prompt', x, y + 540);
-      prompt.data = { text: scene.videoPrompt, sceneLabel: label };
-      const requestedDuration = [5, 6, 8, 10].reduce(
-        (best, value) => (Math.abs(value - scene.seconds) < Math.abs(best - scene.seconds) ? value : best),
-        5,
-      );
-      videoNode = makeNode('generateVideo', x + 330, y + 540);
+      prompt.data = { text: promptText(scene.videoPrompt), sceneLabel: label };
+      const videoNode = makeNode('generateVideo', x + 330, y + 540);
       videoNode.data = {
         model: 'muse-video',
         size: scene.size,
-        duration: requestedDuration,
+        duration: closestVideoDuration(scene.seconds),
         continuity: createdVideos.length > 0,
+        nextShot: nextShotHint(scenes[index + 1]),
         status: 'idle',
         sceneLabel: label,
       };
       state.nodes.push(prompt, videoNode);
-      state.edges.push({
-        id: uid('edge'),
-        source: prompt.id,
-        sourcePort: 'text',
-        target: videoNode.id,
-        targetPort: 'prompt',
-      });
-      if (imageNode)
-        state.edges.push({
-          id: uid('edge'),
-          source: imageNode.id,
-          sourcePort: 'image',
-          target: videoNode.id,
-          targetPort: 'reference',
-        });
+      state.edges.push(edge(prompt.id, 'text', videoNode.id, 'prompt'));
+      if (imageNode) state.edges.push(edge(imageNode.id, 'image', videoNode.id, 'reference'));
+      connectCast(videoNode);
       made += 2;
       createdVideos.push({ node: videoNode, seconds: scene.seconds });
     }
@@ -188,12 +217,14 @@ export function buildSceneNodesFromScript() {
   createdVideos.forEach(({ node, seconds }) => {
     timeline.data.durations[node.id] = seconds;
   });
+  if (createdVideos.length > 1 && !timeline.data.transition)
+    timeline.data.transition = { type: 'fade', duration: 0.5 };
   $('#scriptModal').classList.add('hidden');
   render();
   saveState();
   if ($('#timelineDock').classList.contains('collapsed')) toggleTimeline();
   setRunStatus(
-    `Created ${scenes.length} scenes · ${made} nodes · ${createdVideos.length} video clips ordered on the Timeline.`,
+    `Created ${cast.length ? `${cast.length} character reference${cast.length === 1 ? '' : 's'} · ` : ''}${scenes.length} scenes · ${made} nodes · ${createdVideos.length} video clips ordered on the Timeline.`,
     'ok',
   );
 }

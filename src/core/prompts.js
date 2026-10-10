@@ -27,8 +27,11 @@ export function buildMusePrompt({
   referenceCount = 0,
   continuityFrame = false,
   again = false,
+  characterNames = [],
+  nextShot = '',
 }) {
   const plural = referenceCount === 1 ? '' : 's';
+  const characterLock = characterLockInstruction(characterNames);
   if (mediaType === 'video') {
     const sections = [
       `Create a ${size} aspect ratio video clip, ${duration} seconds long. ${sizeInstruction(size)}`,
@@ -36,7 +39,10 @@ export function buildMusePrompt({
       continuityFrame && CONTINUITY_LOCK,
       referenceCount &&
         `Use the attached reference image${plural} as visual guidance${continuityFrame ? ' while keeping image 1 as the exact opening frame.' : '.'}`,
+      characterLock,
       `Prompt: ${prompt}`,
+      nextShot &&
+        `ENDING: Finish on a steady, well-composed frame that flows naturally into the next shot (${nextShot}). Avoid an abrupt cut, fade, or camera jump in the final second.`,
       negativePrompt && `Avoid: ${negativePrompt}`,
       again && PROMPT_FIDELITY,
     ];
@@ -46,10 +52,17 @@ export function buildMusePrompt({
     prompt,
     referenceCount &&
       `Use the attached reference image${plural} as visual guidance; follow the prompt while preserving relevant subject details.`,
+    characterLock,
     sizeInstruction(size),
     negativePrompt && `Avoid the following (negative prompt): ${negativePrompt}`,
   ];
   return sections.filter(Boolean).join('\n\n');
+}
+
+export function characterLockInstruction(names) {
+  const unique = [...new Set(names.filter(Boolean))];
+  if (!unique.length) return '';
+  return `CHARACTER LOCK: The attached character reference image${unique.length === 1 ? ' shows' : 's show'} ${unique.join(', ')}. Keep ${unique.length === 1 ? 'this character' : 'every character'} identical to the reference: same face, age, hairstyle, skin tone, body shape, and outfit. Do not redesign or swap characters.`;
 }
 
 export function buildRefusalRetryPrompt(prompt) {

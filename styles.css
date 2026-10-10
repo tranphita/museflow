@@ -2474,3 +2474,22 @@ body {
 #timelineMusicVolume {
   width: 70px;
 }
+
+.timeline-transition {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: #a8aab3;
+}
+.timeline-transition select,
+.timeline-transition input {
+  background: #1a1c25;
+  color: #eee;
+  border: 1px solid #363946;
+  border-radius: 7px;
+  padding: 5px 6px;
+}
+.timeline-transition input {
+  width: 56px;
+}

@@ -185,6 +185,25 @@ export function importAllVideosToTimeline() {
 const DEFAULT_MUSIC_VOLUME = 0.35;
 let musicPreview = null;
 
+export function syncTimelineTransition(node = ensureDockTimeline()) {
+  const transition = node.data.transition || { type: 'cut', duration: 0.5 };
+  $('#timelineTransition').value = transition.type;
+  $('#timelineTransitionDuration').value = String(transition.duration ?? 0.5);
+  $('#timelineTransitionDuration').disabled = transition.type === 'cut';
+}
+
+export function setTimelineTransition({ type, duration }) {
+  const node = ensureDockTimeline(),
+    current = node.data.transition || { type: 'cut', duration: 0.5 };
+  createUndoSnapshot('Change timeline transition', { preserveRuntime: false });
+  node.data.transition = {
+    type: type ?? current.type,
+    duration: Math.max(0.1, Math.min(2, Number(duration ?? current.duration) || 0.5)),
+  };
+  syncTimelineTransition(node);
+  scheduleAutoSave();
+}
+
 export function syncTimelineMusic(node = ensureDockTimeline()) {
   const music = node.data.music;
   $('#timelineMusicControls').classList.toggle('hidden', !music?.url);
@@ -262,6 +281,7 @@ export function syncTimelineDock() {
     node = ensureDockTimeline();
   dock.classList.remove('no-timeline');
   syncTimelineMusic(node);
+  syncTimelineTransition(node);
   const allVideos = state.nodes.filter(item => item.type === 'generateVideo'),
     candidates = allVideos.filter(item => !(node.data.clipOrder || []).includes(item.id));
   addButton.disabled = !candidates.length;

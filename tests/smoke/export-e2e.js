@@ -61,7 +61,7 @@ async page => {
     state.nodes = [
       { id: 'v1', type: 'generateVideo', x: 40, y: 40, data: { size: '16:9', duration: 5, status: 'success', asset: { id: 'a1', kind: 'video', url: clipA } } },
       { id: 'v2', type: 'generateVideo', x: 400, y: 40, data: { size: '16:9', duration: 5, status: 'success', asset: { id: 'a2', kind: 'video', url: clipB } } },
-      { id: 'tl', type: 'timeline', x: 0, y: 0, data: { dockOnly: true, clipOrder: ['v1', 'v2'], durations: { v1: 2, v2: 2 }, music: { id: 'm1', url: sineWav(3), name: 'tone.wav', volume: 0.5 } } },
+      { id: 'tl', type: 'timeline', x: 0, y: 0, data: { dockOnly: true, clipOrder: ['v1', 'v2'], durations: { v1: 2, v2: 2 }, music: { id: 'm1', url: sineWav(3), name: 'tone.wav', volume: 0.5 }, transition: { type: 'fade', duration: 0.5 } } },
     ];
     state.edges = [];
     render();

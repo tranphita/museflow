@@ -1,0 +1,23 @@
+PHONG CÁCH: hoạt hình 3D ấm áp kiểu Pixar, ánh sáng hoàng hôn vàng cam, màu pastel, khung dọc 9:16
+
+NHÂN VẬT:
+- Linh: cô gái 20 tuổi, tóc bob ngắn màu đen, mắt nâu to, áo khoác len vàng mù tạt, quần jean xanh, giày vải trắng
+- Mun: mèo đen lông mượt, mắt xanh lá, vòng cổ đỏ có chuông vàng nhỏ
+
+CẢNH 1 (0:00–0:06): Gặp gỡ
+Nhân vật: Linh, Mun
+Prompt ảnh: Linh ngồi trên bậc thềm gỗ trước tiệm sách nhỏ, Mun nhảy lên bậc thềm cạnh cô, 9:16
+Prompt video: Linh mỉm cười, đưa tay vuốt ve đầu Mun. Mun dụi đầu vào tay cô. Máy quay đẩy nhẹ vào gần.
+Audio: tiếng piano nhẹ, tiếng chuông mèo leng keng
+
+CẢNH 2 (0:06–0:12): Dạo phố
+Nhân vật: Linh, Mun
+Prompt ảnh: Linh đi bộ trên con phố lát đá, Mun đi bên cạnh, đèn đường vừa bật
+Prompt video: Linh và Mun cùng đi dọc con phố, máy quay lùi chậm phía trước họ. Lá vàng bay nhẹ.
+Audio: tiếng bước chân, gió nhẹ, piano tiếp tục
+
+CẢNH 3 (0:12–0:18): Ngắm sao
+Nhân vật: Linh, Mun
+Prompt ảnh: Linh và Mun ngồi trên mái nhà nhìn bầu trời đầy sao
+Prompt video: Linh chỉ tay lên bầu trời, Mun ngước nhìn theo. Một ngôi sao băng vụt qua. Máy quay nâng lên bầu trời.
+Audio: piano chậm lại, kết thúc êm

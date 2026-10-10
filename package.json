@@ -9,5 +9,5 @@
     "format": "npx --yes prettier@3.3.3 --write src bridge background.js tests",
     "package": "node -e \"require('fs').mkdirSync('downloads',{recursive:true})\" && git archive --format=zip --prefix=Museta/ -o downloads/Museta-extension.zip HEAD"
   },
-  "version": "0.6.0"
+  "version": "0.7.0"
 }

@@ -130,7 +130,7 @@ export async function exportTimelineMp4WithFFmpeg(node, clips, button, formatSel
           .join(' ') || `FFmpeg exited with code ${exitCode}.`,
       );
     const music = await loadTimelineMusic(ffmpeg, node, signal);
-    if (canJoinWithoutReencode(clipInfo, { hasMusic: Boolean(music) })) {
+    if (canJoinWithoutReencode(clipInfo, { hasMusic: Boolean(music), transition: node.data.transition })) {
       const concatFile = '/timeline-inputs.txt';
       await ffmpeg.writeFile(concatFile, new TextEncoder().encode(buildConcatList(sourceUrls)), { signal });
       button.textContent = 'Joining MP4 clips…';
@@ -141,7 +141,13 @@ export async function exportTimelineMp4WithFFmpeg(node, clips, button, formatSel
       const silentInput = '/timeline-silence.wav';
       if (clipInfo.some(item => !item.hasAudio))
         await ffmpeg.writeFile(silentInput, createSilentWav(), { signal });
-      const args = buildEncodeArgs({ clipInfo, inputPaths: sourceUrls, silentInput, music });
+      const args = buildEncodeArgs({
+        clipInfo,
+        inputPaths: sourceUrls,
+        silentInput,
+        music,
+        transition: node.data.transition,
+      });
       button.textContent = 'Encoding MP4…';
       setRunStatus(
         `FFmpeg is assembling${music ? ' and mixing background music into' : ' and encoding'} the complete timeline locally…`,
@@ -465,7 +471,9 @@ export async function exportTimelineVideo() {
     link.href = state.timelineExportUrl;
     link.download = `Museta-Timeline-${new Date().toISOString().replace(/[:.]/g, '-')}.${extension}`;
     link.click();
-    setRunStatus(`Stitched timeline exported as ${extension.toUpperCase()}.`, 'ok');
+    const transitionNote =
+      (node.data.transition?.type || 'cut') !== 'cut' ? ' Transitions are applied in MP4 export only.' : '';
+    setRunStatus(`Stitched timeline exported as ${extension.toUpperCase()}.${transitionNote}`, 'ok');
   } catch (error) {
     if (error?.name === 'AbortError') setRunStatus('Timeline export stopped.', 'warn');
     else setRunStatus(`Timeline export failed: ${error?.message || String(error)}`, 'error');

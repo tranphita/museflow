@@ -26,7 +26,7 @@ Museta phát triển tiếp từ [MuseFlow / 26Flow](https://github.com/bynne260
 - **Video:** tạo clip, tuỳ chọn dùng frame cuối của clip trước để nối liền cảnh, nút **↻ Again** để tạo lại bám prompt chặt hơn.
 - **Phiên bản kết quả:** mỗi node Generate Image/Video giữ 8 kết quả gần nhất. Bấm vào ảnh nhỏ dưới node để quay lại phiên bản cũ.
 - **Chạy ổn định hơn:** tuỳ chọn tự thử lại khi tạo lỗi, và tiếp tục chạy phần còn lại của workflow khi một node lỗi (các node phụ thuộc vào node lỗi sẽ bị bỏ qua). Cả hai nằm trong **Settings**.
-- **Timeline:** sắp xếp clip, đặt thời lượng, tua và xem trước, thêm **nhạc nền** có chỉnh âm lượng, xuất WebM hoặc MP4 (H.264). MP4 được ghép ngay trên máy bằng FFmpeg đi kèm.
+- **Timeline:** sắp xếp clip, đặt thời lượng, tua và xem trước, thêm **nhạc nền** có chỉnh âm lượng, chọn **hiệu ứng chuyển cảnh**, xuất WebM hoặc MP4 (H.264). MP4 được ghép ngay trên máy bằng FFmpeg đi kèm.
 - **Script → Nodes:** biến kịch bản chia cảnh thành các node ảnh/video đã nối sẵn và timeline đúng thứ tự.
 - **Tệp workflow:** **Save workflow** tải file JSON có nhúng media khi có thể; **Import workflow** để mở lại. File lưu từ MuseFlow 0.5 vẫn import được.
 - **Tự lưu:** workflow và media được lưu trong bộ nhớ extension. Workflow cũ của MuseFlow được chuyển sang tự động ở lần mở đầu tiên.
@@ -61,6 +61,33 @@ Thay file bằng phiên bản mới, bấm **Reload** ở trang extension rồi 
 5. Nối kết quả tới node **Preview**. Với video, thêm clip vào **Timeline**, sắp xếp, thêm **♪ Music** nếu muốn, rồi xem trước hoặc xuất.
 
 Với kịch bản, chọn **Script → Nodes**. Tiêu đề cảnh có dạng `CẢNH 1 (0:00–0:07): Tên cảnh`, kèm các trường `Prompt ảnh`, `Prompt video` và `Audio` (tuỳ chọn).
+
+## Làm phim ngắn giữ nguyên nhân vật
+
+Dùng **Script → Nodes** với kịch bản có phần nhân vật (xem [kịch bản mẫu](docs/sample-film-script.txt)):
+
+```
+PHONG CÁCH: hoạt hình 3D ấm áp, ánh sáng hoàng hôn
+
+NHÂN VẬT:
+- Linh: cô gái 20 tuổi, tóc bob đen, áo khoác vàng
+- Mun: mèo đen mắt xanh, vòng cổ đỏ
+
+CẢNH 1 (0:00–0:06): Gặp gỡ
+Nhân vật: Linh, Mun
+Prompt ảnh: ...
+Prompt video: ...
+Audio: ...
+```
+
+Museta sẽ:
+
+- tạo một ảnh tham chiếu (character sheet) cho mỗi nhân vật và nối ảnh đó vào mọi cảnh có nhân vật — theo dòng `Nhân vật:` của cảnh, hoặc theo tên được nhắc trong prompt;
+- thêm mô tả nhân vật và dòng `PHONG CÁCH` vào prompt từng cảnh, kèm lệnh **CHARACTER LOCK** yêu cầu Muse giữ nguyên gương mặt, tóc, trang phục;
+- bật continuity cho các clip sau (clip mới bắt đầu từ frame cuối của clip trước) và yêu cầu mỗi clip kết thúc bằng khung hình ổn định dẫn sang cảnh kế tiếp;
+- đặt chuyển cảnh **Crossfade 0.5s** cho timeline. Đổi kiểu (Cut, Crossfade, Fade through black, Dissolve, Slide left) và độ dài ở ô **⇄** trên dock timeline; hiệu ứng được áp dụng khi xuất MP4.
+
+Mẹo: chạy riêng các node nhân vật trước, chọn phiên bản ảnh ưng ý (dải **Versions** dưới node), rồi mới **Run workflow** cho cả phim.
 
 ## Mở Museta và Muse.ai cạnh nhau
 

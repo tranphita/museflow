@@ -227,10 +227,10 @@ export function timelinePredecessor(nodeId) {
 export function resolveReferences(nodeId) {
   const references = [],
     seen = new Set();
-  const add = (url, name) => {
+  const add = (url, name, character = '') => {
     if (url && !seen.has(url)) {
       seen.add(url);
-      references.push({ url, name: name || `Reference ${references.length + 1}` });
+      references.push({ url, name: name || `Reference ${references.length + 1}`, character });
     }
   };
   const visit = (source, sourcePort, visited = new Set()) => {
@@ -245,10 +245,11 @@ export function resolveReferences(nodeId) {
       return;
     }
     if (source.type === 'imageInput' && source.data?.localDataUrl) {
-      add(source.data.localDataUrl, 'Input image');
+      add(source.data.localDataUrl, 'Input image', source.data.characterName || '');
       return;
     }
-    if (source.data?.asset?.kind === 'image') add(source.data.asset.url, source.data.asset.name);
+    if (source.data?.asset?.kind === 'image')
+      add(source.data.asset.url, source.data.asset.name, source.data.characterName || '');
   };
   const node = nodeById(nodeId),
     previous = node?.type === 'generateVideo' && node.data?.continuity ? timelinePredecessor(nodeId) : null;
