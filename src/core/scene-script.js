@@ -60,9 +60,10 @@ export function voiceFor(voices, speaker) {
 }
 
 const TRANSLATION_SPLIT = /\s+\|\s+/;
-const HIGHLIGHT = /\*(\S(?:[^*\n]*\S)?)\*/g;
+export const HIGHLIGHT = /\*(\S(?:[^*\n]*\S)?)\*/g;
 
 export const stripHighlights = text => text.replace(HIGHLIGHT, '$1');
+export const countHighlights = text => [...text.matchAll(HIGHLIGHT)].length;
 
 function bilingual(raw) {
   const split = TRANSLATION_SPLIT.exec(raw);

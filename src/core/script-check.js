@@ -1,8 +1,16 @@
-import { parseCharacters, parseSceneScript, parseVoiceLines } from './scene-script.js';
+import {
+  countHighlights,
+  parseCharacters,
+  parseSceneScript,
+  parseSubtitleMode,
+  parseVoiceLines,
+  stripHighlights,
+} from './scene-script.js';
 
 const GENERAL_RULE_NAMES = new Set(['chung', 'tất cả', 'tat ca', 'all', 'everyone']);
 const MAX_MUSE_SECONDS = 10;
 const VOICE_GAP_SECONDS = 0.35;
+const MAX_SUBTITLE_CHARS = 70;
 const NEGATION =
   /(?<![\p{L}])(?:tháo|bỏ|cởi|gỡ|không\s+(?:đeo|mặc|có|để|cầm|mang)|without|no|remove[sd]?|take[sn]?\s+off)\s+([^,.;:!?\n]{2,30})/giu;
 const STOPWORDS = new Set(
@@ -57,6 +65,23 @@ export function estimateSpeechSeconds(text) {
   return english / 2.6 + (words.length - english) / 3.4;
 }
 
+function subtitleIssues(line) {
+  const en = line.subtitle?.en ?? line.text,
+    vi = line.subtitle?.vi ?? '';
+  const quote = `“${line.text.slice(0, 40)}${line.text.length > 40 ? '…' : ''}”`;
+  const issues = [];
+  if (!vi) issues.push(`Câu ${quote} thiếu phần dịch tiếng Việt; hãy viết dạng “English | Tiếng Việt”.`);
+  if (stripHighlights(en).includes('*') || stripHighlights(vi).includes('*'))
+    issues.push(`Câu ${quote} có dấu * chưa đóng; cụm tô vàng phải viết dạng *cụm từ*.`);
+  else if (vi && countHighlights(en) !== countHighlights(vi))
+    issues.push(`Câu ${quote} có số cụm tô vàng ở tiếng Anh và tiếng Việt khác nhau.`);
+  if (line.text.length > MAX_SUBTITLE_CHARS)
+    issues.push(
+      `Câu ${quote} dài ${line.text.length} ký tự, quá dài cho phụ đề trên màn hình dọc (tối đa ${MAX_SUBTITLE_CHARS}); hãy tách thành hai câu.`,
+    );
+  return issues;
+}
+
 function sceneCastNames(scene, castNames) {
   if (scene.characterNames.length) return scene.characterNames;
   const text = norm(`${scene.imagePrompt} ${scene.videoPrompt}`);
@@ -70,6 +95,7 @@ export function checkEpisode(script) {
   const rules = parseRules(script);
   const add = (level, scene, message) => issues.push({ level, scene: scene?.number ?? null, message });
   const scenes = parseSceneScript(script);
+  const bilingual = parseSubtitleMode(script) === 'bilingual';
   if (!scenes.length)
     add('error', null, 'Không tìm thấy cảnh nào. Hãy bắt đầu mỗi cảnh bằng “CẢNH 1 (0:00–0:08): Tiêu đề”.');
   for (const scene of scenes) {
@@ -91,6 +117,8 @@ export function checkEpisode(script) {
     for (const line of lines)
       if (line.speaker && declared.length && !inScene.has(norm(line.speaker)))
         add('error', scene, `${line.speaker} có lời thoại nhưng không có trong dòng Nhân vật của cảnh này.`);
+    if (bilingual)
+      for (const line of lines) for (const message of subtitleIssues(line)) add('warn', scene, message);
     if (lines.length) {
       const speech =
         lines.reduce((sum, line) => sum + estimateSpeechSeconds(line.text), 0) +

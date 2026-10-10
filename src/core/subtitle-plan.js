@@ -1,10 +1,13 @@
-import { normalizeTransition } from './ffmpeg-plan.js';
+import { normalizeTransition, timelineLength } from './ffmpeg-plan.js';
+import { HIGHLIGHT } from './scene-script.js';
 
 export const SUBTITLE_FONT = Object.freeze({
   file: 'BeVietnamPro-ExtraBold.ttf',
   name: 'Be Vietnam Pro ExtraBold',
 });
 const LINGER_SECONDS = 0.25;
+// A word joiner after a literal backslash stops libass reading it as an override like \N or \h.
+const WORD_JOINER = String.fromCharCode(0x2060);
 const COLORS = { en: '&HFFFFFF&', vi: '&HE6F5FF&', highlight: '&H4DD8FF&' };
 const round2 = value => Math.round(value * 100) / 100;
 
@@ -18,7 +21,7 @@ export function voiceSubtitle(data = {}) {
 export function buildSubtitleEvents({ clips, transition = null }) {
   const durations = clips.map(clip => clip.duration);
   const blend = normalizeTransition(transition, durations).duration;
-  const total = durations.reduce((sum, value) => sum + value, 0) - blend * Math.max(0, clips.length - 1);
+  const total = timelineLength(durations, transition);
   const lines = [];
   let clipStart = 0;
   clips.forEach((clip, index) => {
@@ -40,11 +43,10 @@ export function buildSubtitleEvents({ clips, transition = null }) {
 
 const escapeAss = text =>
   text
-    .replace(/\\/g, '\\⁠')
+    .replace(/\\/g, `\\${WORD_JOINER}`)
     .replace(/[{}]/g, brace => `\\${brace}`)
     .replace(/\s*\r?\n\s*/g, ' ');
-const paint = (text, base) =>
-  escapeAss(text).replace(/\*(\S(?:[^*\n]*\S)?)\*/g, `{\\c${COLORS.highlight}}$1{\\c${base}}`);
+const paint = (text, base) => escapeAss(text).replace(HIGHLIGHT, `{\\c${COLORS.highlight}}$1{\\c${base}}`);
 
 function assTime(seconds) {
   const centis = Math.round(seconds * 100),

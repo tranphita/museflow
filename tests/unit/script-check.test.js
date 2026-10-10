@@ -1,6 +1,12 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { parseRules, rulesFor, checkEpisode, checkSeries, estimateSpeechSeconds } from '../../src/core/script-check.js';
+import {
+  parseRules,
+  rulesFor,
+  checkEpisode,
+  checkSeries,
+  estimateSpeechSeconds,
+} from '../../src/core/script-check.js';
 import { workflowFromScript } from '../../src/core/film-graph.js';
 import { buildMusePrompt } from '../../src/core/prompts.js';
 
@@ -35,7 +41,9 @@ test('removing a must-keep item is an error', () => {
 });
 
 test('adding a banned item to that character is an error, but not to someone else', () => {
-  const issues = checkEpisode(scene('Nhân vật: Hảo, Phi Ta\nPrompt ảnh: Hảo đeo kính râm trên đầu, Phi Ta chỉnh kính'));
+  const issues = checkEpisode(
+    scene('Nhân vật: Hảo, Phi Ta\nPrompt ảnh: Hảo đeo kính râm trên đầu, Phi Ta chỉnh kính'),
+  );
   assert.equal(issues.length, 1);
   assert.match(issues[0].message, /Hảo đeo kính râm.*không đeo kính/);
 });
@@ -76,7 +84,9 @@ test('series checks point out missing rules and photos', () => {
 });
 
 test('scene rules travel into the generated prompts', () => {
-  const workflow = workflowFromScript(scene('Nhân vật: Phi Ta\nPrompt ảnh: Phi Ta cười\nPrompt video: Phi Ta vẫy tay'));
+  const workflow = workflowFromScript(
+    scene('Nhân vật: Phi Ta\nPrompt ảnh: Phi Ta cười\nPrompt video: Phi Ta vẫy tay'),
+  );
   const video = workflow.nodes.find(node => node.type === 'generateVideo');
   assert.deepEqual(video.data.continuityRules, [
     'không chữ hay logo trên hình',
@@ -90,5 +100,34 @@ test('scene rules travel into the generated prompts', () => {
     prompt: 'x',
     continuityRules: video.data.continuityRules,
   });
-  assert.match(prompt, /CONTINUITY RULES — must hold in every frame[^\n]*\n- không chữ hay logo trên hình\n- Phi Ta: luôn đeo kính/);
+  assert.match(
+    prompt,
+    /CONTINUITY RULES — must hold in every frame[^\n]*\n- không chữ hay logo trên hình\n- Phi Ta: luôn đeo kính/,
+  );
+});
+
+const bilingualScene = voice =>
+  `PHỤ ĐỀ: song ngữ\n${bible}\nCẢNH 1 (0:00–0:08): Test\nNhân vật: Hảo\nPrompt video: Hảo smiles\nLời thoại:\n${voice}`;
+const messages = script => checkEpisode(script).map(issue => issue.message);
+
+test('bilingual series warn about dialogue the subtitles cannot show well', () => {
+  assert.deepEqual(messages(bilingualScene('- Hảo: Say *hello* | Con nói *xin chào*')), []);
+  assert.ok(messages(bilingualScene('- Hảo: Hello!')).some(text => /thiếu phần dịch tiếng Việt/.test(text)));
+  assert.ok(
+    messages(bilingualScene('- Hảo: Say *hello | Con nói xin chào')).some(text =>
+      /dấu \* chưa đóng/.test(text),
+    ),
+  );
+  assert.ok(
+    messages(bilingualScene('- Hảo: *Say* *hello* | Con nói *xin chào*')).some(text =>
+      /số cụm tô vàng/.test(text),
+    ),
+  );
+  const long = 'This sentence is far too long to fit on two lines of a vertical phone screen';
+  assert.ok(messages(bilingualScene(`- Hảo: ${long} | Câu dài`)).some(text => /quá dài/.test(text)));
+});
+
+test('series without bilingual subtitles get no subtitle warnings', () => {
+  const script = bilingualScene('- Hảo: Hello! I got 5* today').replace('PHỤ ĐỀ: song ngữ\n', '');
+  assert.deepEqual(messages(script), []);
 });
