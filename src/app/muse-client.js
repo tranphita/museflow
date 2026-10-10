@@ -165,3 +165,26 @@ export async function detectMuse() {
     museStatus.className = 'warn';
   }
 }
+
+const wait = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+export async function prepareMuseTab(tabId, url, { timeoutMs = 90_000 } = {}) {
+  const closed = 'The Muse tab for this worker was closed. Open Muse.ai and sign in, then retry.';
+  if (!(await chrome.tabs.update(tabId, { url }).catch(() => null))) throw new Error(closed);
+  const deadline = Date.now() + timeoutMs;
+  let last = null;
+  while (Date.now() < deadline) {
+    await wait(1000);
+    const tab = await chrome.tabs.get(tabId).catch(() => null);
+    if (!tab) throw new Error(closed);
+    if (tab.status !== 'complete') continue;
+    last = await museTabMessage({ type: MESSAGE.checkSession }, tabId, undefined, {
+      onlyThisTab: true,
+    }).catch(error => ({ ok: false, error: error?.message || String(error) }));
+    if (last?.loginRequired) throw new Error('Muse is signed out. Open Muse.ai and sign in, then retry.');
+    if (last?.composer) return;
+  }
+  throw new Error(
+    `Muse chat is not ready after ${Math.round(timeoutMs / 1000)} s. ${last?.error || ''}`.trim(),
+  );
+}

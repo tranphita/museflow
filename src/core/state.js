@@ -16,6 +16,7 @@ export const state = {
   activeGenerationId: null,
   generationAbortController: null,
   generationRequestId: null,
+  pinnedMuseTabId: null,
   timelinePreviewToken: 0,
   timelinePreviewTimer: 0,
   timelinePlayheadFrame: 0,

@@ -19,7 +19,14 @@ import { buildMusePrompt, buildRefusalRetryPrompt, isRatioMismatch } from '../co
 import { recordGeneration } from '../core/history.js';
 import { APP_NAME, APP_VERSION } from './app-info.js';
 import { $, runStatus, setRunStatus } from './dom.js';
-import { loadImage, drawResized, mediaDimensions, extractVideoEndFrame, persistImage } from './media.js';
+import {
+  loadImage,
+  drawResized,
+  mediaDimensions,
+  extractVideoEndFrame,
+  persistImage,
+  blobAsDataUrl,
+} from './media.js';
 import { autoSaveTimer, queueWorkflowSave } from './persistence.js';
 import { render } from './render.js';
 import { MESSAGE, preferredMuseTabId, museTabMessage, sendMuseStop, queryMuseTabs } from './muse-client.js';
@@ -200,6 +207,25 @@ async function requestMuseMedia(node, request, signal, tabId) {
   return reply;
 }
 
+const abortableDelay = (ms, signal) =>
+  new Promise((resolve, reject) => {
+    const timer = setTimeout(resolve, ms);
+    signal?.addEventListener(
+      'abort',
+      () => {
+        clearTimeout(timer);
+        reject(stoppedError());
+      },
+      { once: true },
+    );
+  });
+
+// The Muse page fetches reference images itself and cannot read blob: URLs created by the extension.
+async function transferableUrl(url) {
+  if (!/^blob:/i.test(url)) return url;
+  return blobAsDataUrl(await (await fetch(url)).blob());
+}
+
 async function generateNode(node, { again, signal, progressLabel, tabId }) {
   const isVideo = node.type === 'generateVideo',
     mediaType = isVideo ? 'video' : 'image';
@@ -238,6 +264,9 @@ async function generateNode(node, { again, signal, progressLabel, tabId }) {
       nextShot: isVideo ? node.data.nextShot || '' : '',
       continuityRules: node.data.continuityRules || [],
     });
+    const cooldownMs = (Number(state.settings?.cooldownSec) || 0) * 1000;
+    if (cooldownMs) await abortableDelay(cooldownMs, signal);
+    const referenceUrls = await Promise.all(referenceImages.map(item => transferableUrl(item.url)));
     const retries = Math.max(0, Math.min(2, Number(state.settings?.autoRetry) || 0));
     let reply;
     for (let attempt = 0; ; attempt++) {
@@ -250,7 +279,7 @@ async function generateNode(node, { again, signal, progressLabel, tabId }) {
         model: node.data.model,
         duration: node.data.duration,
         mediaType,
-        referenceImages: referenceImages.map(item => item.url),
+        referenceImages: referenceUrls,
         timeoutSec: 600,
       };
       state.generationRequestId = request.requestId;
@@ -314,6 +343,7 @@ function stepDependencies(nodeId, inRun) {
 }
 
 async function museTabPool() {
+  if (state.pinnedMuseTabId) return [state.pinnedMuseTabId];
   const wanted = Math.max(1, Math.min(3, Number(state.settings?.museTabs) || 1));
   if (wanted === 1) return [undefined];
   const seen = new Set();

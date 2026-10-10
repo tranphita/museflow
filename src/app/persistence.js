@@ -23,7 +23,7 @@ const LEGACY_WORKFLOW_FORMATS = ['26flow-workflow'];
 
 const timestamp = () => new Date().toISOString().replace(/[:.]/g, '-');
 
-function workflowSnapshot() {
+export function workflowSnapshot() {
   return structuredClone({
     nodes: state.nodes,
     edges: state.edges,
@@ -36,8 +36,14 @@ function workflowSnapshot() {
 export let autoSaveTimer = 0;
 let workflowSaveQueue = Promise.resolve();
 let mediaPruneAllowed = false;
+let workerMode = false;
+
+export function enableWorkerMode() {
+  workerMode = true;
+}
 
 async function saveWorkflowSnapshot() {
+  if (workerMode) return;
   const snapshot = workflowSnapshot();
   const usedMedia = await dehydrateNodeMedia(snapshot.nodes);
   await chrome.storage.local.set({ [STORAGE_KEY]: snapshot });
@@ -146,6 +152,14 @@ export async function importWorkflowFile(file, { confirm = true } = {}) {
   }
   if (confirm && !window.confirm('Importing this workflow will replace the current canvas. Continue?'))
     return false;
+  return loadWorkflowObject(workflow, { label: file.name });
+}
+
+export async function loadWorkflowObject(workflow, { label = 'workflow' } = {}) {
+  if (state.isRunning) {
+    setRunStatus('Stop the running workflow before opening another one.', 'warn');
+    return false;
+  }
   createUndoSnapshot('Import workflow', { preserveRuntime: false });
   const previous = {
     nodes: state.nodes,
@@ -167,8 +181,9 @@ export async function importWorkflowFile(file, { confirm = true } = {}) {
     state.selectedEdgeIds = [];
     syncSettingsUI();
     render();
+    syncTimelineDock();
     await queueWorkflowSave();
-    setRunStatus(`Workflow imported: ${file.name}`, 'ok');
+    setRunStatus(`Workflow imported: ${label}`, 'ok');
     return true;
   } catch (error) {
     state.nodes = previous.nodes;
@@ -189,6 +204,11 @@ async function readSavedWorkflow() {
   return key
     ? { saved: got[key], legacyKey: key === STORAGE_KEY ? null : key }
     : { saved: null, legacyKey: null };
+}
+
+export async function readSavedSettings() {
+  const { saved } = await readSavedWorkflow();
+  return normalizeSettings(saved?.settings);
 }
 
 export async function loadState() {
@@ -262,6 +282,7 @@ export function normalizeSettings(settings) {
     autoRetry: Math.max(0, Math.min(2, Math.round(Number(source.autoRetry) || 0))),
     continueOnError: Boolean(source.continueOnError),
     museTabs: Math.max(1, Math.min(3, Math.round(Number(source.museTabs) || 1))),
+    cooldownSec: Math.max(0, Math.min(120, Math.round(Number(source.cooldownSec) || 0))),
   };
 }
 

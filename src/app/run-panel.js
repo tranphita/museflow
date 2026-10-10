@@ -10,6 +10,12 @@ import { selectNode } from './editor.js';
 const ICONS = { pending: '○', running: '⏳', done: '✓', error: '✗', skipped: '⏭', kept: '🔒', stopped: '■' };
 const FINISHED = new Set(['done', 'error', 'skipped', 'kept', 'stopped']);
 let ticker = 0;
+const stepListeners = new Set();
+
+export function onRunStep(listener) {
+  stepListeners.add(listener);
+  return () => stepListeners.delete(listener);
+}
 
 const formatTime = ms => {
   const seconds = Math.max(0, Math.round(ms / 1000));
@@ -54,6 +60,7 @@ export function markStep(id, status, error = '') {
     if (state.run.follow) focusNode(id, { select: false });
   } else if (FINISHED.has(status)) step.endedAt = Date.now();
   renderRunPanel();
+  for (const listener of stepListeners) listener(step);
 }
 
 export function finishRun(outcome, message = '') {
