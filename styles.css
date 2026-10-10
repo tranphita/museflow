@@ -2507,3 +2507,22 @@ body {
   width: auto;
   margin: 0;
 }
+
+.node textarea.voiceover-text {
+  height: 90px;
+}
+.node textarea.voiceover-text[readonly] {
+  opacity: 0.75;
+}
+.voiceover-audio {
+  width: 100%;
+  margin-top: 8px;
+}
+.modal .settings-options input[type='password'] {
+  flex: 1;
+  background: #0e1017;
+  color: #eee;
+  border: 1px solid #333644;
+  border-radius: 8px;
+  padding: 6px 8px;
+}

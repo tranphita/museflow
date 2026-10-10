@@ -1,8 +1,9 @@
-import { uid, makeNode, isGenerator } from './node-defs.js';
+import { uid, makeNode, isGenerator, DEFAULT_VOICE_ID } from './node-defs.js';
 import {
   parseSceneScript,
   parseCharacters,
   parseFilmStyle,
+  parseVoiceId,
   charactersForScene,
   characterSheetPrompt,
   castNote,
@@ -30,7 +31,9 @@ function closestVideoDuration(seconds) {
 export function buildSceneGraph(script, { baseY = 40, characterImages = {} } = {}) {
   const scenes = parseSceneScript(script),
     characters = parseCharacters(script),
-    filmStyle = parseFilmStyle(script);
+    filmStyle = parseFilmStyle(script),
+    voiceId = parseVoiceId(script) || DEFAULT_VOICE_ID,
+    rowHeight = scenes.some(scene => scene.voiceText) ? 1480 : 1100;
   if (!scenes.length) return null;
   const nodes = [],
     edges = [],
@@ -75,7 +78,7 @@ export function buildSceneGraph(script, { baseY = 40, characterImages = {} } = {
   const styleNote = filmStyle ? `Visual style for the whole film: ${filmStyle}.` : '';
   scenes.forEach((scene, index) => {
     const x = 80 + (index % 4) * 650,
-      y = scenesY + Math.floor(index / 4) * 1100,
+      y = scenesY + Math.floor(index / 4) * rowHeight,
       label = `Scene ${scene.number}${scene.title ? `: ${scene.title}` : ''}`,
       sceneCast = charactersForScene(scene, cast),
       promptText = text => [text, castNote(sceneCast), styleNote].filter(Boolean).join('\n\n');
@@ -110,6 +113,12 @@ export function buildSceneGraph(script, { baseY = 40, characterImages = {} } = {
       edges.push(edge(prompt.id, 'text', videoNode.id, 'prompt'));
       if (imageNode) edges.push(edge(imageNode.id, 'image', videoNode.id, 'reference'));
       connectCast(videoNode);
+      if (scene.voiceText) {
+        const voice = makeNode('voiceover', x, y + 980);
+        voice.data = { text: scene.voiceText, voiceId, speed: 1, status: 'idle', sceneLabel: label };
+        nodes.push(voice);
+        edges.push(edge(voice.id, 'audio', videoNode.id, 'voice'));
+      }
       videos.push({ node: videoNode, seconds: scene.seconds });
     }
   });

@@ -48,13 +48,16 @@ export function connectionChoices(from) {
               ['generateVideo', 'prompt', 'Generate Video · prompt'],
               ['textAppend', 'text', 'Text Append'],
               ['textConcat', 'text', 'Text Merge · text'],
+              ['voiceover', 'text', 'Voiceover · text'],
             ]
           : output.type === 'negative'
             ? [
                 ['generateImage', 'negative', 'Generate Image · negative'],
                 ['generateVideo', 'negative', 'Generate Video · negative'],
               ]
-            : [];
+            : output.type === 'audio'
+              ? [['generateVideo', 'voice', 'Generate Video · voice']]
+              : [];
   const create = candidates.map(([type, port, label]) => ({
     kind: 'create',
     type,

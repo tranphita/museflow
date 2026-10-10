@@ -49,6 +49,10 @@ Mỗi thư mục con là một bộ phim. Nhân vật được giữ nguyên qua
 
 Ảnh trong `characters/` và các file trong `workflows/` (vốn nhúng ảnh bên trong) **không được commit** — `.gitignore` đã chặn để ảnh cá nhân không bị đẩy lên GitHub. Chỉ dùng ảnh của người đã đồng ý. Muse quyết định mức độ giống; nếu Muse từ chối tạo theo ảnh người thật, hãy thử ảnh khác hoặc giảm số ảnh.
 
+## Lời thoại bằng giọng TTS (tvoiceai)
+
+Thêm dòng `Lời thoại:` vào cảnh để Museta đọc bằng giọng TTS và trộn vào đúng clip khi xuất MP4 (âm thanh gốc của clip được hạ nhỏ bên dưới, clip tự kéo dài nếu câu đọc dài hơn). Đặt giọng cho cả bộ bằng dòng `GIỌNG ĐỌC: <voice id>` trong `_series.txt`. Dán API key tvoiceai vào **Settings → Voiceover** một lần; key chỉ lưu trong trình duyệt, không nằm trong workflow. Bộ [gym-idol](gym-idol/) đã dùng sẵn cách này.
+
 ## Thêm tập mới
 
 Tạo file `epNN-ten-tap.txt` trong thư mục bộ phim, chỉ viết các cảnh:

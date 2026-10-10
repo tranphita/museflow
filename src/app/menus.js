@@ -36,6 +36,7 @@ export function openCanvasMenu(e) {
       ['＋ Generate Image', 'add:generateImage'],
       ['＋ Generate Video', 'add:generateVideo'],
       ['＋ Timeline', 'add:timeline'],
+      ['＋ Voiceover', 'add:voiceover'],
       ['＋ Preview', 'add:preview'],
       ['Save workflow', 'save'],
       ['▶ Run workflow', 'run'],

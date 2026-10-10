@@ -1,5 +1,5 @@
 import { state } from '../core/state.js';
-import { nodeDefs, uid, makeNode } from '../core/node-defs.js';
+import { nodeDefs, uid, makeNode, DEFAULT_VOICE_ID } from '../core/node-defs.js';
 import { nodeById, topoOrder, connectReferenceNode, syncReferenceFanOut } from '../core/graph.js';
 import { buildSceneGraph, DEFAULT_FILM_TRANSITION } from '../core/film-graph.js';
 import { $, setRunStatus } from './dom.js';
@@ -37,7 +37,9 @@ export function addNode(type, x = 250 + Math.random() * 220, y = 160 + Math.rand
                   ? { model: 'muse-video', size: '16:9', duration: 5, continuity: false, status: 'idle' }
                   : type === 'timeline'
                     ? { clipOrder: [], durations: {} }
-                    : {};
+                    : type === 'voiceover'
+                      ? { text: '', voiceId: DEFAULT_VOICE_ID, speed: 1, status: 'idle' }
+                      : {};
   createUndoSnapshot(`Add ${nodeDefs[type]?.title || 'node'}`);
   const node = { id: uid(type), type, x, y, data };
   state.nodes.push(node);

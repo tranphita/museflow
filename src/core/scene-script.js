@@ -4,6 +4,7 @@ const FIELD = {
   video: 'Prompt\\s+video',
   audio: 'Audio',
   characters: 'Nhân\\s+vật',
+  voice: 'Lời\\s+thoại',
 };
 const otherFields = key => Object.entries(FIELD).flatMap(([name, label]) => (name === key ? [] : [label]));
 
@@ -39,6 +40,10 @@ export function parseCharacters(text) {
   return characters;
 }
 
+export function parseVoiceId(text) {
+  return /^\s*(?:GIỌNG\s+ĐỌC|VOICE)\s*:\s*(\S+)/im.exec(scriptPreamble(text))?.[1] || '';
+}
+
 export function parseFilmStyle(text) {
   return /^\s*(?:PHONG\s+CÁCH|STYLE)\s*:\s*(.+?)\s*$/im.exec(scriptPreamble(text))?.[1] || '';
 }
@@ -68,6 +73,7 @@ export function parseSceneScript(text) {
         videoPrompt = scriptField(body, FIELD.video, otherFields('video')),
         audio = scriptField(body, FIELD.audio, otherFields('audio')),
         characterNames = namesInField(scriptField(body, FIELD.characters, otherFields('characters'))),
+        voiceText = scriptField(body, FIELD.voice, otherFields('voice')),
         range = match[2].match(/(\d+):(\d{2})\s*[–—-]\s*(\d+):(\d{2})/);
       const seconds = range
         ? Number(range[3]) * 60 + Number(range[4]) - (Number(range[1]) * 60 + Number(range[2]))
@@ -79,6 +85,7 @@ export function parseSceneScript(text) {
         imagePrompt,
         videoPrompt: [videoPrompt, audio ? `Audio direction: ${audio}` : ''].filter(Boolean).join('\n\n'),
         characterNames,
+        voiceText,
         seconds: seconds > 0 ? seconds : 6,
         size: ratio?.[1] || '9:16',
       };

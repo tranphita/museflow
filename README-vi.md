@@ -27,6 +27,7 @@ Museta phát triển tiếp từ [MuseFlow / 26Flow](https://github.com/bynne260
 - **Phiên bản kết quả:** mỗi node Generate Image/Video giữ 8 kết quả gần nhất. Bấm vào ảnh nhỏ dưới node để quay lại phiên bản cũ.
 - **Chạy ổn định hơn:** tuỳ chọn tự thử lại khi tạo lỗi, và tiếp tục chạy phần còn lại của workflow khi một node lỗi (các node phụ thuộc vào node lỗi sẽ bị bỏ qua). Cả hai nằm trong **Settings**.
 - **Timeline:** sắp xếp clip, đặt thời lượng, tua và xem trước, thêm **nhạc nền** có chỉnh âm lượng, chọn **hiệu ứng chuyển cảnh**, xuất WebM hoặc MP4 (H.264). MP4 được ghép ngay trên máy bằng FFmpeg đi kèm.
+- **Lời thoại TTS:** node **Voiceover** đọc văn bản bằng giọng [tvoiceai](https://tvoiceai.com); nối vào cổng **voice** của Generate Video thì khi xuất MP4, giọng đọc được trộn vào đúng clip đó (âm thanh gốc hạ nhỏ, clip tự kéo dài nếu câu dài hơn). Kịch bản dùng dòng `Lời thoại:` cho từng cảnh và `GIỌNG ĐỌC:` cho cả bộ. Dán API key vào **Settings → Voiceover**; key chỉ lưu trong trình duyệt, không nằm trong workflow.
 - **Script → Nodes:** biến kịch bản chia cảnh thành các node ảnh/video đã nối sẵn và timeline đúng thứ tự.
 - **Tệp workflow:** **Save workflow** tải file JSON có nhúng media khi có thể; **Import workflow** để mở lại. File lưu từ MuseFlow 0.5 vẫn import được.
 - **Tự lưu:** workflow và media được lưu trong bộ nhớ extension. Workflow cũ của MuseFlow được chuyển sang tự động ở lần mở đầu tiên.

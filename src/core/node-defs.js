@@ -39,6 +39,7 @@ export const nodeDefs = {
       { id: 'prompt', label: 'prompt', type: 'text' },
       { id: 'negative', label: 'negative', type: 'negative' },
       { id: 'reference', label: 'reference', type: 'image' },
+      { id: 'voice', label: 'voice', type: 'audio' },
     ],
     outputs: [
       { id: 'video', label: 'video', type: 'video' },
@@ -53,6 +54,11 @@ export const nodeDefs = {
       type: 'video',
     })),
     outputs: [],
+  },
+  voiceover: {
+    title: 'Voiceover',
+    inputs: [{ id: 'text', label: 'text', type: 'text' }],
+    outputs: [{ id: 'audio', label: 'voice', type: 'audio' }],
   },
   imageResize: {
     title: 'Image Resize',
@@ -115,6 +121,8 @@ export function makeNode(type, x, y) {
             : {};
   return { id: uid(type), type, x, y, data };
 }
+
+export const DEFAULT_VOICE_ID = 'VIENEU_CLONE_1788933824331';
 
 export const GENERATOR_TYPES = ['generateImage', 'generateVideo'];
 

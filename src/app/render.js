@@ -1,5 +1,5 @@
 import { state } from '../core/state.js';
-import { nodeDefs, isMultiInput } from '../core/node-defs.js';
+import { nodeDefs, isMultiInput, DEFAULT_VOICE_ID } from '../core/node-defs.js';
 import { nodeById, getIncoming, sourceFor, portCompatible, duplicateNodesForDrag } from '../core/graph.js';
 import { clampDimension } from '../core/media-math.js';
 import { restoreGeneration, removeGeneration } from '../core/history.js';
@@ -11,7 +11,7 @@ import { removeNode, selectNode } from './editor.js';
 import { connect, startWire, startWireFromInput } from './connections.js';
 import { applyCanvasTransform } from './viewport.js';
 import { renderTimelineBody, ensureDockTimeline, addTimelineClip, syncTimelineDock } from './timeline.js';
-import { executeGenerationNode, runSingleNode } from './runner.js';
+import { executeGenerationNode, runSingleNode, runVoiceoverNode, voiceoverText } from './runner.js';
 
 export function renderNode(n) {
   const el = document.createElement('section');
@@ -278,6 +278,7 @@ export function renderNode(n) {
     body.appendChild(createNodeRunActions(n));
   }
   if (n.type === 'timeline') renderTimelineBody(n, body);
+  if (n.type === 'voiceover') renderVoiceoverBody(n, body);
 
   if (n.type === 'imageResize') {
     const incoming = sourceFor(getIncoming(n.id, 'image')[0]);
@@ -420,6 +421,62 @@ export function createHistoryStrip(node) {
     strip.appendChild(item);
   });
   return strip;
+}
+
+function renderVoiceoverBody(node, body) {
+  const connected = getIncoming(node.id, 'text').length > 0;
+  const text = document.createElement('textarea');
+  text.className = 'voiceover-text';
+  text.placeholder = 'Text to read aloud…';
+  text.value = connected ? voiceoverText(node) : node.data.text || '';
+  text.readOnly = connected;
+  text.title = connected ? 'Text comes from the connected text node' : '';
+  text.oninput = () => (node.data.text = text.value);
+  const voice = document.createElement('input');
+  voice.value = node.data.voiceId || DEFAULT_VOICE_ID;
+  voice.placeholder = 'Voice ID';
+  voice.title = 'tvoiceai voice ID';
+  voice.oninput = () => (node.data.voiceId = voice.value.trim());
+  const speed = document.createElement('select');
+  [0.8, 0.9, 1, 1.1, 1.2].forEach(value => {
+    const option = document.createElement('option');
+    option.value = String(value);
+    option.textContent = `Speed ${value}×`;
+    speed.appendChild(option);
+  });
+  speed.value = String(node.data.speed || 1);
+  speed.onchange = () => (node.data.speed = Number(speed.value));
+  const status = document.createElement('div');
+  status.className = `status ${node.data.status || 'idle'}`;
+  status.textContent = `${node.data.status || 'idle'}${node.data.error ? ' · ' + node.data.error : ''}`;
+  body.append(text, voice, speed, status);
+  if (node.data.asset?.url) {
+    const audio = document.createElement('audio');
+    audio.controls = true;
+    audio.preload = 'metadata';
+    audio.src = node.data.asset.url;
+    audio.className = 'voiceover-audio';
+    body.appendChild(audio);
+  }
+  const hint = document.createElement('div');
+  hint.className = 'hint';
+  hint.textContent =
+    'Connect “voice” to a Generate Video node to mix this narration into that clip in MP4 export.';
+  body.appendChild(hint);
+  const actions = document.createElement('div');
+  actions.className = 'node-generation-actions';
+  if (node.data.asset?.url || node.data.locked) actions.appendChild(createKeepToggle(node));
+  const run = document.createElement('button');
+  run.type = 'button';
+  run.className = 'node-run-button primary';
+  run.textContent = node.data.status === 'running' ? 'Creating…' : '▶ Run Voice';
+  run.disabled = state.isRunning;
+  run.onclick = event => {
+    event.stopPropagation();
+    runVoiceoverNode(node.id);
+  };
+  actions.appendChild(run);
+  body.appendChild(actions);
 }
 
 function createKeepToggle(node) {

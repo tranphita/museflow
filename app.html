@@ -22,6 +22,7 @@
       <button data-add="generateImage">+ Generate Image</button>
       <button data-add="generateVideo">+ Generate Video</button>
       <button data-add="timeline">+ Timeline</button>
+      <button data-add="voiceover">+ Voiceover</button>
       <button data-add="imageResize">+ Image Resize</button>
       <button data-add="preview">+ Preview</button>
     </div>
@@ -79,6 +80,7 @@
     <button data-context-action="add:generateImage" role="menuitem">＋ Generate Image</button>
     <button data-context-action="add:generateVideo" role="menuitem">＋ Generate Video</button>
     <button data-context-action="add:timeline" role="menuitem">＋ Timeline</button>
+    <button data-context-action="add:voiceover" role="menuitem">＋ Voiceover</button>
     <button data-context-action="add:imageResize" role="menuitem">＋ Image Resize</button>
     <button data-context-action="add:preview" role="menuitem">＋ Preview</button>
     <div class="menu-divider"></div>
@@ -104,6 +106,13 @@
         <p>Each automatic retry submits the prompt to Muse again and may use extra credits.</p>
         <label><input id="continueOnErrorSetting" type="checkbox" /> Keep running other nodes when one node fails</label>
         <p>Nodes that depend on a failed node are skipped.</p>
+      </div>
+      <h2>Voiceover (tvoiceai)</h2>
+      <div class="settings-options">
+        <label for="ttsApiKeySetting">API key
+          <input id="ttsApiKeySetting" type="password" autocomplete="off" spellcheck="false" placeholder="sk_tvoice_…" />
+        </label>
+        <p id="ttsApiKeyStatus">The key is stored only in this browser and is never included in saved or exported workflows.</p>
       </div>
       <div class="modal-actions">
         <button id="closeSettingsBtn">Cancel</button>

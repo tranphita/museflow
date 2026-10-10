@@ -1,5 +1,5 @@
 import { state } from '../core/state.js';
-import { nodeById } from '../core/graph.js';
+import { nodeById, getIncoming, sourceFor } from '../core/graph.js';
 import { createSilentWav } from '../core/media-math.js';
 import {
   TIMELINE_OUTPUT,
@@ -7,9 +7,26 @@ import {
   buildConcatList,
   buildConcatCopyArgs,
   buildEncodeArgs,
+  clipLengthForVoice,
 } from '../core/ffmpeg-plan.js';
 import { $, setRunStatus } from './dom.js';
 import { ensureDockTimeline, closeTimelinePreview, visibleTimelineClipOrder } from './timeline.js';
+
+async function loadClipVoiceovers(ffmpeg, clips, clipInfo, signal) {
+  let voiced = 0;
+  for (let index = 0; index < clips.length; index++) {
+    const voice = sourceFor(getIncoming(clips[index].id, 'voice')[0])?.data?.asset;
+    if (!voice?.url) continue;
+    const response = await fetch(voice.url, { signal });
+    if (!response.ok) throw new Error(`Could not read the voiceover for clip ${index + 1}.`);
+    const path = `/voice_${String(index).padStart(3, '0')}.bin`;
+    await ffmpeg.writeFile(path, new Uint8Array(await response.arrayBuffer()), { signal });
+    clipInfo[index].voicePath = path;
+    clipInfo[index].duration = clipLengthForVoice(clipInfo[index].duration, Number(voice.duration) || 0);
+    voiced++;
+  }
+  return voiced;
+}
 
 async function loadTimelineMusic(ffmpeg, node, signal) {
   const music = node.data.music;
@@ -129,6 +146,9 @@ export async function exportTimelineMp4WithFFmpeg(node, clips, button, formatSel
           .filter(Boolean)
           .join(' ') || `FFmpeg exited with code ${exitCode}.`,
       );
+    const voiced = await loadClipVoiceovers(ffmpeg, clips, clipInfo, signal);
+    if (voiced)
+      setRunStatus(`Mixing ${voiced} voiceover${voiced === 1 ? '' : 's'} into the timeline…`, 'warn');
     const music = await loadTimelineMusic(ffmpeg, node, signal);
     if (canJoinWithoutReencode(clipInfo, { hasMusic: Boolean(music), transition: node.data.transition })) {
       const concatFile = '/timeline-inputs.txt';

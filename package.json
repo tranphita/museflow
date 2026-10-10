@@ -11,5 +11,5 @@
     "script-to-workflow": "node scripts/script-to-workflow.js",
     "series": "node scripts/build-series.js"
   },
-  "version": "0.7.0"
+  "version": "0.8.0"
 }

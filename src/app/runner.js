@@ -1,5 +1,5 @@
 import { state } from '../core/state.js';
-import { nodeDefs, uid, isGenerator } from '../core/node-defs.js';
+import { nodeDefs, uid, isGenerator, DEFAULT_VOICE_ID } from '../core/node-defs.js';
 import {
   nodeById,
   getIncoming,
@@ -10,8 +10,10 @@ import {
   resolvePrompt,
   resolveNegativePrompt,
   resolveReferences,
+  resolveText,
   normalizeSavedGraph,
 } from '../core/graph.js';
+import { synthesizeSpeech } from './tts-client.js';
 import { buildMusePrompt, buildRefusalRetryPrompt, isRatioMismatch } from '../core/prompts.js';
 import { recordGeneration } from '../core/history.js';
 import { APP_NAME, APP_VERSION } from './app-info.js';
@@ -92,6 +94,65 @@ async function runImageResize(node) {
   };
   publishToPreviews(node);
   render();
+}
+
+const producesMedia = node => isGenerator(node) || node?.type === 'voiceover';
+
+export function voiceoverText(node) {
+  const source = sourceFor(getIncoming(node.id, 'text')[0]);
+  return (source ? resolveText(source.id) : String(node.data.text || '')).trim();
+}
+
+async function runVoiceover(node, signal) {
+  node.data.status = 'running';
+  node.data.error = '';
+  render();
+  setRunStatus(`Creating voiceover: ${node.data.customName || node.data.sceneLabel || node.id}`, 'warn');
+  try {
+    const url = await synthesizeSpeech(voiceoverText(node), {
+      voiceId: node.data.voiceId || DEFAULT_VOICE_ID,
+      speed: node.data.speed,
+      signal,
+    });
+    const duration = await audioDuration(url);
+    node.data.asset = { id: uid('voice'), kind: 'audio', url, name: `Voiceover ${node.id}`, duration };
+    node.data.status = 'success';
+    render();
+  } catch (error) {
+    node.data.status = isAbort(error, signal) ? 'stopped' : 'error';
+    node.data.error = isAbort(error, signal) ? 'Voiceover stopped by user.' : error?.message || String(error);
+    render();
+    throw error;
+  }
+}
+
+function audioDuration(url) {
+  return new Promise(resolve => {
+    const audio = new Audio();
+    audio.preload = 'metadata';
+    audio.onloadedmetadata = () => resolve(Number.isFinite(audio.duration) ? audio.duration : 0);
+    audio.onerror = () => resolve(0);
+    audio.src = url;
+  });
+}
+
+export async function runVoiceoverNode(nodeId) {
+  const node = nodeById(nodeId);
+  if (!node || node.type !== 'voiceover' || state.isRunning) return;
+  state.isRunning = true;
+  const controller = new AbortController();
+  state.generationAbortController = controller;
+  try {
+    await runVoiceover(node, controller.signal);
+    await saveAfterRun();
+    setRunStatus('Voiceover created.', 'ok');
+  } catch (error) {
+    if (!isAbort(error, controller.signal)) setRunStatus(error?.message || String(error), 'error');
+  } finally {
+    state.isRunning = false;
+    state.generationAbortController = null;
+    render();
+  }
 }
 
 async function requestMuseMedia(node, request, signal) {
@@ -262,7 +323,7 @@ export async function execute(targetId = null, { again = false } = {}) {
     const order = targetId
       ? requiredNodeOrder(targetId).filter(id => {
           const prerequisite = nodeById(id);
-          return id === targetId || !isGenerator(prerequisite) || !prerequisite.data?.asset?.url;
+          return id === targetId || !producesMedia(prerequisite) || !prerequisite.data?.asset?.url;
         })
       : topoOrder();
     for (const n of state.nodes) {
@@ -281,8 +342,8 @@ export async function execute(targetId = null, { again = false } = {}) {
       if (signal.aborted) throw stoppedError();
       const n = nodeById(id);
       if (!n) continue;
-      if (!targetId && isGenerator(n) && n.data.locked && n.data.asset?.url) {
-        generationStep++;
+      if (!targetId && producesMedia(n) && n.data.locked && n.data.asset?.url) {
+        if (isGenerator(n)) generationStep++;
         publishToPreviews(n);
         continue;
       }
@@ -298,6 +359,7 @@ export async function execute(targetId = null, { again = false } = {}) {
       }
       try {
         if (n.type === 'imageResize') await runImageResize(n);
+        else if (n.type === 'voiceover') await runVoiceover(n, signal);
         else if (isGenerator(n)) {
           generationStep++;
           await generateNode(n, {

@@ -1,3 +1,4 @@
+import { getTtsApiKey, setTtsApiKey } from './app/tts-client.js';
 import { APP_NAME, APP_VERSION } from './app/app-info.js';
 import { state } from './core/state.js';
 import { parseSceneScript } from './core/scene-script.js';
@@ -110,8 +111,11 @@ $('#workflowFileInput').onchange = event => {
   event.target.value = '';
   if (file) void importWorkflowFile(file);
 };
-$('#settingsBtn').onclick = () => {
+$('#settingsBtn').onclick = async () => {
   syncSettingsUI();
+  $('#ttsApiKeySetting').placeholder = (await getTtsApiKey())
+    ? 'Saved — paste a new key to replace it'
+    : 'sk_tvoice_…';
   $('#settingsModal').classList.remove('hidden');
 };
 $('#buyCoffeeBtn').onclick = () => $('#donationModal').classList.remove('hidden');
@@ -127,6 +131,9 @@ $('#testMuseBtn').onclick = () => testMuseSession();
 $('#closeSettingsBtn').onclick = () => $('#settingsModal').classList.add('hidden');
 $('#saveSettingsBtn').onclick = async () => {
   readSettingsUI();
+  const ttsKey = $('#ttsApiKeySetting').value.trim();
+  if (ttsKey) await setTtsApiKey(ttsKey);
+  $('#ttsApiKeySetting').value = '';
   $('#settingsModal').classList.add('hidden');
   await saveState();
 };
