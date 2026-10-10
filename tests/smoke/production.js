@@ -137,7 +137,7 @@ async page => {
     const jobs = await (await import('/src/app/library-store.js')).listJobs();
     const job = jobs.find(
       item =>
-        item.workerId === '1' &&
+        item.workerId?.startsWith('1:') &&
         item.status === 'running' &&
         (item.checkpoint?.nodes || []).filter(
           node => /^generate/.test(node.type) && node.data.status === 'success',

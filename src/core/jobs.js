@@ -170,7 +170,7 @@ export function recordOutcome(control, kind) {
 export function episodeView(episode, job, importedAt = 0) {
   if (!job)
     return {
-      status: episode.status,
+      status: ['running', 'queued'].includes(episode.status) ? 'new' : episode.status,
       open: false,
       outputKey: episode.outputKey || '',
       error: ['failed', 'stopped'].includes(episode.status) ? episode.error || '' : '',
@@ -184,4 +184,26 @@ export function episodeView(episode, job, importedAt = 0) {
     outputKey: job.outputKey || episode.outputKey || '',
     error: job.error && ['failed', 'queued'].includes(job.status) ? job.error : '',
   };
+}
+
+export const workerLabel = workerId => String(workerId ?? '').split(':')[0];
+
+export function refineKind(kind, { tabOpen, loginRequired }) {
+  return ['bridge', 'timeout'].includes(kind) && (!tabOpen || loginRequired) ? 'signed-out' : kind;
+}
+
+export function planEnqueue(records, jobs) {
+  const existing = records.filter(isJob);
+  const key = job => `${job.seriesId}
+${job.episodeId}`;
+  const taken = new Set(existing.filter(job => OPEN_STATUSES.has(job.status)).map(key));
+  const add = [];
+  for (const job of jobs) {
+    if (taken.has(key(job))) continue;
+    taken.add(key(job));
+    add.push(job);
+  }
+  const added = new Set(add.map(key));
+  const remove = existing.filter(job => job.status === 'failed' && added.has(key(job))).map(job => job.id);
+  return { add, remove };
 }

@@ -7,13 +7,14 @@ import {
   jobOutputKey,
   nextAttempt,
   recordOutcome,
+  refineKind,
   runFailure,
 } from '../core/jobs.js';
 import { jobMediaPrefix, lockFinishedSteps } from '../core/checkpoint.js';
 import { isMuseUrl } from '../core/worker-tabs.js';
 import { $, runStatus, setRunStatus } from './dom.js';
 import { dehydrateNodeMedia } from './media-store.js';
-import { prepareMuseTab } from './muse-client.js';
+import { MESSAGE, museTabMessage, prepareMuseTab } from './muse-client.js';
 import { enableWorkerMode, loadWorkflowObject, readSavedSettings, workflowSnapshot } from './persistence.js';
 import { onRunStep } from './run-panel.js';
 import { executeWorkflow, stopGeneration } from './runner.js';
@@ -29,7 +30,7 @@ import {
 
 const CHECKPOINT_DELAY_MS = 5000;
 const LOST_LEASE = 'Another worker took over this episode.';
-const worker = { id: '', museTabId: 0 };
+const worker = { id: '', owner: '', museTabId: 0 };
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
 const kindError = (message, kind) => Object.assign(new Error(message), { kind });
 
@@ -59,10 +60,10 @@ async function owned(update) {
 }
 
 async function saveCheckpoint(jobId) {
-  await owned(updateJob(jobId, {}, { owner: worker.id }));
+  await owned(updateJob(jobId, {}, { owner: worker.owner }));
   const snapshot = workflowSnapshot();
   await dehydrateNodeMedia(snapshot.nodes, { keyPrefix: jobMediaPrefix(jobId) });
-  return owned(updateJob(jobId, { checkpoint: snapshot, progress: runProgress() }, { owner: worker.id }));
+  return owned(updateJob(jobId, { checkpoint: snapshot, progress: runProgress() }, { owner: worker.owner }));
 }
 
 async function ensureMuseTab(control) {
@@ -80,6 +81,15 @@ async function ensureMuseTab(control) {
   history.replaceState(null, '', `?worker=${worker.id}&muse=${worker.museTabId}`);
 }
 
+async function museSession() {
+  const tab = await chrome.tabs.get(worker.museTabId).catch(() => null);
+  if (!tab) return { tabOpen: false, loginRequired: false };
+  const reply = await museTabMessage({ type: MESSAGE.checkSession }, worker.museTabId, undefined, {
+    onlyThisTab: true,
+  }).catch(() => null);
+  return { tabOpen: true, loginRequired: Boolean(reply?.loginRequired) };
+}
+
 async function openEpisode(job, control) {
   let workflow;
   if (job.checkpoint) workflow = lockFinishedSteps(structuredClone(job.checkpoint));
@@ -93,6 +103,7 @@ async function openEpisode(job, control) {
   state.settings = {
     ...state.settings,
     autoRetry: shared.autoRetry,
+    continueOnError: shared.continueOnError,
     museTabs: 1,
     cooldownSec: control.cooldownSec,
   };
@@ -128,7 +139,7 @@ async function runJob(job, control) {
       const current = await updateJob(
         job.id,
         { heartbeatAt: Date.now(), progress: runProgress() },
-        { owner: worker.id },
+        { owner: worker.owner },
       ).catch(() => null);
       const latest = await getQueueControl().catch(() => control);
       if (finished) return;
@@ -153,7 +164,7 @@ async function runJob(job, control) {
     await saveCheckpoint(job.id);
     const failure = runFailure(state.run, runStatus.textContent);
     if (failure) throw kindError(failure.message, failure.kind);
-    await owned(updateJob(job.id, { status: 'exporting', heartbeatAt: Date.now() }, { owner: worker.id }));
+    await owned(updateJob(job.id, { status: 'exporting', heartbeatAt: Date.now() }, { owner: worker.owner }));
     banner(`exporting ${job.title}`);
     lastProgressAt = Date.now();
     const exported = await navigator.locks.request('museta-ffmpeg', { signal: phase.signal }, () =>
@@ -165,7 +176,7 @@ async function runJob(job, control) {
     const blob = await (await fetch(state.timelineExportUrl)).blob();
     const endedAt = Date.now();
     await owned(
-      finishJob(job.id, worker.id, jobOutputKey(job), blob, current => ({
+      finishJob(job.id, worker.owner, jobOutputKey(job), blob, current => ({
         status: 'review',
         outputKey: jobOutputKey(job),
         endedAt,
@@ -179,7 +190,7 @@ async function runJob(job, control) {
     await updateQueueControl(current => recordOutcome(current, 'ok'));
   } catch (error) {
     if (stopReason === 'lost' || error?.kind === 'lost') return;
-    const kind =
+    let kind =
       stopReason === 'stop'
         ? 'stopped'
         : stopReason === 'watchdog'
@@ -189,6 +200,7 @@ async function runJob(job, control) {
       stopReason === 'watchdog'
         ? `No progress for ${WATCHDOG_MS / 60_000} minutes, so the watchdog stopped the run.`
         : error?.message || String(error);
+    if (['bridge', 'timeout'].includes(kind)) kind = refineKind(kind, await museSession());
     const endedAt = Date.now();
     await updateJob(
       job.id,
@@ -198,7 +210,7 @@ async function runJob(job, control) {
         errorKind: kind,
         runMs: (current.runMs || 0) + endedAt - startedAt,
       }),
-      { owner: worker.id },
+      { owner: worker.owner },
     );
     if (kind !== 'stopped') await updateQueueControl(current => recordOutcome(current, kind));
   } finally {
@@ -211,6 +223,7 @@ async function runJob(job, control) {
 
 export async function initWorker(params) {
   worker.id = params.get('worker');
+  worker.owner = `${worker.id}:${crypto.randomUUID().slice(0, 8)}`;
   worker.museTabId = Number(params.get('muse'));
   enableWorkerMode();
   document.body.dataset.mode = 'worker';
@@ -224,7 +237,7 @@ export async function initWorker(params) {
       await sleep(control?.pollMs || 10_000);
       continue;
     }
-    const job = await claimJob(worker.id, Date.now()).catch(() => null);
+    const job = await claimJob(worker.owner, Date.now()).catch(() => null);
     if (!job) {
       banner('waiting for episodes');
       await sleep(control.pollMs);
@@ -233,5 +246,8 @@ export async function initWorker(params) {
     await runJob(job, control).catch(error =>
       setRunStatus(`Worker ${worker.id} could not record ${job.title}: ${error?.message || error}`, 'error'),
     );
+    // A fresh page frees the decoded media and undo history the finished episode left in memory.
+    location.reload();
+    return;
   }
 }

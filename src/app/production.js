@@ -1,4 +1,4 @@
-import { PAUSE_REASONS, queueSummary } from '../core/jobs.js';
+import { PAUSE_REASONS, nextAttempt, queueSummary, workerLabel } from '../core/jobs.js';
 import { jobMediaPrefix } from '../core/checkpoint.js';
 import { $, el, setRunStatus } from './dom.js';
 import { deleteMediaWithPrefix } from './media-store.js';
@@ -111,13 +111,28 @@ async function closeWorkers() {
     )
   )
     return;
+  const closed = new Set();
   for (const item of await workerTabs()) {
+    closed.add(item.id);
     await chrome.tabs.remove(item.tabId).catch(() => {});
     const muse = await chrome.tabs.get(item.museTabId).catch(() => null);
     if (muse) await chrome.windows.remove(muse.windowId).catch(() => {});
   }
+  for (const job of production.jobs)
+    if (['running', 'exporting'].includes(job.status) && closed.has(workerLabel(job.workerId)))
+      await requeue(job);
   await refresh();
 }
+
+const requeue = job =>
+  updateJob(job.id, current =>
+    ['running', 'exporting'].includes(current.status)
+      ? nextAttempt(current, 'stopped', Date.now()).patch
+      : {},
+  );
+
+const isStale = (job, control) =>
+  ['running', 'exporting'].includes(job.status) && Date.now() - job.heartbeatAt > control.leaseMs;
 
 async function approve(job) {
   const series = await getSeries(job.seriesId);
@@ -208,8 +223,8 @@ function jobDetail(job, control) {
   const progress = job.progress?.total ? `step ${job.progress.done} of ${job.progress.total}` : 'starting';
   const elapsed = job.startedAt ? `, ${formatMinutes(Date.now() - job.startedAt)} so far` : '';
   if (job.status === 'running')
-    return `Worker ${job.workerId}, ${progress}${job.progress?.current ? `: ${job.progress.current}` : ''}${elapsed}`;
-  if (job.status === 'exporting') return `Worker ${job.workerId}, exporting the MP4`;
+    return `Worker ${workerLabel(job.workerId)}, ${progress}${job.progress?.current ? `: ${job.progress.current}` : ''}${elapsed}`;
+  if (job.status === 'exporting') return `Worker ${workerLabel(job.workerId)}, exporting the MP4`;
   if (job.status === 'queued' && job.notBefore > Date.now())
     return `Retry ${job.attempts + 1} of ${control.maxAttempts} at ${new Date(job.notBefore).toLocaleTimeString([], { timeStyle: 'short' })}`;
   if (job.status === 'queued')
@@ -248,6 +263,15 @@ function jobRow(job, key, items, index, control) {
     down.setAttribute('aria-label', 'Run later');
     actions.append(up, down);
   }
+  if (key === 'active' && isStale(job, control))
+    actions.append(
+      button(
+        'Requeue',
+        'primary',
+        () => requeue(job).then(refresh),
+        'The worker stopped responding; put this episode back in the queue',
+      ),
+    );
   if (key === 'queued' || key === 'failed') actions.append(button('Remove', 'ghost', () => remove(job)));
   row.append(main, actions);
   return row;
@@ -311,9 +335,9 @@ function workerStrip(control) {
   for (let id = 1; id <= count; id++) {
     const live = production.workers.find(item => item.id === String(id));
     const job = production.jobs.find(
-      item => ['running', 'exporting'].includes(item.status) && item.workerId === String(id),
+      item => ['running', 'exporting'].includes(item.status) && workerLabel(item.workerId) === String(id),
     );
-    const stale = job && Date.now() - job.heartbeatAt > control.leaseMs;
+    const stale = job && isStale(job, control);
     const item = el(
       'li',
       `worker-chip ${!live ? 'is-off' : stale ? 'is-stale' : job ? 'is-busy' : 'is-idle'}`,
@@ -424,10 +448,11 @@ async function refresh() {
       job.error,
       job.order,
       job.attempts,
-      job.heartbeatAt,
+      isStale(job, control),
     ]),
   ]);
   if (signature === production.signature) return;
+  if (document.activeElement?.matches('#production input')) return;
   production.signature = signature;
   render(summary);
 }

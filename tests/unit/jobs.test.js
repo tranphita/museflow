@@ -15,6 +15,9 @@ import {
   isLeaseExpired,
   nextAttempt,
   pickNextJob,
+  planEnqueue,
+  refineKind,
+  workerLabel,
   queueSummary,
   recordOutcome,
   runFailure,
@@ -227,4 +230,38 @@ test('a script edited after its last run shows as changed instead of done', () =
     error: 'x',
   });
   assert.equal(episodeView({ status: 'new' }, job({ status: 'failed', error: 'boom' }), 0).error, 'boom');
+});
+
+test('a Muse page error on a closed or signed-out tab counts as signed out', () => {
+  assert.equal(refineKind('bridge', { tabOpen: false, loginRequired: false }), 'signed-out');
+  assert.equal(refineKind('timeout', { tabOpen: true, loginRequired: true }), 'signed-out');
+  assert.equal(refineKind('bridge', { tabOpen: true, loginRequired: false }), 'bridge');
+  assert.equal(refineKind('script', { tabOpen: false, loginRequired: false }), 'script');
+});
+
+test('queuing skips episodes already in the queue and replaces their failed runs', () => {
+  const failed = job({ id: 'old', seriesId: 's', episodeId: 'e1', status: 'failed' });
+  const running = job({ id: 'busy', seriesId: 's', episodeId: 'e2', status: 'running' });
+  const done = job({ id: 'kept', seriesId: 's', episodeId: 'e3', status: 'done' });
+  const fresh = ['e1', 'e2', 'e3', 'e1'].map((episodeId, index) =>
+    job({ id: `new${index}`, seriesId: 's', episodeId }),
+  );
+  const plan = planEnqueue([failed, running, done, { ...defaultControl() }], fresh);
+  assert.deepEqual(
+    plan.add.map(item => item.id),
+    ['new0', 'new2'],
+  );
+  assert.deepEqual(plan.remove, ['old']);
+});
+
+test('worker labels drop the per-tab instance suffix', () => {
+  assert.equal(workerLabel('2:ab12cd34'), '2');
+  assert.equal(workerLabel('3'), '3');
+  assert.equal(workerLabel(null), '');
+});
+
+test('episodes left running or queued by an older version show as not run', () => {
+  assert.equal(episodeView({ status: 'running' }, null).status, 'new');
+  assert.equal(episodeView({ status: 'queued' }, null).status, 'new');
+  assert.equal(episodeView({ status: 'done', outputKey: 'k' }, null).status, 'done');
 });

@@ -12,7 +12,7 @@ import { checkEpisode, checkSeries } from '../core/script-check.js';
 import { $, el, setRunStatus } from './dom.js';
 import { blobAsDataUrl } from './media.js';
 import { importWorkflowFile } from './persistence.js';
-import { createJob, episodeView, interleave } from '../core/jobs.js';
+import { createJob, episodeView, interleave, workerLabel } from '../core/jobs.js';
 import { jobMediaPrefix } from '../core/checkpoint.js';
 import { deleteMediaWithPrefix } from './media-store.js';
 import {
@@ -22,7 +22,7 @@ import {
   getOutput,
   deleteOutput,
   listJobs,
-  putJobs,
+  enqueueJobs,
   deleteJob,
 } from './library-store.js';
 
@@ -36,7 +36,7 @@ const STATUS_TEXT = {
   stopped: 'Stopped',
   changed: 'Script changed',
 };
-const studio = { series: [], selectedId: null, jobs: [], jobSignature: '' };
+const studio = { series: [], selectedId: null, jobs: [], jobSignature: '', enqueuing: false };
 
 const JOB_TEXT = {
   queued: 'Queued',
@@ -169,7 +169,7 @@ function episodeState(series, episode) {
   const progress = job?.progress?.total ? `, step ${job.progress.done}/${job.progress.total}` : '';
   const text =
     fromJob && job.status === 'running'
-      ? `Running${progress}, worker ${job.workerId}`
+      ? `Running${progress}, worker ${workerLabel(job.workerId)}`
       : (fromJob && JOB_TEXT[view.status]) || STATUS_TEXT[view.status] || view.status;
   return { ...view, job, text };
 }
@@ -185,6 +185,16 @@ async function refreshJobs() {
 }
 
 async function enqueue(pairs) {
+  if (studio.enqueuing) return;
+  studio.enqueuing = true;
+  try {
+    await addToQueue(pairs);
+  } finally {
+    studio.enqueuing = false;
+  }
+}
+
+async function addToQueue(pairs) {
   const fresh = pairs.filter(({ series, episode }) => !episodeState(series, episode).open);
   if (!fresh.length) return setRunStatus('Those episodes are already in the production queue.', 'warn');
   const blocked = fresh.filter(({ series, episode }) =>
@@ -215,11 +225,13 @@ async function enqueue(pairs) {
       now,
     ),
   );
-  await putJobs(jobs);
+  const plan = await enqueueJobs(jobs);
+  for (const id of plan.remove) await deleteMediaWithPrefix(jobMediaPrefix(id)).catch(() => {});
   studio.jobSignature = '';
   await refreshJobs();
+  if (!plan.add.length) return setRunStatus('Those episodes are already in the production queue.', 'warn');
   setRunStatus(
-    `Queued ${jobs.length} episode${jobs.length === 1 ? '' : 's'}. Open Production and press Start to run them.`,
+    `Queued ${plan.add.length} episode${plan.add.length === 1 ? '' : 's'}. Open Production and press Start to run them.`,
     'ok',
   );
 }

@@ -6,6 +6,7 @@ import {
   exhaustedLeases,
   isJob,
   pickNextJob,
+  planEnqueue,
 } from '../core/jobs.js';
 
 const DB_NAME = 'museta-library';
@@ -27,10 +28,20 @@ function db() {
         if (!database.objectStoreNames.contains(JOBS)) database.createObjectStore(JOBS, { keyPath: 'id' });
       };
       request.onsuccess = () => {
-        request.result.onversionchange = () => request.result.close();
+        request.result.onversionchange = () => {
+          request.result.close();
+          dbPromise = null;
+        };
         resolve(request.result);
       };
-      request.onerror = () => reject(request.error || new Error('Could not open the series library.'));
+      request.onblocked = () => {
+        dbPromise = null;
+        reject(new Error('Another Museta tab still uses the old series library. Reload every Museta tab.'));
+      };
+      request.onerror = () => {
+        dbPromise = null;
+        reject(request.error || new Error('Could not open the series library.'));
+      };
     });
   return dbPromise;
 }
@@ -89,6 +100,16 @@ export const deleteJob = id => request(JOBS, 'readwrite', store => store.delete(
 export const putJobs = jobs =>
   transact(JOBS, 'readwrite', store => {
     for (const job of jobs) store.put(job);
+  });
+export const enqueueJobs = jobs =>
+  transact(JOBS, 'readwrite', (store, done) => {
+    const req = store.getAll();
+    req.onsuccess = () => {
+      const plan = planEnqueue(req.result || [], jobs);
+      for (const id of plan.remove) store.delete(id);
+      for (const job of plan.add) store.put(job);
+      done(plan);
+    };
   });
 export const updateJob = (id, patch, { owner } = {}) =>
   modify(JOBS, id, current => applyJobPatch(current, patch, owner));
