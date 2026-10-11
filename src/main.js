@@ -2,7 +2,7 @@ import { initStudio } from './app/studio.js';
 import { initWorker } from './app/worker.js';
 import { initProduction } from './app/production.js';
 import { initRunPanel } from './app/run-panel.js';
-import { getTtsApiKey, setTtsApiKey } from './app/tts-client.js';
+import { fillTtsSettingsUI, readTtsSettingsUI } from './app/tts-settings-ui.js';
 import { APP_VERSION } from './app/app-info.js';
 import { state } from './core/state.js';
 import { parseSceneScript } from './core/scene-script.js';
@@ -121,18 +121,14 @@ $('#workflowFileInput').onchange = event => {
 };
 $('#settingsBtn').onclick = async () => {
   syncSettingsUI();
-  $('#ttsApiKeySetting').placeholder = (await getTtsApiKey())
-    ? 'Đã lưu — dán key mới để thay thế'
-    : 'sk_tvoice_…';
+  await fillTtsSettingsUI();
   $('#settingsModal').classList.remove('hidden');
 };
 $('#testMuseBtn').onclick = () => testMuseSession();
 $('#closeSettingsBtn').onclick = () => $('#settingsModal').classList.add('hidden');
 $('#saveSettingsBtn').onclick = async () => {
   readSettingsUI();
-  const ttsKey = $('#ttsApiKeySetting').value.trim();
-  if (ttsKey) await setTtsApiKey(ttsKey);
-  $('#ttsApiKeySetting').value = '';
+  await readTtsSettingsUI();
   $('#settingsModal').classList.add('hidden');
   await saveState();
 };

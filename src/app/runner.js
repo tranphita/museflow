@@ -1,5 +1,5 @@
 import { state } from '../core/state.js';
-import { nodeDefs, uid, isGenerator, DEFAULT_VOICE_ID } from '../core/node-defs.js';
+import { nodeDefs, uid, isGenerator } from '../core/node-defs.js';
 import {
   nodeById,
   getIncoming,
@@ -13,7 +13,8 @@ import {
   resolveText,
   normalizeSavedGraph,
 } from '../core/graph.js';
-import { synthesizeSpeech, getTtsApiKey } from './tts-client.js';
+import { synthesizeSpeech, missingTtsKeyProvider } from './tts-client.js';
+import { openTtsKeySettings } from './tts-settings-ui.js';
 import { startRun, markStep, finishRun, showRunPanel, stepLabel } from './run-panel.js';
 import { buildMusePrompt, buildRefusalRetryPrompt, isRatioMismatch } from '../core/prompts.js';
 import { recordGeneration } from '../core/history.js';
@@ -117,7 +118,7 @@ async function runVoiceover(node, signal) {
   setRunStatus(`Đang tạo lồng tiếng: ${node.data.customName || node.data.sceneLabel || node.id}`, 'warn');
   try {
     const url = await synthesizeSpeech(voiceoverText(node), {
-      voiceId: node.data.voiceId || DEFAULT_VOICE_ID,
+      voiceId: node.data.voiceId,
       speed: node.data.speed,
       signal,
     });
@@ -145,18 +146,18 @@ function audioDuration(url) {
   });
 }
 
-async function ensureTtsApiKey() {
-  if (await getTtsApiKey()) return true;
-  $('#settingsModal').classList.remove('hidden');
-  $('#ttsApiKeySetting').focus();
+async function ensureTtsApiKey(voiceNodes) {
+  const missing = await missingTtsKeyProvider(voiceNodes.map(node => node.data.voiceId));
+  if (!missing) return true;
+  await openTtsKeySettings(missing);
   return false;
 }
 
 export async function runVoiceoverNode(nodeId) {
   const node = nodeById(nodeId);
   if (!node || node.type !== 'voiceover' || state.isRunning) return;
-  if (!(await ensureTtsApiKey())) {
-    setRunStatus('Dán API key tvoiceai vào Cài đặt → Lồng tiếng, bấm Lưu rồi chạy lại giọng đọc.', 'warn');
+  if (!(await ensureTtsApiKey([node]))) {
+    setRunStatus('Dán API key giọng đọc vào Cài đặt → Lồng tiếng, bấm Lưu rồi chạy lại giọng đọc.', 'warn');
     return;
   }
   state.isRunning = true;
@@ -403,12 +404,13 @@ export async function execute(targetId = null, { again = false } = {}) {
           return id === targetId || !producesMedia(prerequisite) || !prerequisite.data?.asset?.url;
         })
       : topoOrder();
-    const voicesToCreate = order.some(id => {
-      const item = nodeById(id);
-      return item?.type === 'voiceover' && !(item.data.asset?.url && (item.data.locked || targetId));
-    });
-    if (voicesToCreate && !(await ensureTtsApiKey()))
-      throw new Error('Dán API key tvoiceai vào Cài đặt → Lồng tiếng, bấm Lưu rồi chạy lại.');
+    const voicesToCreate = order
+      .map(nodeById)
+      .filter(
+        item => item?.type === 'voiceover' && !(item.data.asset?.url && (item.data.locked || targetId)),
+      );
+    if (voicesToCreate.length && !(await ensureTtsApiKey(voicesToCreate)))
+      throw new Error('Dán API key giọng đọc vào Cài đặt → Lồng tiếng, bấm Lưu rồi chạy lại.');
     startRun(
       order.filter(id => producesMedia(nodeById(id)) || nodeById(id)?.type === 'imageResize'),
       { single: Boolean(targetId) },

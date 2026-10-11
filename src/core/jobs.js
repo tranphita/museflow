@@ -16,7 +16,7 @@ export const PAUSE_REASONS = {
   'signed-out':
     'Muse bị đăng xuất trong một cửa sổ worker, hoặc cửa sổ đó đã bị đóng. Hãy đăng nhập lại ở đó rồi bấm Tiếp tục; cửa sổ bị đóng sẽ tự mở lại.',
   'tts-key':
-    'API key tvoiceai bị thiếu hoặc bị từ chối. Hãy sửa trong Cài đặt → Lồng tiếng rồi bấm Tiếp tục.',
+    'API key giọng đọc (ElevenLabs hoặc tvoiceai) bị thiếu hoặc bị từ chối. Hãy sửa trong Cài đặt → Lồng tiếng rồi bấm Tiếp tục.',
   breaker:
     'Ba tập liên tiếp không kết nối được với Muse. Có thể trang Muse đã thay đổi. Hãy kiểm tra một cửa sổ worker rồi bấm Tiếp tục.',
 };

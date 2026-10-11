@@ -159,9 +159,22 @@
         </label>
         <p>Mở đúng số tab chat Muse đó, mỗi tab một cuộc chat riêng. Khi đó ảnh và giọng đọc được tạo song song; các video nối tiếp nhau bằng khung hình cuối vẫn chạy lần lượt.</p>
       </div>
-      <h2>Lồng tiếng (tvoiceai)</h2>
+      <h2>Lồng tiếng</h2>
       <div class="settings-options">
-        <label for="ttsApiKeySetting">API key
+        <label for="ttsProviderSetting">Nhà cung cấp mặc định
+          <select id="ttsProviderSetting"><option value="elevenlabs">ElevenLabs</option><option value="tvoiceai">tvoiceai</option></select>
+        </label>
+        <p>Node Voiceover để trống ID giọng sẽ dùng nhà cung cấp này. ID giọng ElevenLabs (20 ký tự) luôn chạy qua ElevenLabs, ID tvoiceai luôn chạy qua tvoiceai.</p>
+        <label for="elevenApiKeySetting">API key ElevenLabs
+          <input id="elevenApiKeySetting" type="password" autocomplete="off" spellcheck="false" placeholder="sk_…" />
+        </label>
+        <label for="elevenModelSetting">Model ElevenLabs
+          <select id="elevenModelSetting"></select>
+        </label>
+        <label for="elevenVoiceSetting">Giọng ElevenLabs mặc định
+          <input id="elevenVoiceSetting" type="text" autocomplete="off" spellcheck="false" />
+        </label>
+        <label for="ttsApiKeySetting">API key tvoiceai
           <input id="ttsApiKeySetting" type="password" autocomplete="off" spellcheck="false" placeholder="sk_tvoice_…" />
         </label>
         <p id="ttsApiKeyStatus">API key chỉ được lưu trong trình duyệt này và không bao giờ nằm trong workflow đã lưu hay đã xuất.</p>

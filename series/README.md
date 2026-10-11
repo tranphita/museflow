@@ -76,7 +76,7 @@ Tập có lỗi hiện nhãn đỏ; bấm vào để xem từng lỗi theo cản
 
 Ảnh trong `characters/` và các file trong `workflows/` (vốn nhúng ảnh bên trong) **không được commit** — `.gitignore` đã chặn để ảnh cá nhân không bị đẩy lên GitHub. Chỉ dùng ảnh của người đã đồng ý. Muse quyết định mức độ giống; nếu Muse từ chối tạo theo ảnh người thật, hãy thử ảnh khác hoặc giảm số ảnh.
 
-## Lời thoại bằng giọng TTS (tvoiceai)
+## Lời thoại bằng giọng TTS (ElevenLabs hoặc tvoiceai)
 
 Thêm dòng `Lời thoại:` vào cảnh để Museta đọc bằng giọng TTS và trộn vào đúng clip khi xuất MP4 (âm thanh gốc của clip được hạ nhỏ bên dưới, clip tự kéo dài nếu câu đọc dài hơn). Đặt giọng mặc định bằng `GIỌNG ĐỌC: <voice id>` và giọng riêng cho từng nhân vật bằng `GIỌNG ĐỌC <Tên>: <voice id>` trong `_series.txt`. Hội thoại nhiều người viết theo từng dòng:
 
@@ -86,7 +86,7 @@ Lời thoại:
 - Phi Ta: Good morning! I'm fine, thank you.
 ```
 
-Mỗi dòng thành một node Voiceover với giọng của người nói; khi xuất MP4 các câu được xếp nối tiếp trong clip (cách nhau 0,35 giây) và clip tự kéo dài cho đủ thoại. Dán API key tvoiceai vào **Cài đặt → Lồng tiếng** một lần; key chỉ lưu trong trình duyệt, không nằm trong workflow. Cả hai bộ đã dùng sẵn cách này; bộ học tiếng Anh dùng giọng riêng cho Hảo và Phi Ta.
+Mỗi dòng thành một node Voiceover với giọng của người nói; khi xuất MP4 các câu được xếp nối tiếp trong clip (cách nhau 0,35 giây) và clip tự kéo dài cho đủ thoại. Voice ID của ElevenLabs (20 ký tự) chạy qua ElevenLabs, ID tvoiceai (như `VIENEU_CLONE_…`) chạy qua tvoiceai; bỏ trống `GIỌNG ĐỌC` thì dùng nhà cung cấp mặc định (ElevenLabs). Dán API key vào **Cài đặt → Lồng tiếng** một lần; key chỉ lưu trong trình duyệt, không nằm trong workflow. Cả hai bộ đã dùng sẵn cách này với giọng tvoiceai; bộ học tiếng Anh dùng giọng riêng cho Hảo và Phi Ta. Muốn chuyển sang ElevenLabs thì thay các ID đó bằng voice ID ElevenLabs.
 
 ## Phụ đề song ngữ
 

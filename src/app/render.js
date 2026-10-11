@@ -1,5 +1,6 @@
 import { state } from '../core/state.js';
 import { nodeDefs, isMultiInput, DEFAULT_VOICE_ID } from '../core/node-defs.js';
+import { DEFAULT_TTS_PROVIDER, TTS_PROVIDERS } from '../core/tts-voice.js';
 import { nodeById, getIncoming, sourceFor, portCompatible, duplicateNodesForDrag } from '../core/graph.js';
 import { clampDimension } from '../core/media-math.js';
 import { restoreGeneration, removeGeneration } from '../core/history.js';
@@ -445,9 +446,9 @@ function renderVoiceoverBody(node, body) {
   text.title = connected ? 'Văn bản lấy từ node văn bản đang nối' : '';
   text.oninput = () => (node.data.text = text.value);
   const voice = document.createElement('input');
-  voice.value = node.data.voiceId || DEFAULT_VOICE_ID;
-  voice.placeholder = 'ID giọng đọc';
-  voice.title = 'ID giọng đọc tvoiceai';
+  voice.value = node.data.voiceId === DEFAULT_VOICE_ID ? '' : node.data.voiceId || '';
+  voice.placeholder = 'ID giọng đọc (trống = giọng mặc định)';
+  voice.title = `ID giọng ${TTS_PROVIDERS.elevenlabs.label} (20 ký tự) hoặc ${TTS_PROVIDERS.tvoiceai.label}. Để trống để dùng giọng mặc định của nhà cung cấp chọn trong Cài đặt → Lồng tiếng (mặc định ${TTS_PROVIDERS[DEFAULT_TTS_PROVIDER].label}).`;
   voice.oninput = () => (node.data.voiceId = voice.value.trim());
   const speed = document.createElement('select');
   [0.8, 0.9, 1, 1.1, 1.2].forEach(value => {

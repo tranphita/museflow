@@ -21,7 +21,7 @@ const PATTERNS = [
   ['signed-out', /sign in|log in|signed out|đăng nhập|đăng xuất/i],
   [
     'tts-key',
-    /tvoiceai api key|api key tvoiceai|(?:voiceover service error|lỗi dịch vụ lồng tiếng) \(http 40[13]\)/i,
+    /(?:tvoiceai|elevenlabs) api key|api key (?:tvoiceai|elevenlabs|giọng đọc)|(?:voiceover service error|lỗi dịch vụ lồng tiếng) \(http 40[13]\)/i,
   ],
   [
     'script',
