@@ -29,3 +29,22 @@ export function workerChatUrl(url) {
   if (!isMuseUrl(url)) return NEW_SIDE_CHAT_URL;
   return new URL(url).pathname.replace(/\/+$/, '') ? url : NEW_SIDE_CHAT_URL;
 }
+
+export const MAX_WORKERS = 8;
+const WORKER_WINDOW = { width: 560, height: 820, minWidth: 460 };
+
+// Muse only hydrates a visible side chat, so worker windows are tiled instead of stacked on top of each other.
+export function workerWindowBounds(id, count, screen) {
+  const total = Math.max(1, count, id);
+  const columns = Math.min(total, Math.max(1, Math.floor(screen.availWidth / WORKER_WINDOW.minWidth)));
+  const rows = Math.ceil(total / columns);
+  const width = Math.min(WORKER_WINDOW.width, Math.floor(screen.availWidth / columns));
+  const height = Math.min(WORKER_WINDOW.height, Math.floor(screen.availHeight / rows));
+  const index = Math.max(0, id - 1);
+  return {
+    left: (screen.availLeft || 0) + (index % columns) * width,
+    top: (screen.availTop || 0) + Math.floor(index / columns) * height,
+    width,
+    height,
+  };
+}

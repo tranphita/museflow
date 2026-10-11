@@ -1,7 +1,7 @@
 import { PAUSE_REASONS, nextAttempt, queueSummary, workerLabel } from '../core/jobs.js';
 import { applySeriesSettings, jobMediaPrefix } from '../core/checkpoint.js';
 import { workflowFromScript } from '../core/film-graph.js';
-import { workerChatUrl } from '../core/worker-tabs.js';
+import { MAX_WORKERS, workerChatUrl, workerWindowBounds } from '../core/worker-tabs.js';
 import { $, el, setRunStatus } from './dom.js';
 import { deleteMediaWithPrefix } from './media-store.js';
 import { loadWorkflowObject } from './persistence.js';
@@ -76,10 +76,7 @@ async function openWorker(id, control) {
   const museWindow = await chrome.windows.create({
     url: workerChatUrl(control.museHomeUrl),
     focused: false,
-    width: 560,
-    height: 820,
-    left: 40 + (Number(id) - 1) * 580,
-    top: 40,
+    ...workerWindowBounds(Number(id), control.workers, window.screen),
   });
   const museTabId = museWindow.tabs[0].id;
   await chrome.tabs.update(museTabId, { autoDiscardable: false });
@@ -319,7 +316,7 @@ function settingsPanel(control) {
     return wrap;
   };
   details.append(
-    field('Số worker', 'workers', { type: 'number', min: 1, max: 4 }, clamp(1, 4)),
+    field('Số worker', 'workers', { type: 'number', min: 1, max: MAX_WORKERS }, clamp(1, MAX_WORKERS)),
     field('Số lần thử mỗi tập', 'maxAttempts', { type: 'number', min: 1, max: 5 }, clamp(1, 5)),
     field(
       'Nghỉ giữa các lượt gửi Muse (giây)',

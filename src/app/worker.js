@@ -11,7 +11,7 @@ import {
   runFailure,
 } from '../core/jobs.js';
 import { applySeriesSettings, jobMediaPrefix, lockFinishedSteps } from '../core/checkpoint.js';
-import { isMuseUrl, workerChatUrl } from '../core/worker-tabs.js';
+import { isMuseUrl, workerChatUrl, workerWindowBounds } from '../core/worker-tabs.js';
 import { $, runStatus, setRunStatus } from './dom.js';
 import { dehydrateNodeMedia } from './media-store.js';
 import { MESSAGE, museTabMessage, prepareMuseTab } from './muse-client.js';
@@ -72,8 +72,7 @@ async function ensureMuseTab(control) {
   const museWindow = await chrome.windows.create({
     url: workerChatUrl(control.museHomeUrl),
     focused: false,
-    width: 560,
-    height: 820,
+    ...workerWindowBounds(Number(worker.id), control.workers, window.screen),
   });
   worker.museTabId = museWindow.tabs[0].id;
   state.pinnedMuseTabId = worker.museTabId;

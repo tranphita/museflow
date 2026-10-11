@@ -6,6 +6,7 @@ import {
   pinnedMuseTabIds,
   selectableMuseTabs,
   workerChatUrl,
+  workerWindowBounds,
 } from '../../src/core/worker-tabs.js';
 
 test('only muse.ai pages count as Muse tabs', () => {
@@ -43,4 +44,26 @@ test('workers open a fresh side chat instead of the shared Muse main chat', () =
   assert.equal(workerChatUrl(undefined), NEW_SIDE_CHAT_URL);
   assert.equal(workerChatUrl('https://muse.ai/thread/new'), 'https://muse.ai/thread/new');
   assert.equal(workerChatUrl('https://muse.ai/thread/abc'), 'https://muse.ai/thread/abc');
+});
+
+test('worker windows tile the screen without overlapping', () => {
+  const screen = { availLeft: 0, availTop: 0, availWidth: 1920, availHeight: 1040 };
+  const eight = Array.from({ length: 8 }, (_, index) => workerWindowBounds(index + 1, 8, screen));
+  assert.deepEqual(eight[0], { left: 0, top: 0, width: 480, height: 520 });
+  assert.deepEqual(eight[7], { left: 1440, top: 520, width: 480, height: 520 });
+  for (const a of eight)
+    for (const b of eight)
+      if (a !== b)
+        assert.ok(
+          a.left + a.width <= b.left ||
+            b.left + b.width <= a.left ||
+            a.top + a.height <= b.top ||
+            b.top + b.height <= a.top,
+        );
+  assert.deepEqual(workerWindowBounds(3, 3, screen), { left: 1120, top: 0, width: 560, height: 820 });
+});
+
+test('worker windows follow a screen that does not start at the origin', () => {
+  const screen = { availLeft: -1920, availTop: 40, availWidth: 1920, availHeight: 1000 };
+  assert.deepEqual(workerWindowBounds(2, 2, screen), { left: -1360, top: 40, width: 560, height: 820 });
 });
