@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { resolveTtsVoice, elevenLabsSpeed, TTS_PROVIDERS } from '../../src/core/tts-voice.js';
+import { resolveTtsVoice, elevenLabsSpeed, ttsConcurrency, TTS_PROVIDERS } from '../../src/core/tts-voice.js';
 import { DEFAULT_VOICE_ID } from '../../src/core/node-defs.js';
 
 const ELEVEN_DEFAULT = TTS_PROVIDERS.elevenlabs.defaultVoiceId;
@@ -41,4 +41,12 @@ test('ElevenLabs speed is kept inside the range the API accepts', () => {
   assert.equal(elevenLabsSpeed(1.1), 1.1);
   assert.equal(elevenLabsSpeed(2), 1.2);
   assert.equal(elevenLabsSpeed(undefined), 1);
+});
+
+test('parallel voice requests follow the ElevenLabs free-plan concurrency per model family', () => {
+  assert.equal(ttsConcurrency('elevenlabs', 'eleven_multilingual_v2'), 2);
+  assert.equal(ttsConcurrency('elevenlabs', 'eleven_v3'), 2);
+  assert.equal(ttsConcurrency('elevenlabs', 'eleven_flash_v2_5'), 4);
+  assert.equal(ttsConcurrency('elevenlabs', 'eleven_turbo_v2_5'), 4);
+  assert.equal(ttsConcurrency('tvoiceai'), 2);
 });

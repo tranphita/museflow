@@ -28,6 +28,7 @@ const browserGlobals = Object.fromEntries(
     'Event',
     'KeyboardEvent',
     'AbortController',
+    'AbortSignal',
     'HTMLTextAreaElement',
     'HTMLInputElement',
     'HTMLCanvasElement',

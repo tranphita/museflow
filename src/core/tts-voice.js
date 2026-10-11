@@ -6,9 +6,9 @@ export const TTS_PROVIDERS = {
 };
 export const DEFAULT_TTS_PROVIDER = 'elevenlabs';
 export const ELEVENLABS_MODELS = [
-  ['eleven_multilingual_v2', 'Multilingual v2 (chất lượng cao)'],
-  ['eleven_turbo_v2_5', 'Turbo v2.5 (nhanh, có tiếng Việt)'],
-  ['eleven_flash_v2_5', 'Flash v2.5 (nhanh nhất, rẻ nhất)'],
+  ['eleven_multilingual_v2', 'Multilingual v2 (chất lượng cao, 2 luồng ở gói free)'],
+  ['eleven_turbo_v2_5', 'Turbo v2.5 (nhanh, có tiếng Việt, 4 luồng ở gói free)'],
+  ['eleven_flash_v2_5', 'Flash v2.5 (nhanh nhất, rẻ nhất, 4 luồng ở gói free)'],
   ['eleven_v3', 'Eleven v3 (biểu cảm nhất)'],
 ];
 export const DEFAULT_ELEVENLABS_MODEL = ELEVENLABS_MODELS[0][0];
@@ -28,3 +28,9 @@ export function resolveTtsVoice(voiceId, { provider, elevenVoiceId } = {}) {
 }
 
 export const elevenLabsSpeed = speed => Math.min(1.2, Math.max(0.7, Number(speed) || 1));
+
+// ElevenLabs free-plan concurrency (https://elevenlabs.io/docs/models): Flash/Turbo 4, other models 2.
+const FAST_ELEVENLABS_MODEL = /^eleven_(?:flash|turbo)_/;
+
+export const ttsConcurrency = (provider, model = '') =>
+  provider === 'elevenlabs' && FAST_ELEVENLABS_MODEL.test(model) ? 4 : 2;
