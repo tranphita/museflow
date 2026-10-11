@@ -2,7 +2,9 @@
   if (window.__musetaBridgeInstalled) return;
   window.__musetaBridgeInstalled = true;
   const UI = globalThis.MusetaMuseUI;
-  const { isRefusalContext, isClearRefusal } = globalThis.MusetaRefusal;
+  const { isRefusalContext, isClearRefusal, isAwaitingApproval } = globalThis.MusetaRefusal;
+  const MAX_APPROVAL_REPLIES = 2;
+  const APPROVAL_IDLE_MS = 4000;
 
   chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
     if (message?.type === 'MUSETA_CHECK_SESSION') {
@@ -279,12 +281,22 @@
     );
   }
 
+  function throwIfAborted(signal) {
+    if (signal?.aborted) throw new DOMException('Đã dừng tạo theo yêu cầu của bạn.', 'AbortError');
+  }
+
+  const bubbleText = el => (el.innerText || el.textContent || '').replace(/\s+/g, ' ').trim();
+
+  function snapshotAssistantTexts() {
+    return new Map(assistantMessageElements().map(el => [el, bubbleText(el)]));
+  }
+
   function readNewAssistantContext(previousBubbleTexts) {
     const bubbles = assistantMessageElements();
     // Muse wraps assistant replies in group containers too; excluding every group/msg
     // ancestor accidentally filtered out the refusal text that should trigger retry.
     const messages = bubbles
-      .map(el => ({ el, text: (el.innerText || el.textContent || '').replace(/\s+/g, ' ').trim() }))
+      .map(el => ({ el, text: bubbleText(el) }))
       .filter(item => item.text && item.text !== previousBubbleTexts.get(item.el));
     return messages
       .map(item => item.text)
@@ -292,54 +304,17 @@
       .slice(-6000);
   }
 
-  async function generate(
-    {
-      prompt,
-      timeoutSec = 600,
-      mediaType = 'image',
-      referenceImage = '',
-      referenceImages = [],
-      size = '1:1',
-      requestId,
-    },
-    signal,
-  ) {
-    const throwIfAborted = () => {
-      if (signal?.aborted) throw new DOMException('Đã dừng tạo theo yêu cầu của bạn.', 'AbortError');
-    };
-    throwIfAborted();
-    const mediaWord = mediaType === 'video' ? 'video' : 'ảnh';
-    if (!String(prompt || '').trim()) throw new Error('Prompt đang trống.');
-    await waitHydrated(15000, signal);
-    throwIfAborted();
-    const composer = findComposer();
-    if (!visible(composer))
-      throw new Error('Không thấy ô nhập tin nhắn của Muse. Mở khung chat rồi thử lại.');
-    const referenceList =
-      Array.isArray(referenceImages) && referenceImages.length
-        ? referenceImages
-        : referenceImage
-          ? [referenceImage]
-          : [];
-    if (referenceList.length) await attachReferences(referenceList, signal);
-    throwIfAborted();
-    const baseline = new Set(attachments().map(a => a.src));
-    const priorBubbleTexts = new Map(
-      assistantMessageElements().map(el => [
-        el,
-        (el.innerText || el.textContent || '').replace(/\s+/g, ' ').trim(),
-      ]),
-    );
+  async function submitMessage(composer, text, signal) {
     composer.scrollIntoView({ block: 'center' });
     composer.focus();
     const setter = Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype, 'value')?.set;
     if (!setter) throw new Error('Ô nhập tin nhắn của Muse không được hỗ trợ.');
-    setter.call(composer, String(prompt));
+    setter.call(composer, String(text));
     composer.dispatchEvent(new Event('input', { bubbles: true }));
     composer.dispatchEvent(new Event('change', { bubbles: true }));
     let sendButton = null;
     for (let i = 0; i < 30; i++) {
-      throwIfAborted();
+      throwIfAborted(signal);
       sendButton = findSendButton();
       if (sendButton && !sendButton.disabled) break;
       await delay(100, signal);
@@ -349,7 +324,7 @@
     const bubbleCount = () => document.querySelectorAll(UI.selectors.chatBubble).length;
     const beforeSendCount = bubbleCount();
     let submitted = false;
-    throwIfAborted();
+    throwIfAborted(signal);
     if (sendButton && !sendButton.disabled) {
       sendButton.click();
       submitted = true;
@@ -367,7 +342,7 @@
     }
     let accepted = false;
     for (let i = 0; i < 30; i++) {
-      throwIfAborted();
+      throwIfAborted(signal);
       if (
         !composer.isConnected ||
         !composer.value.trim() ||
@@ -383,13 +358,48 @@
       throw new Error(
         'Muse không xác nhận đã gửi prompt. Kiểm tra khung chat rồi thử lại; Museta sẽ không tự gửi lại.',
       );
+  }
+
+  async function generate(
+    {
+      prompt,
+      timeoutSec = 600,
+      mediaType = 'image',
+      referenceImage = '',
+      referenceImages = [],
+      size = '1:1',
+      requestId,
+    },
+    signal,
+  ) {
+    throwIfAborted(signal);
+    const mediaWord = mediaType === 'video' ? 'video' : 'ảnh';
+    if (!String(prompt || '').trim()) throw new Error('Prompt đang trống.');
+    await waitHydrated(15000, signal);
+    throwIfAborted(signal);
+    const composer = findComposer();
+    if (!visible(composer))
+      throw new Error('Không thấy ô nhập tin nhắn của Muse. Mở khung chat rồi thử lại.');
+    const referenceList =
+      Array.isArray(referenceImages) && referenceImages.length
+        ? referenceImages
+        : referenceImage
+          ? [referenceImage]
+          : [];
+    if (referenceList.length) await attachReferences(referenceList, signal);
+    throwIfAborted(signal);
+    const baseline = new Set(attachments().map(a => a.src));
+    const priorBubbleTexts = snapshotAssistantTexts();
+    await submitMessage(composer, prompt, signal);
     const deadline = Date.now() + Math.min(900, Math.max(30, Number(timeoutSec) || 600)) * 1000;
     let lastProgress = Date.now(),
       firstWrongRatioAt = 0;
     let refusalContext = '',
-      refusalContextSince = 0;
+      refusalContextSince = 0,
+      approvalReplies = 0,
+      approvalContextSince = 0;
     while (Date.now() < deadline) {
-      throwIfAborted();
+      throwIfAborted(signal);
       const fresh = attachments().filter(a => !baseline.has(a.src));
       const matching = fresh.filter(a => (mediaType === 'video' ? a.isVideo : !a.isVideo));
       const [ratioW, ratioH] = String(size || '1:1')
@@ -459,6 +469,16 @@
         refusalContext = '';
         refusalContextSince = 0;
       }
+      if (!stop && !refusal && approvalReplies < MAX_APPROVAL_REPLIES && isAwaitingApproval(currentContext)) {
+        approvalContextSince = approvalContextSince || Date.now();
+        if (Date.now() - approvalContextSince >= APPROVAL_IDLE_MS) {
+          approvalReplies++;
+          approvalContextSince = 0;
+          for (const [el, text] of snapshotAssistantTexts()) priorBubbleTexts.set(el, text);
+          await submitMessage(findComposer(), approvalReply(mediaWord), signal);
+          continue;
+        }
+      } else approvalContextSince = 0;
       if (!stop && Date.now() - lastProgress > 5000) {
         const tail = (document.body?.innerText || '').slice(-800);
         if (UI.text.outOfCredits.test(tail))
@@ -466,7 +486,7 @@
       }
       await waitForAttachmentChange(Math.min(500, deadline - Date.now()), signal);
     }
-    throwIfAborted();
+    throwIfAborted(signal);
     throw new Error(
       `Hết thời gian chờ ${mediaWord} mới từ Muse. Prompt đã được gửi một lần và không gửi lại.`,
     );
@@ -555,6 +575,10 @@
     if (files.length > 1 && !input.multiple) {
       for (const file of files) await uploadBatch([file]);
     } else await uploadBatch(files);
+  }
+
+  function approvalReply(mediaWord) {
+    return `Duyệt. Tạo ngay ${mediaWord} theo đúng yêu cầu ở tin nhắn trước của mình, không cần hỏi lại. Mọi yêu cầu tiếp theo trong cuộc chat này cũng đã được duyệt sẵn, cứ tạo luôn.`;
   }
 
   function blobToDataUrl(blob) {

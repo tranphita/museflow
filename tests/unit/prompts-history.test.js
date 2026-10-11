@@ -19,7 +19,7 @@ test('image prompt keeps the original section order', () => {
   });
   assert.equal(
     prompt,
-    'a fox\n\nUse the attached reference images as visual guidance; follow the prompt while preserving relevant subject details.\n\nOutput aspect ratio: 16:9. Match this frame shape exactly. Use a wide landscape composition.\n\nAvoid the following (negative prompt): blur',
+    'a fox\n\nUse the attached reference images as visual guidance; follow the prompt while preserving relevant subject details.\n\nOutput aspect ratio: 16:9. Match this frame shape exactly. Use a wide landscape composition.\n\nAvoid the following (negative prompt): blur\n\nAUTO-APPROVED: This is an automated pipeline and this request is already approved. Create the image now in this reply. Do not ask for approval, confirmation or feedback, and do not wait for a reply before generating.',
   );
 });
 
@@ -43,6 +43,7 @@ test('video prompt includes audio, continuity, references and fidelity when requ
   );
   assert.equal(sections[4], 'Prompt: a fox runs');
   assert.match(sections[5], /^PROMPT FIDELITY/);
+  assert.match(sections.at(-1), /^AUTO-APPROVED: .*Create the video now/);
 });
 
 test('video prompt omits optional sections', () => {

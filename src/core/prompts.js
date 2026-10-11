@@ -14,6 +14,9 @@ const PROMPT_FIDELITY =
 const SAFE_RETRY =
   "SAFE EQUIVALENT RETRY: The previous version could not be generated. Create a close, allowed alternative for the same scene now. Stay faithful to the script's story purpose, characters, relationship, setting, action, mood, visual style, framing, continuity, and requested duration/aspect ratio. Change only the specific detail that prevents generation, replacing it with the nearest safe equivalent. Keep this scene in the story; do not skip it or change what it needs to accomplish. Do not ask a follow-up question or ask permission; generate the alternative in this attempt. Follow all content and safety rules.";
 
+const autoApproved = mediaType =>
+  `AUTO-APPROVED: This is an automated pipeline and this request is already approved. Create the ${mediaType} now in this reply. Do not ask for approval, confirmation or feedback, and do not wait for a reply before generating.`;
+
 export function sizeInstruction(size) {
   return `Output aspect ratio: ${size}. Match this frame shape exactly. ${compositionBySize[size] || 'Use a standard portrait composition.'}`;
 }
@@ -48,6 +51,7 @@ export function buildMusePrompt({
         `ENDING: Finish on a steady, well-composed frame that flows naturally into the next shot (${nextShot}). Avoid an abrupt cut, fade, or camera jump in the final second.`,
       negativePrompt && `Avoid: ${negativePrompt}`,
       again && PROMPT_FIDELITY,
+      autoApproved('video'),
     ];
     return sections.filter(Boolean).join('\n\n');
   }
@@ -59,6 +63,7 @@ export function buildMusePrompt({
       `Use the attached reference image${plural} as visual guidance; follow the prompt while preserving relevant subject details.`,
     sizeInstruction(size),
     negativePrompt && `Avoid the following (negative prompt): ${negativePrompt}`,
+    autoApproved('image'),
   ];
   return sections.filter(Boolean).join('\n\n');
 }

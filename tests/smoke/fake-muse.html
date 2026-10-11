@@ -33,6 +33,9 @@
           if (window.museMode === 'refuse') {
             bubble.textContent =
               'Mình không thể tạo cảnh này. Bạn có muốn mình tạo bản tương đương bám theo kịch bản không?';
+          } else if (window.museMode === 'approve') {
+            window.museMode = 'image';
+            bubble.textContent = 'Mình sẽ vẽ Mommy và Mia trong bếp buổi sáng. Duyệt thì mình tạo luôn nhé.';
           } else {
             const attachment = document.createElement('div');
             attachment.dataset.testid = 'hatch-chat-attachment-presentation-1';

@@ -20,5 +20,13 @@
     return inability.test(text) && sceneContext.test(text) && offerAlternative.test(text);
   }
 
-  globalThis.MusetaRefusal = Object.freeze({ isRefusalContext, isClearRefusal });
+  const approvalRequest =
+    /duyệt|xác nhận|đồng ý|(?:ok|được|ổn)\s+(?:không|chưa)|(?:tạo|vẽ|làm|bắt đầu|tiếp tục|đi tiếp)\s+(?:luôn\s+)?(?:nhé|nha|không)\s*\?|approv|confirm|go ahead|shall i|should i|let me know|sounds? good|ready to (?:generate|create|start)/i;
+
+  function isAwaitingApproval(context) {
+    const text = String(context || '');
+    return approvalRequest.test(text) && !isRefusalContext(text);
+  }
+
+  globalThis.MusetaRefusal = Object.freeze({ isRefusalContext, isClearRefusal, isAwaitingApproval });
 })();
