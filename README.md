@@ -35,7 +35,7 @@ The interface is in Vietnamese; technical terms such as workflow, node, prompt, 
 - **Image workflows:** image inputs, up to 8 reference images through a References node, image generation, resizing, and previews.
 - **Video workflows:** video clips with optional end-frame continuity from the previous timeline clip, and **↻ Làm lại** to regenerate with stronger prompt adherence.
 - **Output versions:** every Generate Image and Generate Video node keeps its last 8 results. Click a thumbnail under the node to switch back to an earlier version; the chosen version is kept (🔒) when you run the whole workflow.
-- **Faster runs:** voiceovers generate alongside Muse, and **Cài đặt → Số tab Muse dùng cùng lúc** (1–3) spreads image and video requests over several Muse chat tabs. Videos chained with end-frame continuity still run in order.
+- **Faster runs:** voiceovers generate alongside Muse, and **Cài đặt → Số tab Muse dùng cùng lúc** (1–8) spreads image and video requests over several Muse chat tabs. Videos chained with end-frame continuity still run in order.
 - **Production queue:** queue episodes from any number of series and let worker tabs produce them overnight, each with its own Muse window. Unfinished episodes continue from their last finished step after a crash or restart.
 - **Run progress:** a panel lists every step with its state, timing and failure reason; the running node pulses and the canvas follows it.
 - **Reliable runs:** optionally retry a failed generation automatically, and keep running the rest of the workflow when one node fails (nodes that depend on it are skipped). Both options are in **Cài đặt**.

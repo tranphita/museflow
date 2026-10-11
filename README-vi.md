@@ -25,7 +25,7 @@ Museta phát triển tiếp từ [MuseFlow / 26Flow](https://github.com/bynne260
 - **Ảnh:** ảnh đầu vào, tối đa 8 ảnh tham chiếu qua node References, tạo ảnh, đổi kích thước, xem trước.
 - **Video:** tạo clip, tuỳ chọn dùng frame cuối của clip trước để nối liền cảnh, nút **↻ Làm lại** để tạo lại bám prompt chặt hơn.
 - **Phiên bản kết quả:** mỗi node Generate Image/Video giữ 8 kết quả gần nhất. Bấm vào ảnh nhỏ dưới node để quay lại phiên bản cũ.
-- **Chạy nhanh hơn:** giọng đọc TTS chạy song song với Muse; **Cài đặt → Số tab Muse dùng cùng lúc** (1–3) chia việc tạo ảnh/video cho nhiều tab chat Muse. Video nối frame (continuity) vẫn chạy lần lượt.
+- **Chạy nhanh hơn:** giọng đọc TTS chạy song song với Muse; **Cài đặt → Số tab Muse dùng cùng lúc** (1–8) chia việc tạo ảnh/video cho nhiều tab chat Muse. Video nối frame (continuity) vẫn chạy lần lượt.
 - **Hàng đợi sản xuất:** xếp tập của nhiều bộ phim vào hàng đợi, các tab worker tự sản xuất qua đêm, mỗi worker một cửa sổ Muse riêng. Tập đang dở chạy tiếp từ bước đã xong gần nhất sau khi lỗi hoặc tắt máy.
 - **Bảng tiến trình:** liệt kê từng bước, thời gian và lý do lỗi; node đang chạy nhấp nháy và canvas tự theo dõi.
 - **Chạy ổn định hơn:** tuỳ chọn tự thử lại khi tạo lỗi, và tiếp tục chạy phần còn lại của workflow khi một node lỗi (các node phụ thuộc vào node lỗi sẽ bị bỏ qua). Cả hai nằm trong **Cài đặt**.

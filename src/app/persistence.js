@@ -2,6 +2,7 @@ import { state } from '../core/state.js';
 import { starter } from '../core/node-defs.js';
 import { normalizeSavedGraph } from '../core/graph.js';
 import { mediaRefs } from '../core/history.js';
+import { MAX_WORKERS } from '../core/worker-tabs.js';
 import { $, runStatus, backendStatus, setRunStatus } from './dom.js';
 import { blobAsDataUrl } from './media.js';
 import {
@@ -280,7 +281,7 @@ export function normalizeSettings(settings) {
     ...source,
     autoRetry: Math.max(0, Math.min(2, Math.round(Number(source.autoRetry) || 0))),
     continueOnError: Boolean(source.continueOnError),
-    museTabs: Math.max(1, Math.min(3, Math.round(Number(source.museTabs) || 1))),
+    museTabs: Math.max(1, Math.min(MAX_WORKERS, Math.round(Number(source.museTabs) || 1))),
     cooldownSec: Math.max(0, Math.min(120, Math.round(Number(source.cooldownSec) || 0))),
   };
 }

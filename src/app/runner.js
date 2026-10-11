@@ -18,6 +18,7 @@ import { openTtsKeySettings } from './tts-settings-ui.js';
 import { startRun, markStep, finishRun, showRunPanel, stepLabel, setStepRestarter } from './run-panel.js';
 import { buildMusePrompt, buildRefusalRetryPrompt, isRatioMismatch } from '../core/prompts.js';
 import { dialogueTiming } from '../core/ffmpeg-plan.js';
+import { MAX_WORKERS } from '../core/worker-tabs.js';
 import { recordGeneration } from '../core/history.js';
 import { APP_NAME, APP_VERSION } from './app-info.js';
 import { $, runStatus, setRunStatus } from './dom.js';
@@ -376,7 +377,7 @@ function stepDependencies(nodeId, inRun) {
 
 async function museTabPool() {
   if (state.pinnedMuseTabId) return [state.pinnedMuseTabId];
-  const wanted = Math.max(1, Math.min(3, Number(state.settings?.museTabs) || 1));
+  const wanted = Math.max(1, Math.min(MAX_WORKERS, Number(state.settings?.museTabs) || 1));
   if (wanted === 1) return [undefined];
   const seen = new Set();
   const tabs = (await queryMuseTabs()).filter(tab => {
