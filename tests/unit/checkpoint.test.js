@@ -1,6 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
+  applySeriesSettings,
   isJobMediaKey,
   jobMediaPrefix,
   lockFinishedSteps,
@@ -35,4 +36,49 @@ test('only finished steps with media are locked for the resumed run', () => {
     workflow.nodes.filter(item => item.data.locked).map(item => item.id),
     ['img', 'voice'],
   );
+});
+
+test('a resumed episode picks up the series subtitle, clip audio and music settings', () => {
+  const checkpoint = {
+    nodes: [
+      {
+        id: 'v-old',
+        type: 'voiceover',
+        data: { sceneLabel: 'Cảnh 1 · Mia · 1', text: 'Hi', status: 'success' },
+      },
+      {
+        id: 'tl-old',
+        type: 'timeline',
+        data: { clipOrder: ['a'], transition: { type: 'fade', duration: 0.5 } },
+      },
+    ],
+  };
+  const fresh = {
+    nodes: [
+      {
+        id: 'v-new',
+        type: 'voiceover',
+        data: { sceneLabel: 'Cảnh 1 · Mia · 1', text: 'Hi', subtitle: { en: '*Hi*', vi: '*Chào*' } },
+      },
+      {
+        id: 'tl-new',
+        type: 'timeline',
+        data: {
+          subtitles: 'bilingual',
+          clipAudio: 'duck',
+          music: { id: 'm', url: 'data:audio/mpeg;base64,AA' },
+        },
+      },
+    ],
+  };
+  const [voice, timeline] = applySeriesSettings(checkpoint, fresh).nodes;
+  assert.deepEqual(voice.data.subtitle, { en: '*Hi*', vi: '*Chào*' });
+  assert.equal(voice.data.status, 'success');
+  assert.deepEqual(timeline.data.clipOrder, ['a']);
+  assert.equal(timeline.data.subtitles, 'bilingual');
+  assert.equal(timeline.data.clipAudio, 'duck');
+  assert.equal(timeline.data.music.url, 'data:audio/mpeg;base64,AA');
+  const off = applySeriesSettings(structuredClone(checkpoint), { nodes: [{ type: 'timeline', data: {} }] });
+  assert.equal(off.nodes[1].data.subtitles, undefined);
+  assert.equal(off.nodes[1].data.clipAudio, undefined);
 });

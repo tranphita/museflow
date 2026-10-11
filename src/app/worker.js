@@ -10,7 +10,7 @@ import {
   refineKind,
   runFailure,
 } from '../core/jobs.js';
-import { jobMediaPrefix, lockFinishedSteps } from '../core/checkpoint.js';
+import { applySeriesSettings, jobMediaPrefix, lockFinishedSteps } from '../core/checkpoint.js';
 import { isMuseUrl, workerChatUrl } from '../core/worker-tabs.js';
 import { $, runStatus, setRunStatus } from './dom.js';
 import { dehydrateNodeMedia } from './media-store.js';
@@ -91,15 +91,14 @@ async function museSession() {
 }
 
 async function openEpisode(job, control) {
-  let workflow;
-  if (job.checkpoint) workflow = lockFinishedSteps(structuredClone(job.checkpoint));
-  else {
-    const series = await getSeries(job.seriesId);
-    workflow = workflowFromScript(job.script, {
-      characterImages: series?.characters || {},
-      music: series?.music || null,
-    });
-  }
+  const series = await getSeries(job.seriesId);
+  const fresh = workflowFromScript(job.script, {
+    characterImages: series?.characters || {},
+    music: series?.music || null,
+  });
+  const workflow = job.checkpoint
+    ? applySeriesSettings(lockFinishedSteps(structuredClone(job.checkpoint)), fresh)
+    : fresh;
   if (!(await loadWorkflowObject(workflow, { label: job.title })))
     throw kindError('Không mở được tập này.', 'script');
   const shared = await readSavedSettings();

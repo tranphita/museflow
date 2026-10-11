@@ -58,8 +58,8 @@ function assTime(seconds) {
 }
 
 export function buildAss({ events, width, height }) {
-  const enSize = Math.round(height * 0.052),
-    viSize = Math.round(height * 0.038),
+  const enSize = Math.round(height * 0.058),
+    viSize = Math.round(height * 0.034),
     outline = Math.max(2, Math.round(enSize * 0.1)),
     marginX = Math.round(width * 0.07),
     marginV = Math.round(height * 0.22);

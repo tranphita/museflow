@@ -1,5 +1,6 @@
 import { PAUSE_REASONS, nextAttempt, queueSummary, workerLabel } from '../core/jobs.js';
-import { jobMediaPrefix } from '../core/checkpoint.js';
+import { applySeriesSettings, jobMediaPrefix } from '../core/checkpoint.js';
+import { workflowFromScript } from '../core/film-graph.js';
 import { workerChatUrl } from '../core/worker-tabs.js';
 import { $, el, setRunStatus } from './dom.js';
 import { deleteMediaWithPrefix } from './media-store.js';
@@ -191,7 +192,13 @@ async function move(items, index, step) {
 
 async function openInCanvas(job) {
   if (!job.checkpoint) return setRunStatus('Tập này chưa có tiến độ nào được lưu.', 'warn');
-  if (await loadWorkflowObject(structuredClone(job.checkpoint), { label: job.title })) setView('canvas');
+  const series = await getSeries(job.seriesId);
+  const fresh = workflowFromScript(job.script, {
+    characterImages: series?.characters || {},
+    music: series?.music || null,
+  });
+  const workflow = applySeriesSettings(structuredClone(job.checkpoint), fresh);
+  if (await loadWorkflowObject(workflow, { label: job.title })) setView('canvas');
 }
 
 async function downloadApproved(items) {

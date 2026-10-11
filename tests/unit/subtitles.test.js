@@ -117,10 +117,10 @@ test('the ASS file sizes text to the frame and paints highlighted phrases', () =
     height: 1280,
   });
   assert.match(ass, /PlayResX: 720\nPlayResY: 1280/);
-  assert.match(ass, new RegExp(`Style: Default,${SUBTITLE_FONT.name},67,`));
+  assert.match(ass, new RegExp(`Style: Default,${SUBTITLE_FONT.name},74,`));
   assert.ok(
     ass.includes(
-      String.raw`Dialogue: 0,0:00:06.20,0:00:08.45,Default,,0,0,0,,{\c&H4DD8FF&}Can I{\c&HFFFFFF&} go?\N{\fs49\c&HE6F5FF&}{\c&H4DD8FF&}Con{\c&HE6F5FF&} đi nhé?`,
+      String.raw`Dialogue: 0,0:00:06.20,0:00:08.45,Default,,0,0,0,,{\c&H4DD8FF&}Can I{\c&HFFFFFF&} go?\N{\fs44\c&HE6F5FF&}{\c&H4DD8FF&}Con{\c&HE6F5FF&} đi nhé?`,
     ),
   );
   assert.ok(ass.includes('Dialogue: 0,0:01:01.50,0:01:02.00,Default,,0,0,0,,Bye\n'));

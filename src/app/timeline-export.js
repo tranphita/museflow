@@ -289,7 +289,9 @@ export async function exportTimelineVideo({ format = '', fileName = '', download
       .filter(clip => clip?.type === 'generateVideo' && clip.data?.asset?.url),
     button = $('#timelineExportBtn'),
     formatSelect = $('#timelineExportFormat'),
-    requestedFormat = format || formatSelect.value;
+    needsMp4 = node.data.subtitles === 'bilingual' || ['mute', 'duck'].includes(node.data.clipAudio),
+    requestedFormat = needsMp4 ? 'mp4' : format || formatSelect.value;
+  if (needsMp4) formatSelect.value = 'mp4';
   if (!clips.length) {
     setRunStatus('Hãy thêm các clip video đã tạo xong vào Timeline trước khi xuất.', 'warn');
     return false;
