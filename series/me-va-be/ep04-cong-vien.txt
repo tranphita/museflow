@@ -1,6 +1,8 @@
 TIÊU ĐỀ: Ở công viên — Can I play with you?
 
-CẢNH 1 (0:00–0:07): Hook — Mia ngại ngùng
+BỐI CẢNH CHÍNH: Công viên xanh mát buổi chiều nắng vàng nhẹ, bãi cỏ rộng phẳng ở tiền cảnh, một gốc cây lớn tán rộng bên trái, quả bóng đỏ nằm trên cỏ gần gốc cây, lối đi lát gạch uốn quanh, băng ghế gỗ và khu vui chơi trẻ em ở hậu cảnh mờ
+
+CẢNH 1 (0:00–0:08): Hook — Mia ngại ngùng
 Nhân vật: Mommy, Mia
 Prompt ảnh: Công viên xanh mát buổi chiều, nắng vàng nhẹ, Mia đứng nép sau gốc cây nhìn về phía nhóm bạn nhỏ đang chơi bóng ở hậu cảnh mờ, Mommy đứng cạnh Mia
 Prompt video: Mia nhìn nhóm bạn chơi bóng ở xa, xoắn hai tay vào nhau ngại ngùng rồi nói nhỏ với mẹ. Mommy quỳ xuống ngang tầm con, mỉm cười khích lệ. Máy quay trung cảnh, nhóm bạn ở hậu cảnh luôn mờ.
@@ -9,7 +11,7 @@ Lời thoại:
 - Mommy: Let's learn what to say! | Mình học cách nói nhé!
 Audio: chỉ tiếng môi trường công viên nhẹ, tiếng chim hót, tiếng động tự nhiên theo hành động như bước chân và đồ vật, không giọng người, không tiếng cảm thán, không nhạc
 
-CẢNH 2 (0:07–0:14): Mẹ dạy mẫu câu
+CẢNH 2 (0:08–0:16): Mẹ dạy mẫu câu
 Nhân vật: Mommy, Mia
 Prompt ảnh: Mommy quỳ trước mặt Mia trên bãi cỏ, nắm hai tay con, Mia lắng nghe chăm chú
 Prompt video: Mommy nói chậm rõ từng chữ, lắc nhẹ tay con. Mia nhắc lại, mắt sáng lên tự tin hơn. Máy quay cận trung hai mẹ con.
@@ -18,7 +20,7 @@ Lời thoại:
 - Mia: *Can I play with you?* | *Tớ chơi cùng được không?*
 Audio: chỉ tiếng môi trường công viên nhẹ, tiếng động tự nhiên theo hành động như bước chân và đồ vật, không giọng người, không tiếng cảm thán, không nhạc
 
-CẢNH 3 (0:14–0:21): Luyện 1 — tập với mẹ
+CẢNH 3 (0:16–0:24): Luyện 1 — tập với mẹ
 Nhân vật: Mommy, Mia
 Prompt ảnh: Mia đứng thẳng chìa tay ra bắt tay Mommy như gặp bạn mới, Mommy đóng vai bạn nhỏ cười tinh nghịch
 Prompt video: Mia vẫy tay chào rồi chìa tay ra, hỏi như đang gặp bạn mới. Mommy giả giọng trẻ con, bắt tay Mia và nhảy lên vui vẻ. Máy quay ngang tầm Mia, góc nghiêng.
@@ -27,7 +29,7 @@ Lời thoại:
 - Mommy: Yes! Let's play! | Được chứ! Chơi thôi!
 Audio: chỉ tiếng môi trường công viên nhẹ, tiếng động tự nhiên theo hành động như bước chân và đồ vật, không giọng người, không tiếng cảm thán, không nhạc
 
-CẢNH 4 (0:21–0:28): Luyện 2 — chơi bóng
+CẢNH 4 (0:24–0:32): Luyện 2 — chơi bóng
 Nhân vật: Mommy, Mia
 Prompt ảnh: Mommy cầm quả bóng đỏ, Mia chỉ vào quả bóng hỏi, hai mẹ con đứng trên bãi cỏ
 Prompt video: Mia chỉ vào quả bóng và hỏi. Mommy giơ ngón cái khen rồi chỉ tay về phía nhóm bạn ở xa. Mia hít một hơi thật sâu, gật đầu. Máy quay trung cảnh.
@@ -36,7 +38,7 @@ Lời thoại:
 - Mommy: Perfect! Now go and try! | Hoàn hảo! Giờ con thử đi!
 Audio: chỉ tiếng môi trường công viên nhẹ, tiếng động tự nhiên theo hành động như bước chân và đồ vật, không giọng người, không tiếng cảm thán, không nhạc
 
-CẢNH 5 (0:28–0:35): Twist — mẹ cũng chơi cùng
+CẢNH 5 (0:32–0:40): Twist — mẹ cũng chơi cùng
 Nhân vật: Mommy, Mia
 Prompt ảnh: Mia chạy ngược lại kéo tay Mommy, Mommy bất ngờ rồi bật cười, bãi cỏ xanh trải dài phía sau
 Prompt video: Mia chạy đi vài bước rồi quay lại kéo tay mẹ, hỏi tinh nghịch. Mommy bật cười rồi chạy đuổi theo Mia trên bãi cỏ, hai mẹ con cười giòn tan. Máy quay lia theo hai người chạy.
@@ -45,7 +47,7 @@ Lời thoại:
 - Mommy: Of course! Catch me! | Tất nhiên! Đuổi theo mẹ nào!
 Audio: chỉ tiếng môi trường công viên nhẹ, tiếng bước chạy trên cỏ, tiếng động tự nhiên theo hành động như bước chân và đồ vật, không giọng người, không tiếng cảm thán, không nhạc
 
-CẢNH 6 (0:35–0:42): Ôn lại
+CẢNH 6 (0:40–0:48): Ôn lại
 Nhân vật: Mommy, Mia
 Prompt ảnh: Mommy và Mia ngồi nghỉ trên bãi cỏ, thở hổn hển vui vẻ, Mommy nhìn vào ống kính mỉm cười
 Prompt video: Mommy quay về phía ống kính, nói chậm rãi và thân thiện. Mia tựa vào vai mẹ, gật đầu. Máy quay trung cảnh, đứng yên.
@@ -53,10 +55,12 @@ Lời thoại:
 - Mommy: Today's phrase: *Can I play with you?* | Mẫu câu hôm nay: *Tớ chơi cùng được không?*
 Audio: chỉ tiếng môi trường công viên nhẹ, tiếng động tự nhiên theo hành động như bước chân và đồ vật, không giọng người, không tiếng cảm thán, không nhạc
 
-CẢNH 7 (0:42–0:50): Đến lượt bạn
+CẢNH 7 (0:48–0:58): Đến lượt bạn
 Nhân vật: Mommy, Mia
 Prompt ảnh: Mia ôm quả bóng đỏ nhìn vào ống kính cười rạng rỡ, Mommy ngồi sau giơ ngón cái, nắng chiều vàng ấm
-Prompt video: Mia nhìn vào ống kính, nói chậm và rõ rồi chờ đợi với nụ cười khích lệ. Mommy cổ vũ, hai mẹ con vẫy tay chào. Máy quay lùi nhẹ ra trung cảnh.
+Prompt video: Mia nhìn vào ống kính, nói chậm và rõ rồi đưa tay về phía ống kính mời người xem nói theo, im lặng chờ khoảng ba giây với nụ cười khích lệ và gật đầu nhẹ. Mommy cổ vũ, hai mẹ con vẫy tay chào. Máy quay lùi nhẹ ra trung cảnh.
 Lời thoại:
-- Mia: Your turn! Say it with me: *Can I play with you?* | Đến lượt bạn! Nói cùng Mia nhé: *Tớ chơi cùng được không?*
+- Mia: Your turn! Listen and say: *Can I play with you?* | Đến lượt bạn! Nghe rồi nói theo nhé: *Tớ chơi cùng được không?*
+- (nghỉ 3 giây)
+- Mommy: Great job! Bye-bye! | Giỏi lắm! Tạm biệt nhé!
 Audio: chỉ tiếng môi trường công viên nhẹ, tiếng động tự nhiên theo hành động như bước chân và đồ vật, không giọng người, không tiếng cảm thán, không nhạc

@@ -86,7 +86,18 @@ Lời thoại:
 - Phi Ta: Good morning! I'm fine, thank you.
 ```
 
-Mỗi dòng thành một node Voiceover với giọng của người nói; khi xuất MP4 các câu được xếp nối tiếp trong clip (cách nhau 0,35 giây) và clip tự kéo dài cho đủ thoại. Voice ID của ElevenLabs (20 ký tự) chạy qua ElevenLabs, ID tvoiceai (như `VIENEU_CLONE_…`) chạy qua tvoiceai; bỏ trống `GIỌNG ĐỌC` thì dùng nhà cung cấp mặc định (ElevenLabs). Dán API key vào **Cài đặt → Lồng tiếng** một lần; key chỉ lưu trong trình duyệt, không nằm trong workflow. Cả hai bộ đã dùng sẵn cách này với giọng tvoiceai; bộ học tiếng Anh dùng giọng riêng cho Hảo và Phi Ta. Muốn chuyển sang ElevenLabs thì thay các ID đó bằng voice ID ElevenLabs.
+Mỗi dòng thành một node Voiceover với giọng của người nói; khi xuất MP4 các câu được xếp nối tiếp trong clip (cách nhau 0,35 giây) và clip tự kéo dài cho đủ thoại.
+
+Muốn chừa chỗ cho người xem nhắc lại (đoạn "Your turn"), thêm một dòng `(nghỉ 3 giây)` sau câu đó. Câu tiếp theo lùi lại đúng chừng đó, phụ đề của câu trước vẫn hiện trong lúc nghỉ, và prompt video báo cho Muse biết lúc nào nhân vật im lặng chờ:
+
+```
+Lời thoại:
+- Mia: Your turn! Listen and say: *Can I have some milk, please?* | Đến lượt bạn! Nghe rồi nói theo nhé: *Con uống sữa được không ạ?*
+- (nghỉ 3 giây)
+- Mommy: Great job! Bye-bye! | Giỏi lắm! Tạm biệt nhé!
+```
+
+Lồng tiếng được tạo trước video. Khi tạo clip, Museta gửi kèm mục **LIP-SYNC** ghi giây bắt đầu/kết thúc của từng câu và người nói, để Muse cho đúng nhân vật mấp máy môi đúng lúc, còn những người khác ngậm miệng. Voice ID của ElevenLabs (20 ký tự) chạy qua ElevenLabs, ID tvoiceai (như `VIENEU_CLONE_…`) chạy qua tvoiceai; bỏ trống `GIỌNG ĐỌC` thì dùng nhà cung cấp mặc định (ElevenLabs). Dán API key vào **Cài đặt → Lồng tiếng** một lần; key chỉ lưu trong trình duyệt, không nằm trong workflow. Cả hai bộ đã dùng sẵn cách này với giọng tvoiceai; bộ học tiếng Anh dùng giọng riêng cho Hảo và Phi Ta. Muốn chuyển sang ElevenLabs thì thay các ID đó bằng voice ID ElevenLabs.
 
 ## Phụ đề song ngữ
 
@@ -102,6 +113,18 @@ Lời thoại:
 - Khi xuất **MP4**, mỗi câu hiện đúng lúc được đọc: tiếng Anh chữ lớn màu trắng, tiếng Việt nhỏ hơn bên dưới, cụm `*...*` màu vàng, đặt cao hơn đáy khung khoảng 22% để không bị nút TikTok/Shorts che. Font Be Vietnam Pro đi kèm extension.
 - Ô **Phụ đề** trên thanh Timeline bật/tắt phụ đề cho workflow đang mở. Xuất WebM không có phụ đề.
 - Studio cảnh báo câu thiếu phần dịch, dấu `*` chưa đóng, số cụm tô vàng hai vế khác nhau, và câu tiếng Anh dài quá 70 ký tự.
+
+### Hiệu ứng học: karaoke, đếm ngược, pop
+
+```
+HIỆU ỨNG HỌC: karaoke, đếm ngược, pop
+```
+
+- `karaoke`: phụ đề tiếng Anh đổi màu theo từng từ đúng lúc được đọc; cụm `*...*` chuyển từ vàng sang cam. Giọng ElevenLabs trả về mốc thời gian từng từ nên khớp sát; giọng tvoiceai và lồng tiếng tạo trước bản này thì Museta chia thời gian theo độ dài từ.
+- `đếm ngược`: mỗi dòng `(nghỉ N giây)` hiện vòng tròn đếm N → 1 kèm thanh thời gian co dần phía trên phụ đề, và phát một tiếng "ding" lúc bắt đầu nghỉ để báo người xem nói theo.
+- `pop`: một tiếng "pop" ngắn ngay trước mỗi câu có cụm `*...*`, không đè lên lúc nhân vật đọc từ khoá.
+
+Các tiếng ding/pop được tổng hợp ngay trong FFmpeg, không cần file âm thanh.
 
 Hình do Muse tạo vẫn không được có chữ (giữ luật `Chung: không chữ, phụ đề…`); phụ đề chỉ do bước xuất thêm vào.
 
@@ -126,6 +149,18 @@ NHẠC NỀN: nhac-nen.mp3
 
 `NHẠC NỀN:` là tên file nhạc đặt ngay trong thư mục bộ phim (mp3, m4a, aac, wav, ogg). Studio, worker Sản xuất và `npm run series` tự gắn nhạc này vào mọi tập, nhạc lặp lại và tắt dần ở cuối. `ÂM LƯỢNG NHẠC` nhận `20%` hoặc `0.2`, mặc định 25%. File nhạc không được commit (`.gitignore` đã chặn); chỉ dùng nhạc bạn có quyền sử dụng.
 
+## Bối cảnh chính (Master Shot)
+
+Tập nào quay ở một bối cảnh duy nhất thì thêm dòng `BỐI CẢNH CHÍNH:` ngay dưới `TIÊU ĐỀ:` và mô tả đủ đồ vật cùng vị trí của chúng:
+
+```
+BỐI CẢNH CHÍNH: Căn bếp sáng sủa, bàn ăn gỗ ở giữa; chỗ Mia có cốc rỗng và đĩa trống, giữa bàn có bát dâu tây, quầy bếp phía sau có hộp sữa và đĩa bánh kếp
+```
+
+Museta tạo trước một ảnh góc rộng không có người (node **Bối cảnh chính**) và nối nó vào ảnh của mọi cảnh. Prompt kèm mục **SET LOCK** yêu cầu giữ nguyên phòng, đồ đạc và vị trí đạo cụ, chỉ đổi khung hình như máy quay tiến lùi, và đạo cụ chỉ đổi chỗ khi kịch bản ghi có người di chuyển nó. Đừng dùng cho tập đổi nhiều bối cảnh (như đi từ phòng ngủ ra cửa).
+
+Khi viết cảnh, nên bắt đầu `Prompt video` bằng một hành động nối từ cảnh trước (mẹ bưng đĩa bánh từ quầy tới, bé ăn thử một miếng rồi mới thấy bát dâu) để cảnh nối tiếp tự nhiên.
+
 ## Thêm tập mới
 
 Tạo file `epNN-ten-tap.txt` trong thư mục bộ phim, chỉ viết các cảnh:
@@ -142,6 +177,7 @@ Rồi chạy lại `npm run series -- series/<bo-phim>`. Muốn đổi trang ph�
 
 ## Lưu ý
 
-- Mỗi cảnh dài 6–8 giây; Muse tạo video 5, 6, 8 hoặc 10 giây và timeline cắt theo thời lượng trong kịch bản.
+- Cho mỗi cảnh dài đúng 5, 6, 8 hoặc 10 giây — các độ dài Muse tạo được. Cảnh lệch (ví dụ 7 giây) sẽ nhận clip 8 giây rồi bị cắt đuôi, chỗ nối với cảnh sau dễ bị giật; Studio cảnh báo trường hợp này.
+- Nếu `PHONG CÁCH:` là hoạt hình (Pixar, 3D, anime…), mọi prompt ảnh và video được mở đầu bằng **STYLE LOCK** cấm chuyển sang tả thực, và ảnh nhân vật được gọi là "thiết kế nhân vật" thay vì "ảnh người thật". Nên ghi thêm vào `PHONG CÁCH` rằng đồ ăn, đồ vật cũng theo phong cách đó: cận cảnh đồ ăn là chỗ Muse hay trượt sang ảnh thật.
 - Dòng `Audio:` chỉ là chỉ dẫn âm thanh cho Muse; Muse có thể tự đọc thoại không đúng chữ. Muốn thoại chính xác thì dùng `Lời thoại:` (TTS) và ghi `Audio: … không lời thoại` như bộ `me-va-be`.
 - Bộ gym được viết theo phong cách vlog thể hình lành mạnh. Nội dung quá gợi cảm dễ bị Muse từ chối; khi đó Museta tự thử lại một lần với phương án an toàn.

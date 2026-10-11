@@ -1,62 +1,67 @@
 TIÊU ĐỀ: Bữa sáng — Can I have some…?
 
-CẢNH 1 (0:00–0:07): Hook — "Milk! Give me milk!"
+BỐI CẢNH CHÍNH: Căn bếp gia đình sáng sủa buổi sáng, nắng chiếu qua cửa sổ, bàn ăn gỗ sáng màu đặt giữa khung hình; trên bàn ở chỗ ngồi của Mia có một chiếc cốc thuỷ tinh rỗng và một chiếc đĩa sứ trắng trống kèm nĩa, giữa bàn có bát sứ đầy dâu tây đỏ mọng, ở chỗ của Mommy có tách cà phê trắng bốc khói cạnh lọ hoa cúc nhỏ; quầy bếp phía sau có hộp sữa, chảo trên bếp và một đĩa bánh kếp vàng ruộm xếp chồng; tủ lạnh màu kem bên phải
+
+CẢNH 1 (0:00–0:08): Hook — "Milk! Give me milk!"
 Nhân vật: Mommy, Mia
-Prompt ảnh: Căn bếp sáng sủa buổi sáng, nắng chiếu qua cửa sổ, Mia ngồi ở bàn ăn gỗ giơ cao chiếc cốc rỗng, Mommy đứng cạnh tủ lạnh cầm hộp sữa, nhướng mày nhìn con
-Prompt video: Mia gõ nhẹ chiếc cốc rỗng xuống bàn và gọi to đầy hăng hái. Mommy quay lại, nhướng mày, mỉm cười như muốn dạy con điều gì đó. Máy quay trung cảnh hai người, đẩy nhẹ vào Mommy.
+Prompt ảnh: Căn bếp sáng sủa buổi sáng, Mia ngồi ở bàn ăn gỗ giơ cao chiếc cốc thuỷ tinh rỗng, đĩa trống trước mặt, bát dâu tây giữa bàn; Mommy đứng cạnh quầy bếp cầm hộp sữa, nhướng mày nhìn con
+Prompt video: Mia gõ nhẹ chiếc cốc rỗng xuống bàn và gọi to đầy hăng hái, mắt chớp chớp. Mommy quay lại, nhướng mày, mỉm cười như muốn dạy con điều gì đó, tay vẫn cầm hộp sữa. Máy quay trung cảnh hai người, đẩy nhẹ vào Mommy.
 Lời thoại:
 - Mia: Mommy! Milk! Give me milk! | Mẹ ơi! Sữa! Đưa con sữa!
 - Mommy: Hmm… is that a nice way to ask? | Hừm… hỏi vậy đã lịch sự chưa con?
-Audio: chỉ tiếng môi trường nhẹ trong bếp, tiếng cốc chạm bàn, tiếng động tự nhiên theo hành động như bước chân và đồ vật, không giọng người, không tiếng cảm thán, không nhạc
+Audio: chỉ tiếng môi trường nhẹ trong bếp, tiếng cốc thuỷ tinh gõ lên bàn gỗ, tiếng chim hót ngoài cửa sổ rất nhỏ, không giọng người, không tiếng cảm thán, không nhạc
 
-CẢNH 2 (0:07–0:14): Mẹ dạy mẫu câu
+CẢNH 2 (0:08–0:16): Mẹ dạy mẫu câu — rồi rót sữa
 Nhân vật: Mommy, Mia
-Prompt ảnh: Mommy ngồi xuống cạnh Mia ở bàn ăn, giơ một ngón tay như cô giáo, Mia chăm chú nhìn mẹ, hộp sữa đặt giữa bàn
-Prompt video: Mommy giơ ngón tay, nói chậm rõ từng chữ. Mia nghiêng đầu lắng nghe rồi nhắc lại, gật gù thích thú. Máy quay cận trung, chuyển nhẹ từ Mommy sang Mia.
+Prompt ảnh: Mommy ngồi xuống cạnh Mia ở bàn ăn, một tay cầm hộp sữa, tay kia giơ một ngón tay như cô giáo, Mia chăm chú nhìn mẹ, cốc rỗng trước mặt Mia
+Prompt video: Mommy cầm hộp sữa bước tới ngồi xuống cạnh Mia, giơ ngón tay nói chậm rõ từng chữ. Mia nghiêng đầu lắng nghe rồi nhắc lại, gật gù. Mommy khen rồi rót sữa trắng vào cốc của Mia cho tới khi đầy, Mia ôm cốc cười tít mắt. Máy quay cận trung, chuyển nhẹ từ Mommy sang Mia rồi xuống chiếc cốc đang được rót đầy.
 Lời thoại:
 - Mommy: Try this: *Can I have some milk, please?* | Con thử nói: *Con uống sữa được không ạ?*
 - Mia: *Can I have some milk, please?* | *Con uống sữa được không ạ?*
-Audio: chỉ tiếng môi trường nhẹ trong bếp, tiếng động tự nhiên theo hành động như bước chân và đồ vật, không giọng người, không tiếng cảm thán, không nhạc
+- Mommy: Good job! | Giỏi lắm!
+Audio: chỉ tiếng môi trường nhẹ trong bếp, tiếng ghế gỗ kéo nhẹ, tiếng sữa rót róc rách vào cốc thuỷ tinh, không giọng người, không tiếng cảm thán, không nhạc
 
-CẢNH 3 (0:14–0:21): Luyện 1 — bánh kếp
+CẢNH 3 (0:16–0:24): Luyện 1 — bánh kếp
 Nhân vật: Mommy, Mia
-Prompt ảnh: Đĩa bánh kếp vàng ruộm bốc khói trên bàn, Mia chắp tay lễ phép nhìn Mommy, Mommy cầm xẻng lật bánh mỉm cười
-Prompt video: Mia chắp tay, mắt long lanh hỏi xin bánh. Mommy cười tươi, đặt hai chiếc bánh kếp vào đĩa của Mia. Máy quay góc nghiêng ngang bàn ăn.
+Prompt ảnh: Mia cầm cốc sữa đã uống một nửa, chắp tay lễ phép nhìn Mommy; Mommy bưng đĩa bánh kếp vàng ruộm từ quầy bếp đi tới bàn ăn, mỉm cười
+Prompt video: Mia uống một ngụm sữa, đặt cốc xuống rồi nhìn về phía quầy bếp. Mommy bưng đĩa bánh kếp bốc khói từ quầy bếp bước vào khung hình. Mia chắp tay, mắt long lanh hỏi xin bánh. Mommy đặt đĩa bánh xuống bàn rồi dùng xẻng gắp hai chiếc bánh kếp vào đĩa của Mia. Máy quay góc nghiêng ngang bàn ăn, đi theo đĩa bánh.
 Lời thoại:
 - Mia: *Can I have some* pancakes, *please*? | *Con ăn* bánh kếp *được không ạ*?
 - Mommy: Of course! Here you are. | Tất nhiên rồi! Của con đây.
-Audio: chỉ tiếng môi trường nhẹ, tiếng bánh xèo xèo trên chảo, tiếng động tự nhiên theo hành động như bước chân và đồ vật, không giọng người, không tiếng cảm thán, không nhạc
+Audio: chỉ tiếng môi trường nhẹ trong bếp, tiếng cốc đặt xuống bàn, tiếng đĩa sứ đặt lên bàn gỗ, tiếng xẻng chạm đĩa, không giọng người, không tiếng cảm thán, không nhạc
 
-CẢNH 4 (0:21–0:28): Luyện 2 — dâu tây
+CẢNH 4 (0:24–0:32): Luyện 2 — dâu tây
 Nhân vật: Mommy, Mia
-Prompt ảnh: Mia chỉ vào bát dâu tây đỏ mọng trên bàn, Mommy bê bát dâu, hai mẹ con cùng cười
-Prompt video: Mia chỉ vào bát dâu tây và hỏi thật lễ phép. Mommy đặt mấy quả dâu lên bánh kếp của Mia, Mia vỗ tay vui sướng. Máy quay cận cảnh bàn ăn rồi lùi ra trung cảnh.
+Prompt ảnh: Mia cầm nĩa vừa ăn thử một miếng bánh kếp nhỏ, mắt nhìn sang bát dâu tây đỏ mọng bên cạnh và chỉ tay về phía bát; Mommy ngồi đối diện mỉm cười
+Prompt video: Mia dùng nĩa cắt một miếng bánh kếp nhỏ, ăn thử, gật gù khen ngon. Rồi Mia nhìn thấy bát dâu tây bên cạnh, chỉ tay vào bát và hỏi thật lễ phép. Mommy nhấc bát dâu, đặt mấy quả dâu lên bánh kếp của Mia, Mia vỗ tay vui sướng. Máy quay cận cảnh đĩa bánh rồi lùi ra trung cảnh hai mẹ con.
 Lời thoại:
 - Mia: *Can I have some* strawberries, *please*? | *Con ăn* dâu tây *được không ạ*?
 - Mommy: Sure, sweetie! | Được chứ, con yêu!
-Audio: chỉ tiếng môi trường nhẹ, tiếng thìa chạm đĩa, tiếng động tự nhiên theo hành động như bước chân và đồ vật, không giọng người, không tiếng cảm thán, không nhạc
+Audio: chỉ tiếng môi trường nhẹ trong bếp, tiếng nĩa chạm đĩa sứ, tiếng dâu tây rơi nhẹ lên bánh, tiếng vỗ tay nhỏ, không giọng người, không tiếng cảm thán, không nhạc
 
-CẢNH 5 (0:28–0:35): Twist — xin cà phê
+CẢNH 5 (0:32–0:40): Twist — xin cà phê
 Nhân vật: Mommy, Mia
-Prompt ảnh: Mia nhìn chằm chằm vào tách cà phê bốc khói trên tay Mommy với vẻ mặt tinh nghịch, Mommy giữ tách cà phê ra xa, nhịn cười
-Prompt video: Mia nheo mắt tinh nghịch, chỉ vào tách cà phê của mẹ và hỏi. Mommy giật tách cà phê ra xa, lắc ngón tay rồi bật cười, Mia cũng cười khúc khích. Máy quay đẩy nhanh vào mặt Mia rồi chuyển sang Mommy.
+Prompt ảnh: Mommy vừa nâng tách cà phê bốc khói lên định uống, Mia nhìn chằm chằm vào tách cà phê với vẻ mặt tinh nghịch, đĩa bánh kếp phủ dâu tây trước mặt Mia
+Prompt video: Mommy nâng tách cà phê lên định uống. Mia nheo mắt tinh nghịch, chỉ vào tách cà phê của mẹ và hỏi. Mommy kéo tách cà phê ra xa, lắc ngón tay rồi bật cười, Mia cũng cười khúc khích. Máy quay đẩy nhanh vào mặt Mia rồi chuyển sang Mommy.
 Lời thoại:
 - Mia: *Can I have some* coffee, *please*? | *Con uống* cà phê *được không ạ*?
 - Mommy: Nice try! No coffee for kids. | Hay lắm! Nhưng trẻ con không uống cà phê đâu.
-Audio: chỉ tiếng môi trường nhẹ, tiếng động tự nhiên theo hành động như bước chân và đồ vật, không giọng người, không tiếng cảm thán, không nhạc
+Audio: chỉ tiếng môi trường nhẹ trong bếp, tiếng tách sứ chạm đĩa lót, không giọng người, không tiếng cảm thán, không nhạc
 
-CẢNH 6 (0:35–0:42): Ôn lại
+CẢNH 6 (0:40–0:48): Ôn lại
 Nhân vật: Mommy, Mia
-Prompt ảnh: Mommy và Mia ngồi cạnh nhau ở bàn ăn, Mommy nhìn thẳng vào ống kính mỉm cười, Mia cầm cốc sữa uống ngon lành
-Prompt video: Mommy quay về phía ống kính, nói chậm rãi và thân thiện. Mia uống một ngụm sữa, để lại vệt sữa trên môi rồi cười. Máy quay trung cảnh hai người, đứng yên.
+Prompt ảnh: Mommy và Mia ngồi cạnh nhau ở bàn ăn, Mommy nhìn thẳng vào ống kính mỉm cười, Mia cầm cốc sữa uống ngon lành, đĩa bánh kếp phủ dâu tây trước mặt
+Prompt video: Mommy đặt tách cà phê xuống, quay về phía ống kính nói chậm rãi và thân thiện. Mia uống một ngụm sữa, để lại vệt sữa trên môi rồi cười. Máy quay trung cảnh hai người, đứng yên.
 Lời thoại:
 - Mommy: Today's phrase: *Can I have some…, please?* | Mẫu câu hôm nay: *Con xin… được không ạ?*
-Audio: chỉ tiếng môi trường nhẹ, tiếng động tự nhiên theo hành động như bước chân và đồ vật, không giọng người, không tiếng cảm thán, không nhạc
+Audio: chỉ tiếng môi trường nhẹ trong bếp, tiếng cốc đặt xuống bàn, không giọng người, không tiếng cảm thán, không nhạc
 
-CẢNH 7 (0:42–0:50): Đến lượt bạn
+CẢNH 7 (0:48–0:58): Đến lượt bạn
 Nhân vật: Mommy, Mia
 Prompt ảnh: Mia giơ cốc sữa về phía ống kính, cười rạng rỡ, Mommy ôm vai con phía sau, cả hai nhìn vào ống kính
-Prompt video: Mia nhìn vào ống kính, nói chậm và rõ, rồi chờ đợi với nụ cười khích lệ. Mommy gật đầu cổ vũ, hai mẹ con vẫy tay chào. Máy quay lùi nhẹ ra trung cảnh.
+Prompt video: Mia nhìn vào ống kính, nói chậm và rõ, rồi đưa tay về phía ống kính mời người xem nói theo, im lặng chờ khoảng ba giây với nụ cười khích lệ và gật đầu nhẹ. Mommy gật đầu cổ vũ, khen rồi hai mẹ con vẫy tay chào. Máy quay lùi nhẹ ra trung cảnh.
 Lời thoại:
-- Mia: Your turn! Say it with me: *Can I have some milk, please?* | Đến lượt bạn! Nói cùng Mia nhé: *Con uống sữa được không ạ?*
-Audio: chỉ tiếng môi trường nhẹ, tiếng động tự nhiên theo hành động như bước chân và đồ vật, không giọng người, không tiếng cảm thán, không nhạc
+- Mia: Your turn! Listen and say: *Can I have some milk, please?* | Đến lượt bạn! Nghe rồi nói theo nhé: *Con uống sữa được không ạ?*
+- (nghỉ 3 giây)
+- Mommy: Great job! Bye-bye! | Giỏi lắm! Tạm biệt nhé!
+Audio: chỉ tiếng môi trường nhẹ trong bếp, không giọng người, không tiếng cảm thán, không nhạc

@@ -1,3 +1,5 @@
+export const MUSE_VIDEO_SECONDS = Object.freeze([5, 6, 8, 10]);
+
 export const nodeDefs = {
   prompt: { title: 'Prompt', outputs: [{ id: 'text', label: 'văn bản', type: 'text' }] },
   negativePrompt: {

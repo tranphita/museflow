@@ -12,6 +12,7 @@ import {
   outputFrameSize,
 } from '../core/ffmpeg-plan.js';
 import { SUBTITLE_FONT, buildAss, buildSubtitleEvents, voiceSubtitle } from '../core/subtitle-plan.js';
+import { buildAudioCues, buildCountdowns, cueExpression, hasFx } from '../core/learning-fx.js';
 import { $, setRunStatus } from './dom.js';
 import { ensureDockTimeline, closeTimelinePreview, visibleTimelineClipOrder } from './timeline.js';
 
@@ -23,7 +24,8 @@ async function loadClipVoiceovers(ffmpeg, clips, clipInfo, signal) {
       .filter(voice => voice?.data?.asset?.url);
     if (!voiceNodes.length) continue;
     const durations = voiceNodes.map(voice => Number(voice.data.asset.duration) || 0);
-    const { offsets } = scheduleVoices(durations);
+    const pauses = voiceNodes.map(voice => Number(voice.data.pauseAfter) || 0);
+    const { offsets } = scheduleVoices(durations, pauses);
     clipInfo[index].voices = [];
     for (const [order, voice] of voiceNodes.entries()) {
       const asset = voice.data.asset;
@@ -35,10 +37,12 @@ async function loadClipVoiceovers(ffmpeg, clips, clipInfo, signal) {
         path,
         offset: offsets[order],
         duration: durations[order],
+        hold: pauses[order],
+        words: asset.words || [],
         ...voiceSubtitle(voice.data),
       });
     }
-    clipInfo[index].duration = clipLengthForVoices(clipInfo[index].duration, durations);
+    clipInfo[index].duration = clipLengthForVoices(clipInfo[index].duration, durations, pauses);
     voiced += voiceNodes.length;
   }
   return voiced;
@@ -47,13 +51,23 @@ async function loadClipVoiceovers(ffmpeg, clips, clipInfo, signal) {
 const SUBTITLE_PATH = '/subs.ass';
 const FONTS_DIR = '/fonts';
 
+const timelineClips = clipInfo =>
+  clipInfo.map(item => ({ duration: item.duration, voices: item.voices || [] }));
+
 async function loadSubtitles(ffmpeg, node, clipInfo, signal) {
-  if (node.data.subtitles !== 'bilingual') return null;
-  const events = buildSubtitleEvents({
-    clips: clipInfo.map(item => ({ duration: item.duration, voices: item.voices || [] })),
-    transition: node.data.transition,
-  });
-  if (!events.length) return null;
+  const fx = node.data.learningFx;
+  const events =
+    node.data.subtitles === 'bilingual'
+      ? buildSubtitleEvents({
+          clips: timelineClips(clipInfo),
+          transition: node.data.transition,
+          karaoke: hasFx(fx, 'karaoke'),
+        })
+      : [];
+  const countdowns = hasFx(fx, 'countdown')
+    ? buildCountdowns({ clips: timelineClips(clipInfo), transition: node.data.transition })
+    : [];
+  if (!events.length && !countdowns.length) return null;
   try {
     const font = await fetch(chrome.runtime.getURL(`vendor/fonts/${SUBTITLE_FONT.file}`), { signal });
     if (!font.ok) throw new Error(`không tải được font (HTTP ${font.status})`);
@@ -61,7 +75,7 @@ async function loadSubtitles(ffmpeg, node, clipInfo, signal) {
     await ffmpeg.writeFile(`${FONTS_DIR}/${SUBTITLE_FONT.file}`, new Uint8Array(await font.arrayBuffer()), {
       signal,
     });
-    const ass = buildAss({ events, ...outputFrameSize(clipInfo) });
+    const ass = buildAss({ events, countdowns, ...outputFrameSize(clipInfo) });
     await ffmpeg.writeFile(SUBTITLE_PATH, new TextEncoder().encode(ass), { signal });
   } catch (error) {
     if (error?.name === 'AbortError') throw error;
@@ -231,6 +245,13 @@ export async function exportTimelineMp4WithFFmpeg(
         transition: node.data.transition,
         subtitles,
         clipAudio,
+        cueSound: cueExpression(
+          buildAudioCues({
+            clips: timelineClips(clipInfo),
+            transition: node.data.transition,
+            fx: node.data.learningFx,
+          }),
+        ),
       });
       button.textContent = 'Đang mã hoá MP4…';
       setRunStatus(

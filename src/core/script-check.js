@@ -7,10 +7,11 @@ import {
   parseVoiceLines,
   stripHighlights,
 } from './scene-script.js';
+import { scheduleVoices } from './ffmpeg-plan.js';
+import { MUSE_VIDEO_SECONDS } from './node-defs.js';
 
 const GENERAL_RULE_NAMES = new Set(['chung', 'tất cả', 'tat ca', 'all', 'everyone']);
 const MAX_MUSE_SECONDS = 10;
-const VOICE_GAP_SECONDS = 0.35;
 const MAX_SUBTITLE_CHARS = 70;
 const NEGATION =
   /(?<![\p{L}])(?:tháo|bỏ|cởi|gỡ|không\s+(?:đeo|mặc|có|để|cầm|mang)|without|no|remove[sd]?|take[sn]?\s+off)\s+([^,.;:!?\n]{2,30})/giu;
@@ -121,10 +122,10 @@ export function checkEpisode(script) {
     if (bilingual)
       for (const line of lines) for (const message of subtitleIssues(line)) add('warn', scene, message);
     if (lines.length) {
-      const speech =
-        lines.reduce((sum, line) => sum + estimateSpeechSeconds(line.text), 0) +
-        VOICE_GAP_SECONDS * (lines.length - 1) +
-        0.5;
+      const speech = scheduleVoices(
+        lines.map(line => estimateSpeechSeconds(line.text)),
+        lines.map(line => line.pauseAfter || 0),
+      ).length;
       if (speech > scene.seconds + 0.5)
         add(
           'warn',
@@ -132,6 +133,12 @@ export function checkEpisode(script) {
           `Lời thoại cần khoảng ${speech.toFixed(1)} giây nhưng cảnh chỉ dài ${scene.seconds} giây; clip sẽ được kéo dài bằng cách giữ khung hình cuối.`,
         );
     }
+    if (scene.seconds <= MAX_MUSE_SECONDS && !MUSE_VIDEO_SECONDS.includes(scene.seconds))
+      add(
+        'warn',
+        scene,
+        `Cảnh dài ${scene.seconds} giây nhưng Muse chỉ làm clip ${MUSE_VIDEO_SECONDS.join(', ')} giây; clip ${Math.min(...MUSE_VIDEO_SECONDS.filter(value => value >= scene.seconds))} giây sẽ bị cắt bớt đuôi, dễ gây giật ở chỗ nối cảnh. Hãy cho cảnh dài đúng ${MUSE_VIDEO_SECONDS.join(', ')} giây.`,
+      );
     if (scene.seconds > MAX_MUSE_SECONDS)
       add(
         'warn',

@@ -16,6 +16,7 @@ const browserGlobals = Object.fromEntries(
     'history',
     'CustomEvent',
     'Blob',
+    'atob',
     'File',
     'FileReader',
     'Image',

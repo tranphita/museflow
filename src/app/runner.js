@@ -17,6 +17,7 @@ import { synthesizeSpeech, missingTtsKeyProvider } from './tts-client.js';
 import { openTtsKeySettings } from './tts-settings-ui.js';
 import { startRun, markStep, finishRun, showRunPanel, stepLabel, setStepRestarter } from './run-panel.js';
 import { buildMusePrompt, buildRefusalRetryPrompt, isRatioMismatch } from '../core/prompts.js';
+import { dialogueTiming } from '../core/ffmpeg-plan.js';
 import { recordGeneration } from '../core/history.js';
 import { APP_NAME, APP_VERSION } from './app-info.js';
 import { $, runStatus, setRunStatus } from './dom.js';
@@ -111,19 +112,40 @@ export function voiceoverText(node) {
   return (source ? resolveText(source.id) : String(node.data.text || '')).trim();
 }
 
+function clipDialogue(videoNode) {
+  const voices = getIncoming(videoNode.id, 'voice')
+    .map(edge => sourceFor(edge))
+    .filter(voice => voice?.data?.asset?.url && Number(voice.data.asset.duration) > 0);
+  return dialogueTiming(
+    voices.map(voice => ({
+      speaker: voice.data.speaker,
+      text: voiceoverText(voice),
+      duration: voice.data.asset.duration,
+      pauseAfter: voice.data.pauseAfter,
+    })),
+  );
+}
+
 async function runVoiceover(node, signal) {
   node.data.status = 'running';
   node.data.error = '';
   render();
   setRunStatus(`Đang tạo lồng tiếng: ${node.data.customName || node.data.sceneLabel || node.id}`, 'warn');
   try {
-    const url = await synthesizeSpeech(voiceoverText(node), {
+    const { url, words } = await synthesizeSpeech(voiceoverText(node), {
       voiceId: node.data.voiceId,
       speed: node.data.speed,
       signal,
     });
     const duration = await audioDuration(url);
-    node.data.asset = { id: uid('voice'), kind: 'audio', url, name: `Lồng tiếng ${node.id}`, duration };
+    node.data.asset = {
+      id: uid('voice'),
+      kind: 'audio',
+      url,
+      name: `Lồng tiếng ${node.id}`,
+      duration,
+      ...(words.length ? { words } : {}),
+    };
     node.data.status = 'success';
     render();
   } catch (error) {
@@ -268,6 +290,9 @@ async function generateNode(node, { again, signal, progressLabel, tabId }) {
       characterNames: referenceImages.map(item => item.character),
       nextShot: isVideo ? node.data.nextShot || '' : '',
       continuityRules: node.data.continuityRules || [],
+      filmStyle: node.data.filmStyle || '',
+      dialogue: isVideo ? clipDialogue(node) : [],
+      setReferences: referenceImages.flatMap((item, index) => (item.role === 'set' ? [index] : [])),
     });
     const cooldownMs = (Number(state.settings?.cooldownSec) || 0) * 1000;
     if (cooldownMs) await abortableDelay(cooldownMs, signal);

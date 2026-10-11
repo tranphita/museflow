@@ -87,6 +87,13 @@ function mergeLines(previous, line) {
   if (subtitle) previous.subtitle = subtitle;
 }
 
+const PAUSE_LINE = /^[([]\s*(?:nghỉ|dừng|pause)\s+(\d+(?:[.,]\d+)?)\s*(?:giây|s|sec|seconds?)?\s*[)\]]$/i;
+
+export function parsePauseLine(line) {
+  const match = PAUSE_LINE.exec(line.trim());
+  return match ? Number(match[1].replace(',', '.')) : 0;
+}
+
 export function parseVoiceLines(voiceText, speakerNames = []) {
   const known = new Set(speakerNames.map(name => name.normalize('NFC').toLowerCase()));
   const unquote = line => line.replace(/^["“”']+|["“”']+$/g, '').trim();
@@ -95,6 +102,8 @@ export function parseVoiceLines(voiceText, speakerNames = []) {
     .map(line => line.replace(/^\s*[-*•]\s+|^\s*[-•]/, '').trim())
     .filter(Boolean)
     .map(line => {
+      const pause = parsePauseLine(line);
+      if (pause) return { pause };
       const spoken = /^([^:\n]{1,40}?)\s*:\s*(.+)$/.exec(line);
       return spoken && known.has(spoken[1].trim().normalize('NFC').toLowerCase())
         ? { speaker: spoken[1].trim(), ...bilingual(unquote(spoken[2])) }
@@ -103,7 +112,10 @@ export function parseVoiceLines(voiceText, speakerNames = []) {
   const merged = [];
   for (const line of lines) {
     const previous = merged.at(-1);
-    if (previous && !line.speaker && !previous.speaker) mergeLines(previous, line);
+    if (line.pause) {
+      if (previous) previous.pauseAfter = (previous.pauseAfter || 0) + line.pause;
+    } else if (previous && !line.speaker && !previous.speaker && !previous.pauseAfter)
+      mergeLines(previous, line);
     else merged.push(line);
   }
   return merged.filter(line => line.text);
@@ -137,6 +149,22 @@ export function parseSubtitleMode(text) {
 
 export function parseAvoid(text) {
   return /^\s*(?:TRÁNH|AVOID)\s*:\s*(.+?)\s*$/im.exec(scriptPreamble(text))?.[1] || '';
+}
+
+export function parseMasterShot(text) {
+  return /^\s*(?:BỐI\s+CẢNH\s+CHÍNH|MASTER\s+SHOT)\s*:\s*(.+?)\s*$/im.exec(scriptPreamble(text))?.[1] || '';
+}
+
+const LEARNING_FX_WORDS = [
+  ['karaoke', /karaoke/i],
+  ['countdown', /đếm\s*ngược|countdown/i],
+  ['pop', /(?<![\p{L}])pop(?![\p{L}])/iu],
+];
+
+export function parseLearningFx(text) {
+  const value =
+    /^\s*(?:HIỆU\s+ỨNG\s+HỌC|LEARNING\s+FX)\s*:\s*(.+?)\s*$/im.exec(scriptPreamble(text))?.[1] || '';
+  return LEARNING_FX_WORDS.filter(([, pattern]) => pattern.test(value)).map(([name]) => name);
 }
 
 export function parseFilmStyle(text) {

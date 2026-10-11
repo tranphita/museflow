@@ -1,6 +1,6 @@
 TIÊU ĐỀ: Chuẩn bị đi học — Where is my…?
 
-CẢNH 1 (0:00–0:07): Hook — tìm đồ cuống cuồng
+CẢNH 1 (0:00–0:08): Hook — tìm đồ cuống cuồng
 Nhân vật: Mommy, Mia
 Prompt ảnh: Phòng ngủ của Mia buổi sáng hơi bừa bộn, Mia đứng giữa phòng ôm đầu hoảng hốt, chiếc ba lô màu vàng mở toang trên giường, Mommy đứng ở cửa phòng khoanh tay mỉm cười
 Prompt video: Mia chạy lăng xăng quanh phòng, lật gối, nhìn quanh và kêu lên hốt hoảng. Mommy tựa cửa, lắc đầu cười hiền rồi gọi con. Máy quay trung cảnh, lia theo Mia rồi dừng ở Mommy.
@@ -9,7 +9,7 @@ Lời thoại:
 - Mommy: Slow down, Mia. Ask me nicely. | Từ từ nào Mia. Hỏi mẹ cho rõ nhé.
 Audio: chỉ tiếng môi trường nhẹ, tiếng bước chân chạy, tiếng động tự nhiên theo hành động như bước chân và đồ vật, không giọng người, không tiếng cảm thán, không nhạc
 
-CẢNH 2 (0:07–0:14): Mẹ dạy mẫu câu
+CẢNH 2 (0:08–0:16): Mẹ dạy mẫu câu
 Nhân vật: Mommy, Mia
 Prompt ảnh: Mommy ngồi xổm ngang tầm Mia, đặt hai tay lên vai con, Mia đứng thở phào lắng nghe
 Prompt video: Mommy nói chậm rõ từng chữ, Mia nhắc lại rồi tự tin hỏi. Mommy chỉ tay về phía gầm giường. Máy quay cận trung hai mẹ con.
@@ -19,7 +19,7 @@ Lời thoại:
 - Mommy: Under your bed! | Dưới gầm giường kìa!
 Audio: chỉ tiếng môi trường nhẹ, tiếng động tự nhiên theo hành động như bước chân và đồ vật, không giọng người, không tiếng cảm thán, không nhạc
 
-CẢNH 3 (0:14–0:21): Luyện 1 — hộp bút
+CẢNH 3 (0:16–0:24): Luyện 1 — hộp bút
 Nhân vật: Mommy, Mia
 Prompt ảnh: Mia cầm chiếc ba lô màu vàng, nhìn quanh tìm đồ, Mommy đứng cạnh bàn học chỉ vào hộp bút màu xanh dương trên bàn
 Prompt video: Mia khoác ba lô lên vai, quay sang hỏi mẹ. Mommy chỉ vào hộp bút trên bàn học, Mia chạy lại cất vào cặp. Máy quay ngang tầm Mia, lia theo bước chạy.
@@ -28,7 +28,7 @@ Lời thoại:
 - Mommy: It's on your desk. | Ở trên bàn học đó con.
 Audio: chỉ tiếng môi trường nhẹ, tiếng khoá kéo ba lô, tiếng động tự nhiên theo hành động như bước chân và đồ vật, không giọng người, không tiếng cảm thán, không nhạc
 
-CẢNH 4 (0:21–0:28): Luyện 2 — đôi giày
+CẢNH 4 (0:24–0:32): Luyện 2 — đôi giày
 Nhân vật: Mommy, Mia
 Prompt ảnh: Hành lang trước cửa nhà, Mia đi tất trắng đứng nhìn kệ giày, Mommy cầm đôi sneaker trắng viền đỏ giơ lên
 Prompt video: Mia nhìn kệ giày rồi hỏi mẹ. Mommy giơ đôi sneaker lên, giơ hai ngón tay giải thích. Mia gật đầu hiểu ý rồi xỏ giày. Máy quay trung cảnh hành lang.
@@ -37,7 +37,7 @@ Lời thoại:
 - Mommy: Good! Two things? Say *where are*. | Giỏi! Hai món thì nói *where are* nhé.
 Audio: chỉ tiếng môi trường nhẹ, tiếng động tự nhiên theo hành động như bước chân và đồ vật, không giọng người, không tiếng cảm thán, không nhạc
 
-CẢNH 5 (0:28–0:35): Twist — cái ôm đâu rồi
+CẢNH 5 (0:32–0:40): Twist — cái ôm đâu rồi
 Nhân vật: Mommy, Mia
 Prompt ảnh: Mia đã đeo ba lô và mang giày, đứng ở cửa dang rộng hai tay nhìn Mommy tinh nghịch, Mommy cúi xuống mỉm cười trìu mến
 Prompt video: Mia dang tay, nghiêng đầu hỏi tinh nghịch. Mommy bật cười, ôm chặt con vào lòng, hai mẹ con đung đưa nhẹ. Máy quay đẩy chậm vào hai mẹ con.
@@ -46,7 +46,7 @@ Lời thoại:
 - Mommy: Right here! | Ngay đây nè!
 Audio: chỉ tiếng môi trường nhẹ, tiếng động tự nhiên theo hành động như bước chân và đồ vật, không giọng người, không tiếng cảm thán, không nhạc
 
-CẢNH 6 (0:35–0:42): Ôn lại
+CẢNH 6 (0:40–0:48): Ôn lại
 Nhân vật: Mommy, Mia
 Prompt ảnh: Mommy và Mia đứng trước cửa nhà, Mommy nhìn vào ống kính giơ một ngón tay rồi hai ngón tay, Mia đứng cạnh đeo ba lô
 Prompt video: Mommy nhìn vào ống kính, giơ một ngón tay khi nói câu đầu và hai ngón tay khi nói câu sau. Mia gật đầu theo từng câu. Máy quay trung cảnh, đứng yên.
@@ -55,10 +55,12 @@ Lời thoại:
 - Mommy: Many things: *Where are my…?* | Nhiều món: *… của con đâu rồi?*
 Audio: chỉ tiếng môi trường nhẹ, tiếng động tự nhiên theo hành động như bước chân và đồ vật, không giọng người, không tiếng cảm thán, không nhạc
 
-CẢNH 7 (0:42–0:50): Đến lượt bạn
+CẢNH 7 (0:48–0:58): Đến lượt bạn
 Nhân vật: Mommy, Mia
 Prompt ảnh: Mia đeo ba lô vàng đứng ở cửa nhìn vào ống kính cười tươi, Mommy đứng sau vẫy tay
-Prompt video: Mia nhìn vào ống kính, nói chậm và rõ rồi chờ đợi với nụ cười khích lệ. Mommy vẫy tay, Mia vẫy tay chào rồi bước ra cửa đi học. Máy quay lùi nhẹ ra trung cảnh.
+Prompt video: Mia nhìn vào ống kính, nói chậm và rõ rồi đưa tay về phía ống kính mời người xem nói theo, im lặng chờ khoảng ba giây với nụ cười khích lệ và gật đầu nhẹ. Mommy vẫy tay, Mia vẫy tay chào rồi bước ra cửa đi học. Máy quay lùi nhẹ ra trung cảnh.
 Lời thoại:
-- Mia: Your turn! Say it with me: *Where is my bag?* | Đến lượt bạn! Nói cùng Mia nhé: *Cặp của tớ đâu rồi?*
+- Mia: Your turn! Listen and say: *Where is my bag?* | Đến lượt bạn! Nghe rồi nói theo nhé: *Cặp của tớ đâu rồi?*
+- (nghỉ 3 giây)
+- Mommy: Great job! Bye-bye! | Giỏi lắm! Tạm biệt nhé!
 Audio: chỉ tiếng môi trường nhẹ, tiếng động tự nhiên theo hành động như bước chân và đồ vật, không giọng người, không tiếng cảm thán, không nhạc

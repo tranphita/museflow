@@ -6,19 +6,44 @@ const VOICE_GAP_SECONDS = 0.35;
 const VOICE_TAIL_SECONDS = 0.3;
 const round2 = value => Math.round(value * 100) / 100;
 
-export function scheduleVoices(voiceDurations) {
+export const MAX_VOICE_PAUSE_SECONDS = 6;
+const pauseAt = (pauses, index) => Math.max(0, Math.min(MAX_VOICE_PAUSE_SECONDS, Number(pauses[index]) || 0));
+
+export function scheduleVoices(voiceDurations, pauses = []) {
   const offsets = [];
   let cursor = VOICE_LEAD_SECONDS;
-  for (const duration of voiceDurations) {
+  voiceDurations.forEach((duration, index) => {
     offsets.push(round2(cursor));
-    cursor += (Number(duration) || 0) + VOICE_GAP_SECONDS;
-  }
-  const length = voiceDurations.length ? round2(cursor - VOICE_GAP_SECONDS + VOICE_TAIL_SECONDS) : 0;
+    cursor += (Number(duration) || 0) + Math.max(VOICE_GAP_SECONDS, pauseAt(pauses, index));
+  });
+  const last = voiceDurations.length - 1;
+  const length =
+    last >= 0
+      ? round2(
+          cursor -
+            Math.max(VOICE_GAP_SECONDS, pauseAt(pauses, last)) +
+            Math.max(VOICE_TAIL_SECONDS, pauseAt(pauses, last)),
+        )
+      : 0;
   return { offsets, length };
 }
 
-export function clipLengthForVoices(duration, voiceDurations) {
-  return Math.min(60, Math.max(duration, scheduleVoices(voiceDurations).length));
+export function dialogueTiming(voices) {
+  const durations = voices.map(voice => Number(voice.duration) || 0);
+  const { offsets } = scheduleVoices(
+    durations,
+    voices.map(voice => voice.pauseAfter),
+  );
+  return voices.map((voice, index) => ({
+    speaker: voice.speaker || '',
+    text: voice.text,
+    start: offsets[index],
+    end: round2(offsets[index] + durations[index]),
+  }));
+}
+
+export function clipLengthForVoices(duration, voiceDurations, pauses = []) {
+  return Math.min(60, Math.max(duration, scheduleVoices(voiceDurations, pauses).length));
 }
 
 export const TRANSITIONS = Object.freeze({
@@ -130,6 +155,7 @@ export function buildEncodeArgs({
   transition = null,
   subtitles = null,
   clipAudio = 'keep',
+  cueSound = '',
 }) {
   const { width, height } = outputFrameSize(clipInfo);
   const usesClipAudio = item => item.hasAudio && clipAudio !== 'mute';
@@ -218,6 +244,15 @@ export function buildEncodeArgs({
     // amix halves each input; doubling restores the clip audio to its original level.
     filters.push('[clipa][music]amix=inputs=2:duration=first:dropout_transition=0,volume=2[mixa]');
     audioOut = '[mixa]';
+  }
+
+  if (cueSound) {
+    const total = timelineLength(durations, transition);
+    filters.push(
+      `aevalsrc=exprs='${cueSound}':s=48000:c=stereo:d=${total.toFixed(3)},aformat=sample_fmts=fltp:channel_layouts=stereo[cues]`,
+      `${audioOut}[cues]amix=inputs=2:duration=first:dropout_transition=0,volume=2[cuea]`,
+    );
+    audioOut = '[cuea]';
   }
 
   let videoOut = '[outv]';

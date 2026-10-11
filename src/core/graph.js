@@ -249,7 +249,12 @@ export function resolveReferences(nodeId) {
       return;
     }
     if (source.data?.asset?.kind === 'image')
-      add(source.data.asset.url, source.data.asset.name, source.data.characterName || '');
+      add(
+        source.data.asset.url,
+        source.data.asset.name,
+        source.data.characterName || '',
+        source.data.setReference ? 'set' : undefined,
+      );
   };
   const node = nodeById(nodeId),
     previous = node?.type === 'generateVideo' && node.data?.continuity ? timelinePredecessor(nodeId) : null;
@@ -261,7 +266,7 @@ export function resolveReferences(nodeId) {
       'continuity',
     );
   for (const edge of getIncoming(nodeId, 'reference')) visit(nodeById(edge.source), edge.sourcePort);
-  const rank = { continuity: 0, character: 1, guide: 2 };
+  const rank = { continuity: 0, character: 1, set: 2, guide: 3 };
   return references
     .map((reference, index) => ({ reference, index }))
     .sort((a, b) => rank[a.reference.role] - rank[b.reference.role] || a.index - b.index)

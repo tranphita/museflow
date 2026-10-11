@@ -1,4 +1,4 @@
-import { uid, makeNode, isGenerator, DEFAULT_VOICE_ID } from './node-defs.js';
+import { uid, makeNode, isGenerator, DEFAULT_VOICE_ID, MUSE_VIDEO_SECONDS } from './node-defs.js';
 import { parseRules, rulesFor } from './script-check.js';
 import {
   parseSceneScript,
@@ -10,6 +10,8 @@ import {
   parseSubtitleMode,
   parseClipAudio,
   parseMusic,
+  parseMasterShot,
+  parseLearningFx,
   DEFAULT_SERIES_MUSIC_VOLUME,
   voiceFor,
   charactersForScene,
@@ -29,11 +31,8 @@ const edge = (source, sourcePort, target, targetPort) => ({
   targetPort,
 });
 
-function closestVideoDuration(seconds) {
-  return [5, 6, 8, 10].reduce(
-    (best, value) => (Math.abs(value - seconds) < Math.abs(best - seconds) ? value : best),
-    5,
-  );
+export function videoDurationFor(seconds) {
+  return MUSE_VIDEO_SECONDS.find(value => value >= seconds) ?? MUSE_VIDEO_SECONDS.at(-1);
 }
 
 export function buildSceneGraph(script, { baseY = 40, characterImages = {} } = {}) {
@@ -87,6 +86,7 @@ export function buildSceneGraph(script, { baseY = 40, characterImages = {} } = {
       sceneLabel: label,
       characterName: character.name,
       continuityRules: rulesFor(rules, [character.name]),
+      ...(filmStyle ? { filmStyle } : {}),
     };
     nodes.push(prompt, image);
     edges.push(edge(prompt.id, 'text', image.id, 'prompt'));
@@ -95,6 +95,35 @@ export function buildSceneGraph(script, { baseY = 40, characterImages = {} } = {
   const tallestCast = Math.max(1, ...cast.map(character => character.nodes.length));
   const scenesY = cast.length ? baseY + 620 + (tallestCast - 1) * 380 : baseY;
   const styleNote = filmStyle ? `Visual style for the whole film: ${filmStyle}.` : '';
+  const masterShot = parseMasterShot(script);
+  let masterImage = null;
+  if (masterShot) {
+    const x = 80 + cast.length * 650,
+      label = 'Bối cảnh chính';
+    const prompt = makeNode('prompt', x, baseY);
+    prompt.data = {
+      text: [
+        `Master wide shot of the set for this episode, no people in frame: ${masterShot}`,
+        'Show the whole space clearly with every prop in its starting place, eye-level camera, even soft light.',
+        styleNote,
+      ]
+        .filter(Boolean)
+        .join('\n\n'),
+      sceneLabel: label,
+    };
+    masterImage = makeNode('generateImage', x + 330, baseY);
+    masterImage.data = {
+      model: 'muse-image',
+      size: parseSceneScript(script)[0]?.size || '9:16',
+      status: 'idle',
+      sceneLabel: label,
+      setReference: true,
+      continuityRules: rules.general,
+      ...(filmStyle ? { filmStyle } : {}),
+    };
+    nodes.push(prompt, masterImage);
+    edges.push(edge(prompt.id, 'text', masterImage.id, 'prompt'));
+  }
   scenes.forEach((scene, index) => {
     const x = 80 + (index % 4) * 650,
       y = scenesY + Math.floor(index / 4) * rowHeight,
@@ -120,10 +149,12 @@ export function buildSceneGraph(script, { baseY = 40, characterImages = {} } = {
         status: 'idle',
         sceneLabel: label,
         continuityRules: sceneRules,
+        ...(filmStyle ? { filmStyle } : {}),
       };
       nodes.push(prompt, imageNode);
       edges.push(edge(prompt.id, 'text', imageNode.id, 'prompt'));
       connectCast(imageNode);
+      if (masterImage) edges.push(edge(masterImage.id, 'image', imageNode.id, 'reference'));
     }
     if (scene.videoPrompt) {
       const prompt = makeNode('prompt', x, y + 540);
@@ -132,12 +163,13 @@ export function buildSceneGraph(script, { baseY = 40, characterImages = {} } = {
       videoNode.data = {
         model: 'muse-video',
         size: scene.size,
-        duration: closestVideoDuration(scene.seconds),
+        duration: videoDurationFor(scene.seconds),
         continuity: videos.length > 0,
         nextShot: nextShotHint(scenes[index + 1]),
         status: 'idle',
         sceneLabel: label,
         continuityRules: sceneRules,
+        ...(filmStyle ? { filmStyle } : {}),
       };
       nodes.push(prompt, videoNode);
       edges.push(edge(prompt.id, 'text', videoNode.id, 'prompt'));
@@ -153,6 +185,7 @@ export function buildSceneGraph(script, { baseY = 40, characterImages = {} } = {
           sceneLabel: `${label}${line.speaker ? ` · ${line.speaker}` : ''} · ${order + 1}`,
           ...(line.speaker ? { speaker: line.speaker } : {}),
           ...(line.subtitle ? { subtitle: line.subtitle } : {}),
+          ...(line.pauseAfter ? { pauseAfter: line.pauseAfter } : {}),
         };
         nodes.push(voice);
         edges.push(edge(voice.id, 'audio', videoNode.id, 'voice'));
@@ -189,6 +222,7 @@ export function workflowFromScript(script, { characterImages = {}, music = null 
       ...(graph.videos.length > 1 ? { transition: { ...DEFAULT_FILM_TRANSITION } } : {}),
       ...(parseSubtitleMode(script) === 'bilingual' ? { subtitles: 'bilingual' } : {}),
       ...(parseClipAudio(script) !== 'keep' ? { clipAudio: parseClipAudio(script) } : {}),
+      ...(parseLearningFx(script).length ? { learningFx: parseLearningFx(script) } : {}),
       ...(music?.url
         ? {
             music: {

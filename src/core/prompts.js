@@ -21,6 +21,40 @@ export function sizeInstruction(size) {
   return `Output aspect ratio: ${size}. Match this frame shape exactly. ${compositionBySize[size] || 'Use a standard portrait composition.'}`;
 }
 
+const STYLIZED_STYLE = /hoạt\s*hình|animat|pixar|cartoon|anime|claymation|minh\s*hoạ|illustrat/i;
+const REALISTIC_STYLE = /người\s*thật|photoreal|live[\s-]*action/i;
+
+export function isStylizedStyle(filmStyle) {
+  return STYLIZED_STYLE.test(filmStyle || '') && !REALISTIC_STYLE.test(filmStyle || '');
+}
+
+export function styleLockInstruction(filmStyle) {
+  const style = String(filmStyle || '').trim();
+  if (!style) return '';
+  return [
+    `STYLE LOCK — the whole shot (people, food, props, background, lighting) stays in this one visual style from the first frame to the last: ${style}.`,
+    isStylizedStyle(style) &&
+      'Never switch to photorealistic, live-action or photographic rendering, not even for close-ups of food, hands or objects. If the opening frame or a reference looks more realistic, pull it back to this style immediately.',
+  ]
+    .filter(Boolean)
+    .join(' ');
+}
+
+const formatSeconds = value => (Math.round(value * 10) / 10).toFixed(1);
+
+export function lipSyncInstruction(dialogue) {
+  const lines = (dialogue || []).filter(line => String(line.text || '').trim());
+  if (!lines.length) return '';
+  return [
+    'LIP-SYNC — these lines are dubbed in afterwards at exactly these times (seconds from the start of this clip). During each window, animate that speaker visibly talking: the mouth forms these English words with natural syllable rhythm, the face turned toward the camera (front or three-quarter view) so the mouth stays visible. Outside their windows every character keeps the mouth closed or softly smiling and reacts silently. Keep the generated soundtrack free of voices.',
+    'LIVELY FACES — everyone blinks naturally every few seconds; the speaker gives small head nods and eyebrow lifts on stressed words; listeners nod, smile and shift their gaze between the speaker and what is being talked about instead of staring frozen.',
+    ...lines.map(
+      line =>
+        `- ${formatSeconds(line.start)}–${formatSeconds(line.end)} s · ${line.speaker || 'Narrator (off-screen, nobody lip-syncs)'}: "${line.text.trim()}"`,
+    ),
+  ].join('\n');
+}
+
 export function buildMusePrompt({
   mediaType,
   size,
@@ -33,20 +67,33 @@ export function buildMusePrompt({
   characterNames = [],
   nextShot = '',
   continuityRules = [],
+  filmStyle = '',
+  dialogue = [],
+  setReferences = [],
 }) {
   const plural = referenceCount === 1 ? '' : 's';
-  const characterLock = characterLockInstruction(characterNames, { continuityFrame });
+  const stylized = isStylizedStyle(filmStyle);
+  const characterLock = characterLockInstruction(characterNames, {
+    continuityFrame,
+    stylized,
+    setReferences,
+  });
+  const setLock = setLockInstruction(setReferences);
+  const styleLock = styleLockInstruction(filmStyle);
   const rules = continuityRulesInstruction(continuityRules);
   if (mediaType === 'video') {
     const sections = [
       `Create a ${size} aspect ratio video clip, ${duration} seconds long. ${sizeInstruction(size)}`,
+      styleLock,
       characterLock,
+      setLock,
       rules,
       AUDIO_REQUIRED,
       continuityFrame && CONTINUITY_LOCK,
       referenceCount &&
         `Use the attached reference image${plural} as visual guidance${continuityFrame ? ' while keeping image 1 as the exact opening frame.' : '.'}`,
       `Prompt: ${prompt}`,
+      lipSyncInstruction(dialogue),
       nextShot &&
         `ENDING: Finish on a steady, well-composed frame that flows naturally into the next shot (${nextShot}). Avoid an abrupt cut, fade, or camera jump in the final second.`,
       negativePrompt && `Avoid: ${negativePrompt}`,
@@ -56,7 +103,9 @@ export function buildMusePrompt({
     return sections.filter(Boolean).join('\n\n');
   }
   const sections = [
+    styleLock,
     characterLock,
+    setLock,
     rules,
     prompt,
     referenceCount &&
@@ -68,20 +117,46 @@ export function buildMusePrompt({
   return sections.filter(Boolean).join('\n\n');
 }
 
-function imageList(indexes) {
+function imageList(indexes, kind = 'real photo') {
   const labels = indexes.map(index => `#${index + 1}`);
-  return labels.length === 1
-    ? `Image ${labels[0]} is a real photo`
-    : `Images ${labels.join(', ')} are real photos`;
+  return labels.length === 1 ? `Image ${labels[0]} is a ${kind}` : `Images ${labels.join(', ')} are ${kind}s`;
 }
 
-export function characterLockInstruction(names, { continuityFrame = false } = {}) {
+function stylizedCharacterLock(people, { guides, continuityFrame }) {
+  return [
+    'IDENTITY LOCK — highest priority after the style lock:',
+    ...[...people].map(
+      ([name, indexes]) => `- ${imageList(indexes, 'character design reference')} of ${name}.`,
+    ),
+    "- Keep each character's design exactly as in their own reference: same face shape, eyes, eyebrows, nose, mouth, skin tone, hairstyle and hair colour, outfit colours and accessories, same apparent age and body proportions. Never mix designs between characters.",
+    '- Render every character, object and background in the film style of their reference; never turn anyone into a real person, a photograph or live-action footage.',
+    guides &&
+      '- Any other attached image is a composition guide only: use it for setting, framing and pose, never for character designs.',
+    continuityFrame &&
+      '- If the opening frame drifts from a design or from the film style, correct it to match the references within the first moments.',
+  ]
+    .filter(Boolean)
+    .join('\n');
+}
+
+export function setLockInstruction(indexes = []) {
+  if (!indexes.length) return '';
+  return `SET LOCK — ${imageList(indexes, 'master shot')} of this episode's set. Keep the same room, furniture, props and food in the same places, colours and lighting; reframe it closer or wider for this shot as a camera would. Props only appear, move or disappear when the prompt says someone moves them. Never take people or faces from it.`;
+}
+
+export function characterLockInstruction(
+  names,
+  { continuityFrame = false, stylized = false, setReferences = [] } = {},
+) {
   const people = new Map();
   names.forEach((name, index) => {
     if (name) people.set(name, [...(people.get(name) || []), index]);
   });
   if (!people.size) return '';
-  const guides = names.some((name, index) => !name && !(continuityFrame && index === 0));
+  const guides = names.some(
+    (name, index) => !name && !(continuityFrame && index === 0) && !setReferences.includes(index),
+  );
+  if (stylized) return stylizedCharacterLock(people, { guides, continuityFrame });
   return [
     'IDENTITY LOCK — highest priority, overrides every other instruction:',
     ...[...people].map(([name, indexes]) => `- ${imageList(indexes)} of ${name}.`),

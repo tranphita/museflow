@@ -7,6 +7,7 @@ import {
   resolveTtsVoice,
   ttsConcurrency,
 } from '../core/tts-voice.js';
+import { wordsFromAlignment } from '../core/learning-fx.js';
 
 const TTS_BASE = 'https://tvoiceai.com';
 const ELEVENLABS_BASE = 'https://api.elevenlabs.io';
@@ -171,10 +172,10 @@ export async function synthesizeSpeech(text, { voiceId, speed = 1, signal, onPro
 
 async function synthesizeElevenLabs(text, { apiKey, voiceId, model, speed, signal }) {
   const reply = await fetchTts(
-    `${ELEVENLABS_BASE}/v1/text-to-speech/${encodeURIComponent(voiceId)}?output_format=mp3_44100_128`,
+    `${ELEVENLABS_BASE}/v1/text-to-speech/${encodeURIComponent(voiceId)}/with-timestamps?output_format=mp3_44100_128`,
     {
       method: 'POST',
-      headers: { 'xi-api-key': apiKey, 'Content-Type': 'application/json', Accept: 'audio/mpeg' },
+      headers: { 'xi-api-key': apiKey, 'Content-Type': 'application/json', Accept: 'application/json' },
       body: JSON.stringify({ text, model_id: model, voice_settings: { speed: elevenLabsSpeed(speed) } }),
       signal,
     },
@@ -187,8 +188,13 @@ async function synthesizeElevenLabs(text, { apiKey, voiceId, model, speed, signa
       `Lỗi dịch vụ lồng tiếng (HTTP ${reply.status}): ElevenLabs ${typeof detail === 'string' ? detail : 'yêu cầu thất bại'}`,
     );
   }
-  if (!reply.blob.size) throw new Error('File lồng tiếng bị rỗng.');
-  return URL.createObjectURL(reply.blob);
+  const body = await replyJson(reply);
+  if (!body.audio_base64) throw new Error('File lồng tiếng bị rỗng.');
+  const audio = Uint8Array.from(atob(body.audio_base64), character => character.charCodeAt(0));
+  return {
+    url: URL.createObjectURL(new Blob([audio], { type: 'audio/mpeg' })),
+    words: wordsFromAlignment(body.alignment),
+  };
 }
 
 async function synthesizeTvoiceai(text, { apiKey, voiceId, speed, signal, onProgress }) {
@@ -208,7 +214,7 @@ async function synthesizeTvoiceai(text, { apiKey, voiceId, speed, signal, onProg
       if (!audio.ok) throw new Error(`Không tải được file lồng tiếng (HTTP ${audio.status}).`);
       const blob = await audio.blob();
       if (!blob.size) throw new Error('File lồng tiếng bị rỗng.');
-      return URL.createObjectURL(blob);
+      return { url: URL.createObjectURL(blob), words: [] };
     }
     if (/error|fail/i.test(status.status || ''))
       throw new Error(

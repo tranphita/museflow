@@ -1,5 +1,5 @@
 import { state } from '../core/state.js';
-import { nodeDefs, isMultiInput, DEFAULT_VOICE_ID } from '../core/node-defs.js';
+import { nodeDefs, isMultiInput, DEFAULT_VOICE_ID, MUSE_VIDEO_SECONDS } from '../core/node-defs.js';
 import { DEFAULT_TTS_PROVIDER, TTS_PROVIDERS } from '../core/tts-voice.js';
 import { nodeById, getIncoming, sourceFor, portCompatible, duplicateNodesForDrag } from '../core/graph.js';
 import { clampDimension } from '../core/media-math.js';
@@ -206,7 +206,7 @@ export function renderNode(n) {
     ratio.value = ['16:9', '9:16', '1:1'].includes(n.data.size) ? n.data.size : '16:9';
     ratio.onchange = () => (n.data.size = ratio.value);
     const duration = document.createElement('select');
-    [5, 6, 8, 10].forEach(v => {
+    MUSE_VIDEO_SECONDS.forEach(v => {
       const o = document.createElement('option');
       o.value = String(v);
       o.textContent = `${v}s`;
