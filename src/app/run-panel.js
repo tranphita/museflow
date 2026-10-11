@@ -11,6 +11,12 @@ const ICONS = { pending: '○', running: '⏳', done: '✓', error: '✗', skipp
 const FINISHED = new Set(['done', 'error', 'skipped', 'kept', 'stopped']);
 let ticker = 0;
 const stepListeners = new Set();
+let restartStep = null;
+
+export function setStepRestarter(restarter) {
+  restartStep = restarter;
+  renderRunPanel();
+}
 
 export function onRunStep(listener) {
   stepListeners.add(listener);
@@ -46,7 +52,7 @@ export function startRun(nodeIds, { single = false } = {}) {
     })),
   };
   clearInterval(ticker);
-  ticker = setInterval(renderRunPanel, 1000);
+  ticker = setInterval(tickRunPanel, 1000);
   renderRunPanel();
 }
 
@@ -113,15 +119,34 @@ function summary(run) {
   return failed ? `Xong sau ${elapsed}, có ${failed} bước bị lỗi` : `Xong cả ${total} bước trong ${elapsed}`;
 }
 
+const stepClock = step => (step.startedAt ? formatTime((step.endedAt || Date.now()) - step.startedAt) : '');
+
+function renderRunTitle(run) {
+  document.title =
+    run?.outcome === 'running'
+      ? `▶ ${Math.min(counts(run).finished + 1, counts(run).total)}/${counts(run).total} · ${APP_NAME}`
+      : APP_NAME;
+}
+
+// The step list is rebuilt only when a step changes, so its buttons stay clickable between ticks.
+function tickRunPanel() {
+  const run = state.run,
+    list = $('#runPanelSteps');
+  if (!run || !list) return;
+  renderRunTitle(run);
+  $('#runPanelSummary').textContent = summary(run);
+  for (const step of run.steps) {
+    const clock = list.querySelector(`[data-step-id="${CSS.escape(step.id)}"] .run-step-clock`);
+    if (clock) clock.textContent = stepClock(step);
+  }
+}
+
 export function renderRunPanel() {
   const panel = $('#runPanel'),
     run = state.run;
   if (!panel) return;
   panel.classList.toggle('hidden', !run || panel.dataset.dismissed === 'true');
-  document.title =
-    run?.outcome === 'running'
-      ? `▶ ${Math.min(counts(run).finished + 1, counts(run).total)}/${counts(run).total} · ${APP_NAME}`
-      : APP_NAME;
+  renderRunTitle(run);
   if (!run) return;
   const { finished, total } = counts(run);
   panel.className = `run-panel run-${run.outcome}${panel.classList.contains('hidden') ? ' hidden' : ''}`;
@@ -134,6 +159,7 @@ export function renderRunPanel() {
     ...run.steps.map(step => {
       const item = document.createElement('li');
       item.className = `run-step run-step-${step.status}`;
+      item.dataset.stepId = step.id;
       item.title = step.error || 'Hiện node này trên canvas';
       const icon = document.createElement('span');
       icon.className = 'run-step-icon';
@@ -143,7 +169,24 @@ export function renderRunPanel() {
       label.textContent = step.label;
       const time = document.createElement('span');
       time.className = 'run-step-time';
-      time.textContent = step.startedAt ? formatTime((step.endedAt || Date.now()) - step.startedAt) : '';
+      const clock = document.createElement('span');
+      clock.className = 'run-step-clock';
+      clock.textContent = stepClock(step);
+      time.appendChild(clock);
+      if (restartStep && step.status === 'running' && run.outcome === 'running') {
+        const restart = document.createElement('button');
+        restart.type = 'button';
+        restart.className = 'run-step-restart';
+        restart.textContent = '↻';
+        restart.title =
+          'Bước này bị treo? Dừng riêng bước này và chạy lại từ đầu; các bước khác vẫn chạy tiếp.';
+        restart.setAttribute('aria-label', `Dừng và chạy lại ${step.label}`);
+        restart.onclick = event => {
+          event.stopPropagation();
+          restartStep(step.id);
+        };
+        time.appendChild(restart);
+      }
       item.append(icon, label, time);
       if (step.error && ['error', 'skipped'].includes(step.status)) {
         const error = document.createElement('div');

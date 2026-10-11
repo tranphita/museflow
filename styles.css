@@ -2519,8 +2519,26 @@ body {
   white-space: nowrap;
 }
 .run-step-time {
+  display: flex;
+  align-items: center;
+  gap: 6px;
   color: #7d8190;
   font-variant-numeric: tabular-nums;
+}
+.run-step-restart {
+  padding: 1px 7px;
+  border: 1px solid #4b4470;
+  border-radius: 6px;
+  background: #2f2851;
+  color: #e6e1ff;
+  font-size: 12px;
+  line-height: 1.4;
+  cursor: pointer;
+}
+.run-step-restart:hover {
+  background: #8268ff;
+  border-color: #8268ff;
+  color: #fff;
 }
 .run-step-pending {
   color: #6f7380;

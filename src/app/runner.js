@@ -15,7 +15,7 @@ import {
 } from '../core/graph.js';
 import { synthesizeSpeech, missingTtsKeyProvider } from './tts-client.js';
 import { openTtsKeySettings } from './tts-settings-ui.js';
-import { startRun, markStep, finishRun, showRunPanel, stepLabel } from './run-panel.js';
+import { startRun, markStep, finishRun, showRunPanel, stepLabel, setStepRestarter } from './run-panel.js';
 import { buildMusePrompt, buildRefusalRetryPrompt, isRatioMismatch } from '../core/prompts.js';
 import { recordGeneration } from '../core/history.js';
 import { APP_NAME, APP_VERSION } from './app-info.js';
@@ -254,6 +254,7 @@ async function generateNode(node, { again, signal, progressLabel, tabId }) {
   publishToPreviews(node);
   render();
   setRunStatus(`${progressLabel} · đang tạo ${mediaWord}: ${stepLabel(node)}`, 'warn');
+  let museRequestId = '';
   try {
     const musePrompt = buildMusePrompt({
       mediaType,
@@ -287,6 +288,7 @@ async function generateNode(node, { again, signal, progressLabel, tabId }) {
         timeoutSec: 600,
       };
       state.generationRequestId = request.requestId;
+      museRequestId = request.requestId;
       try {
         reply = await requestMuseMedia(node, request, signal, tabId);
         break;
@@ -323,6 +325,7 @@ async function generateNode(node, { again, signal, progressLabel, tabId }) {
     render();
   } catch (err) {
     if (isAbort(err, signal)) {
+      if (museRequestId) void sendMuseStop(museRequestId);
       node.data.status = 'stopped';
       node.data.error = 'Đã dừng tạo theo yêu cầu của bạn.';
       render();
@@ -439,28 +442,49 @@ export async function execute(targetId = null, { again = false } = {}) {
     const stopRun = () => runController.abort();
     signal.addEventListener('abort', stopRun, { once: true });
     const pending = [...order],
-      running = new Map();
+      running = new Map(),
+      stepControllers = new Map(),
+      restarting = new Set();
     let fatal = null;
+    setStepRestarter(id => {
+      const controller = stepControllers.get(id);
+      if (!controller || controller.signal.aborted || runController.signal.aborted) return;
+      restarting.add(id);
+      controller.abort();
+      setRunStatus(`Đã dừng và đang chạy lại: ${stepLabel(nodeById(id))}`, 'warn');
+    });
     const startStep = node => {
       const lane = laneOf(node),
         tabId = lane === 'muse' ? tabPool.shift() : undefined;
       busy[lane]++;
       markStep(node.id, 'running');
+      const stepController = new AbortController();
+      stepControllers.set(node.id, stepController);
+      const stepSignal = AbortSignal.any([runController.signal, stepController.signal]);
+      const generationNumber = isGenerator(node) ? ++generationStep : 0;
       const work =
         node.type === 'imageResize'
           ? runImageResize(node)
           : node.type === 'voiceover'
-            ? runVoiceover(node, runController.signal)
+            ? runVoiceover(node, stepSignal)
             : generateNode(node, {
                 again,
-                signal: runController.signal,
+                signal: stepSignal,
                 tabId,
-                progressLabel: targetId ? 'Node đã chọn' : `Lượt tạo ${++generationStep}/${totalGenerations}`,
+                progressLabel: targetId ? 'Node đã chọn' : `Lượt tạo ${generationNumber}/${totalGenerations}`,
               });
+      let requeued = false;
       const task = work
         .then(
           () => markStep(node.id, 'done'),
           error => {
+            if (restarting.delete(node.id) && !runController.signal.aborted) {
+              requeued = true;
+              if (generationNumber) generationStep--;
+              markStep(node.id, 'pending');
+              pending.unshift(node.id);
+              return;
+            }
             const stopped = isAbort(error, runController.signal);
             markStep(node.id, stopped ? 'stopped' : 'error', error?.message || String(error));
             failed.add(node.id);
@@ -471,7 +495,9 @@ export async function execute(targetId = null, { again = false } = {}) {
         .finally(() => {
           busy[lane]--;
           if (lane === 'muse') tabPool.push(tabId);
-          settled.add(node.id);
+          stepControllers.delete(node.id);
+          restarting.delete(node.id);
+          if (!requeued) settled.add(node.id);
           running.delete(node.id);
         });
       running.set(node.id, task);
@@ -529,6 +555,7 @@ export async function execute(targetId = null, { again = false } = {}) {
       }
     } finally {
       signal.removeEventListener('abort', stopRun);
+      setStepRestarter(null);
     }
     if (signal.aborted) throw stoppedError();
     if (fatal) throw fatal;
